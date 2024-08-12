@@ -18,7 +18,15 @@ API para controle de Trabalhos de Conclusão de Curso (TCC)
 
 
 ## Instalar Bun
-curl -fsSL https://bun.sh/install | bash
+
+Linux/MacOS
+
+```curl -fsSL https://bun.sh/install | bash```
+
+Windows
+
+```powershell -c "irm bun.sh/install.ps1 | iex"```
+
 
 ## Instalar e rodar o projeto
 Instalar dependências
