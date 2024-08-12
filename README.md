@@ -22,13 +22,17 @@ curl -fsSL https://bun.sh/install | bash
 
 ## Instalar e rodar o projeto
 Instalar dependências
+
 ```bun install```
 
 Dev/watch
+
 ```bun run dev```
 
 Build
+
 ```bun run build```
 
 Start/prod
+
 ```bun run start```
