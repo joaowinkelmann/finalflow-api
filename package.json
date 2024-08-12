@@ -4,7 +4,8 @@
   "main": "dist/src/main",
   "scripts": {
     "build": "nest build",
-    "start:dev": "nest start --watch",
+    "dev": "nest start --watch",
+    "start": "bun .",
     "start:prod": "node ."
   },
   "keywords": [],
