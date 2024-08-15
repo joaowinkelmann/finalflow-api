@@ -1,0 +1,142 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model Usuario {
+  id            String  @id @default(uuid())
+  nome          String
+  email         String  @unique
+  senha         String
+  nivel_acesso  NivelAcesso
+  data_cadastro DateTime @default(now())
+  Aluno         Aluno?
+  Professor     Professor?
+}
+
+model Aluno {
+  id_aluno      String   @id @default(uuid())
+  matricula     Int
+  curso         String
+  idUsuario     String   @unique
+  usuario       Usuario  @relation(fields: [idUsuario], references: [id])
+  Orientador    Orientador[]
+  Banca         Banca[]
+}
+
+model Professor {
+  id_professor String   @id @default(uuid())
+  departamento String
+  usuarioId    String      @unique
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
+  Orientador   Orientador[]
+  Banca        Banca[]
+  Cronograma   Cronograma[]
+}
+
+model Orientador {
+  id_orientador String      @id @default(uuid())
+  professorId   String
+  alunoId       String
+  dataInicio    DateTime
+  dataFim       DateTime?
+  Professor     Professor @relation(fields: [professorId], references: [id_professor])
+  Aluno         Aluno     @relation(fields: [alunoId], references: [id_aluno])
+  Reuniao       Reuniao[]
+}
+
+model Cronograma {
+  id_cronograma String      @id @default(uuid())
+  coordenadorId String
+  descricao     String
+  dataInicio    DateTime
+  dataFim       DateTime
+  Professor     Professor @relation(fields: [coordenadorId], references: [id_professor])
+  Banca         Banca[]
+  Prazo         Prazo[]
+}
+
+model Banca {
+  id_banca      String      @id @default(uuid())
+  cronogramaId  String
+  alunoId       String
+  professor1Id  String
+  professor2Id  String
+  Cronograma    Cronograma @relation(fields: [cronogramaId], references: [id_cronograma])
+  Aluno         Aluno      @relation(fields: [alunoId], references: [id_aluno])
+  Professor1    Professor  @relation("professor1", fields: [professor1Id], references: [id_professor])
+  Professor2    Professor  @relation("professor2", fields: [professor2Id], references: [id_professor])
+  Avaliacao     Avaliacao[]
+}
+
+model Avaliacao {
+  id_avaliacao  String      @id @default(uuid())
+  bancaId       String
+  tipoAvaliacao TipoAvaliacao
+  criterio      String
+  nota          Float
+  comentario    String?
+  Banca         Banca     @relation(fields: [bancaId], references: [id_banca])
+}
+
+model Reuniao {
+  id_reuniao   String      @id @default(uuid())
+  orientadorId String
+  dataReuniao  DateTime
+  descricao    String
+  documento    String?
+  Orientador   Orientador @relation(fields: [orientadorId], references: [id_orientador])
+}
+
+model Prazo {
+  id_prazo     Int      @id @default(autoincrement())
+  cronogramaId String
+  tipoPrazo    TipoPrazo
+  dataLimite   DateTime
+  dataAvaliacaoLimite DateTime
+  Cronograma   Cronograma @relation(fields: [cronogramaId], references: [id_cronograma])
+  Alerta       Alerta[]
+}
+
+model Alerta {
+  id_alerta    Int      @id @default(autoincrement())
+  prazoId      Int
+  usuarioId    Int
+  mensagem     String
+  dataAlerta   DateTime
+  Prazo        Prazo     @relation(fields: [prazoId], references: [id_prazo])
+  Usuario      Usuario   @relation(fields: [usuarioId], references: [id])
+}
+
+// Enums
+
+enum NivelAcesso {
+  coordenador
+  professor
+  aluno
+}
+
+enum TipoAvaliacao {
+  Proposta
+  ReelaboracaoProposta
+  TC
+  ReelaboracaoTC
+}
+
+enum TipoPrazo {
+  EntregaProposta
+  ReelaboracaoProposta
+  EntregaTC
+  ReelaboracaoTC
+}
