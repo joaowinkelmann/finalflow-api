@@ -23,6 +23,7 @@ model Usuario {
   data_cadastro DateTime @default(now())
   Aluno         Aluno?
   Professor     Professor?
+  Coordenador   Coordenador?
 }
 
 model Aluno {
@@ -43,6 +44,13 @@ model Professor {
   Orientador   Orientador[]
   Banca        Banca[]
   Cronograma   Cronograma[]
+}
+
+model Coordenador {
+  id_coordenador String   @id @default(uuid())
+  departamento String
+  usuarioId    String      @unique
+  usuario      Usuario  @relation(fields: [usuarioId], references: [id])
 }
 
 model Orientador {
