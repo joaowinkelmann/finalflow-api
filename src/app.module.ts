@@ -32,7 +32,7 @@ dotenv.config();
     NotasModule,
     ReunioesModule,
     AlertasModule,
-    // Outros módulos aqui
+    Usuarios
   ],
 })
 export class AppModule {}
