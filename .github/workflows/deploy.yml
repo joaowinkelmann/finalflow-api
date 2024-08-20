@@ -1,0 +1,43 @@
+name: API NestJS Kurt
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    
+    workflow_dispatch:
+    
+jobs:
+    deploy:
+        name: Deploy over SSH
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Copy files with SSH
+              uses: easingthemes/ssh-deploy@main
+              env:
+                    SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+                    ARGS: "-rltgoDzvO --delete"
+                    SOURCE: "./"
+                    REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+                    REMOTE_USER: ${{ secrets.REMOTE_USER }}
+                    TARGET: "/var/www/html/api-nest-kurt/"
+                    EXCLUDE: "/node_modules/, **.env, .env.local, .gitignore, .git/, .github/, .scripts/, .vscode/"
+                    SCRIPT_BEFORE: |
+                        echo "===> Starting deployment"
+                        sudo systemctl stop nginx
+                        echo "Halting Node process..."
+                        cd /var/www/html/api-nest-kurt/
+                        .scripts/halt_ws.sh
+                    SCRIPT_AFTER: |
+                        whoami
+                        ls -al
+                        echo $RSYNC_STDOUT
+                        cd /var/www/html/api-nest-kurt/
+                        sudo systemctl start nginx
+                        echo "Starting Node process..."
+                        .scripts/run_ws.sh
+                        echo "===> Finished deployment"
