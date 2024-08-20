@@ -31,7 +31,7 @@ jobs:
                         sudo systemctl stop nginx
                         echo "Halting Node process..."
                         cd /var/www/html/api-nest-kurt/
-                        .scripts/halt_ws.sh
+                        .devops/halt.sh
                     SCRIPT_AFTER: |
                         whoami
                         ls -al
@@ -39,5 +39,5 @@ jobs:
                         cd /var/www/html/api-nest-kurt/
                         sudo systemctl start nginx
                         echo "Starting Node process..."
-                        .scripts/run_ws.sh
+                        .devops/run.sh
                         echo "===> Finished deployment"
