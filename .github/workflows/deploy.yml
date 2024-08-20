@@ -25,7 +25,7 @@ jobs:
                     REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
                     REMOTE_USER: ${{ secrets.REMOTE_USER }}
                     TARGET: "/var/www/html/api-nest-kurt/"
-                    EXCLUDE: "/node_modules/, **.env, .env.local, .gitignore, .git/, .github/, .scripts/, .vscode/"
+                    EXCLUDE: "/node_modules/, **.env, .env.local, .gitignore, .git/, .github/, .devops/, .vscode/"
                     SCRIPT_BEFORE: |
                         echo "===> Starting deployment"
                         sudo systemctl stop nginx
