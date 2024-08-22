@@ -1,0 +1,35 @@
+#!/usr/bin/bash
+
+# Export the path to bun
+export PATH="$HOME/.bun/bin:$PATH"
+
+# Source NVM and bun environments
+export NVM_DIR="$HOME/.config/nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+cd /var/www/html/api-nest-kurt/
+nvm install --lts
+nvm use --lts
+echo "Script running using Node $(node -v)"
+bun upgrade
+bun install
+bun update
+bun run build
+echo "Running Bun $(bun --revision)"
+
+# Prisma Specific
+bunx prisma generate
+# Prisma Specific END
+
+# Check if the application is already running
+if pm2 show api-kurt &> /dev/null; then
+  echo "Restarting api-kurt application..."
+  pm2 restart api-kurt
+else
+  # Start your Node.js application using PM2
+  echo "Starting api-kurt application..."
+  pm2 start bun --name "api-kurt" -- run start
+fi
+
+pm2 save
+pm2 startup
