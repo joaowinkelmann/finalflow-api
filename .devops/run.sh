@@ -17,8 +17,14 @@ bun update
 bun run build
 echo "Running Bun $(bun --revision)"
 
+# Trusting scripts
+# @link https://bun.sh/blog/bun-v1.0.31
+bun pm untrusted
+bun pm trust --all
+
 # Prisma Specific
 bunx prisma generate
+bunx prisma migrate dev
 # Prisma Specific END
 
 # Check if the application is already running
