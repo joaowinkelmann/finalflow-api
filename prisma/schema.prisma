@@ -26,14 +26,22 @@ model Usuario {
   Alerta        Alerta[]
 }
 
+model Curso {
+  id_curso String @id @default(uuid())
+  nome     String
+
+  Aluno Aluno[]
+}
+
 model Aluno {
   id_aluno   String       @id @default(uuid())
   matricula  Int
-  curso      String
   idUsuario  String       @unique
   usuario    Usuario      @relation(fields: [idUsuario], references: [id])
   Orientador Orientador[]
   Banca      Banca[]
+  Curso      Curso        @relation(fields: [cursoId], references: [id_curso])
+  cursoId    String
 }
 
 model Professor {
