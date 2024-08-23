@@ -17,9 +17,9 @@ export class CursosController {
     return this.cursosService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cursosService.findOne(+id);
+  @Get('/getStudents/:id')
+  findStudents(@Param('id') id: string) {
+    return this.cursosService.findStudents(id);
   }
 
   @Patch(':id')

@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { CreateCursoDto } from './dto/create-curso.dto';
-import { UpdateCursoDto } from './dto/update-curso.dto';
-import { PrismaService } from '../prisma/prisma.service';
+import { Injectable } from "@nestjs/common";
+import { CreateCursoDto } from "./dto/create-curso.dto";
+import { UpdateCursoDto } from "./dto/update-curso.dto";
+import { PrismaService } from "../prisma/prisma.service";
 
 @Injectable()
 export class CursosService {
@@ -12,8 +12,7 @@ export class CursosService {
       return await this.prisma.curso.create({
         data: createCursoDto,
       });
-    }
-    catch (error) {
+    } catch (error) {
       return error.message;
     }
   }
@@ -26,8 +25,29 @@ export class CursosService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} curso`;
+  async findStudents(id: string) {
+    try {
+      const cursos = await this.prisma.curso.findUnique({
+        where: {
+          id_curso: id,
+        },
+        include: {
+          Aluno: {
+            select: {
+              id_aluno: true,
+              matricula: true,
+              idUsuario: true,
+              cursoId: true,
+            },
+          },
+        },
+      });
+
+      // Retorna diretamente a resposta
+      return cursos;
+    } catch (error) {
+      return { error: error.message };
+    }
   }
 
   update(id: number, updateCursoDto: UpdateCursoDto) {
