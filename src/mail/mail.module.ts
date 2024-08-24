@@ -21,7 +21,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           },
         },
         defaults: {
-          from: configService.get<string>('SMTP_FROM'),
+          from: configService.get<string>('SMTP_FROM'), // Nome utilizado no envio, ex: 'Nome Empresa'
         },
       }),
       inject: [ConfigService],

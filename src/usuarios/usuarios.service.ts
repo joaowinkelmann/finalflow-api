@@ -3,9 +3,7 @@ import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
 import { MailerService } from "@nestjs-modules/mailer";
-import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
-import { decrypt } from "dotenv";
 
 @Injectable()
 export class UsuariosService {
@@ -29,8 +27,19 @@ export class UsuariosService {
       }
 
       const salt = await bcrypt.genSalt();
-      const senhaSemHash = createUsuarioDto.senha;
-      const hash = await bcrypt.hash(createUsuarioDto.senha, salt);
+
+      // cria uma senha aleatória caso não tenha sido informada
+      let senhaPrimeiroAcesso: string;
+      if (!createUsuarioDto.senha) {
+        // a senha precisa ter uma letra maiuscula, uma minuscula, um numero e um caractere especial
+        // senhaPrimeiroAcesso = Math.random().toString(36).slice(-6) + "bA1_";
+        senhaPrimeiroAcesso = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
+        console.log(senhaPrimeiroAcesso);
+      } else {
+        senhaPrimeiroAcesso = createUsuarioDto.senha;
+      }
+
+      const hash = await bcrypt.hash(senhaPrimeiroAcesso, salt);
 
       const user = await this.prisma.usuario.create({
         data: {
@@ -41,13 +50,13 @@ export class UsuariosService {
         },
       });
 
-      // Enviar e-mail após criar o aluno
+      // Enviar e-mail após criar o usuario
       await this.mailerService.sendMail({
         to: user?.email,
         subject: `Primeiro Acesso Ao Site: ${user?.nome}`,
         text: `Olá ${user?.nome}, seu cadastro foi criado com sucesso!
         Seu login é: ${user?.email}
-        Senha: ${senhaSemHash}`,
+        Senha: ${senhaPrimeiroAcesso}`,
       });
 
       return {

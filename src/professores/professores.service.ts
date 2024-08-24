@@ -5,7 +5,12 @@ import { UpdateProfessorDto } from './dto/update-professore.dto';
 @Injectable()
 export class ProfessoresService {
   create(createProfessoeDto: CreateProfessorDto) {
-    return 'This action adds a new professore';
+    // @todo criar usando o serviço de usuario, passando o nivel de acesso de professor
+
+
+
+
+    // return 'This action adds a new professore';
   }
 
   findAll() {

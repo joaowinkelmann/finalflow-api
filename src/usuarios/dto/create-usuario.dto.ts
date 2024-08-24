@@ -1,5 +1,5 @@
 import { NivelAcesso } from "@prisma/client";
-import { IsEmail, IsNotEmpty, IsStrongPassword } from "class-validator";
+import { IsEmail, IsNotEmpty, IsStrongPassword, IsOptional } from "class-validator";
 
 export class CreateUsuarioDto {
   @IsNotEmpty({
@@ -12,6 +12,7 @@ export class CreateUsuarioDto {
   })
   email: string;
 
+  @IsOptional()
   @IsStrongPassword({}, {
     message: "A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais",
   })
