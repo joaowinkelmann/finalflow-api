@@ -1,8 +1,16 @@
 import { PrismaClient } from '@prisma/client';
 import { NivelAcesso } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
+import * as dotenv from 'dotenv';
+
+dotenv.config();
+
 const prisma = new PrismaClient();
+const testPassword = process.env.USER_SEED_PASSWORD || '-v%*>IX>8PXU*7}<5#=.';
+const saltRounds = 10;
 
 async function main() {
+  const hashedPassword = await bcrypt.hash(testPassword, saltRounds);
 
   // para ter um usuario/aluno, precisamos primeiro ter um curso, entao vamos criar um padraozera
   const cienciaDaComputacao = await prisma.curso.upsert({
@@ -14,17 +22,56 @@ async function main() {
     },
   });
 
+  // COORDENADORA
+  const roberta = await prisma.usuario.upsert({
+    where: { email: "robertateste@appkurt.io" },
+    update: {},
+    create: {
+      id: '0',
+      email: 'robertateste@appkurt.io',
+      nome: 'Roberta Teste',
+      senha: hashedPassword,
+      nivel_acesso: NivelAcesso.coordenador,
+      data_cadastro: new Date()
+    },
+  });
+  
+  // PROFESSOR
   const amilton = await prisma.usuario.upsert({
     where: { email: "amiltonteste@appkurt.io"},
     update: {},
     create: {
-      id: '2',
+      id: '1',
       email: 'amiltonteste@appkurt.io',
       nome: 'Amilton Teste',
-      senha: '123456',
+      senha: hashedPassword,
       nivel_acesso: NivelAcesso.professor,
       data_cadastro: new Date()
     }
+  });
+
+  // ALUNO
+  const carlos = await prisma.usuario.upsert({
+    where: { email: "carlosteste@appkurt.io" },
+    update: {},
+    create: {
+      id: '2',
+      email: 'carlosteste@appkurt.io',
+      nome: 'Carlos Teste',
+      senha: hashedPassword,
+      nivel_acesso: NivelAcesso.aluno,
+      data_cadastro: new Date()
+      //   id            String       @id @default(uuid())
+      //   nome          String
+      //   email         String       @unique
+      //   senha         String
+      //   nivel_acesso  NivelAcesso
+      //   data_cadastro DateTime     @default(now())
+      //   Aluno         Aluno?
+      //   Professor     Professor?
+      //   Coordenador   Coordenador?
+      //   Alerta        Alerta[]
+    },
   });
 
   const professorAmilton = await prisma.professor.upsert({
@@ -43,31 +90,6 @@ async function main() {
       // Banca1       Banca[]      @relation("Professor1")
       // Banca2       Banca[]      @relation("Professor2")
     }
-  });
-
-  const carlos = await prisma.usuario.upsert({
-    where: { email: "carlosteste@appkurt.io" },
-    update: {},
-    create: {
-      id: '2',
-      email: 'carlosteste@appkurt.io',
-      nome: 'Carlos Teste',
-      senha: '123456',
-      nivel_acesso: NivelAcesso.aluno,
-      data_cadastro: new Date()
-      //   id            String       @id @default(uuid())
-      //   nome          String
-      //   email         String       @unique
-      //   senha         String
-      //   nivel_acesso  NivelAcesso
-      //   data_cadastro DateTime     @default(now())
-      //   Aluno         Aluno?
-      //   Professor     Professor?
-      //   Coordenador   Coordenador?
-      //   Alerta        Alerta[]
-    },
-  }).then((usuario) => {
-    console.log({ usuario });
   });
 
   const carlosAluno = await prisma.aluno.upsert({
