@@ -2,10 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AlunosService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+  ) {}
 
   async create(createAlunoDto: CreateAlunoDto) {
     try {
