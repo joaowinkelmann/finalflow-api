@@ -31,8 +31,8 @@ export class UsuariosController {
     return this.usuariosService.update(id, updateUsuarioDto);
   }
 
-  @Delete(':id')
+  @Delete('/deleteUser/:id')
   remove(@Param('id') id: string) {
-    return this.usuariosService.remove(+id);
+    return this.usuariosService.remove(id);
   }
 }

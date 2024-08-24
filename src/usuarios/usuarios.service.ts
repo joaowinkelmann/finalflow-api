@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
-import { MailerService } from '@nestjs-modules/mailer';
+import { MailerService } from "@nestjs-modules/mailer";
 import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
 import { decrypt } from "dotenv";
@@ -11,7 +11,7 @@ import { decrypt } from "dotenv";
 export class UsuariosService {
   constructor(
     private prisma: PrismaService,
-    private mailerService: MailerService,
+    private mailerService: MailerService
   ) {}
 
   async create(createUsuarioDto: CreateUsuarioDto) {
@@ -43,7 +43,7 @@ export class UsuariosService {
 
       // Enviar e-mail após criar o aluno
       await this.mailerService.sendMail({
-        to: user?.email,  
+        to: user?.email,
         subject: `Primeiro Acesso Ao Site: ${user?.nome}`,
         text: `Olá ${user?.nome}, seu cadastro foi criado com sucesso!
         Seu login é: ${user?.email}
@@ -88,8 +88,8 @@ export class UsuariosService {
 
   /**
    * Metodo para retornar o usuario inteiro, usando internamente para realizar o login
-   * @param email 
-   * @returns 
+   * @param email
+   * @returns
    */
   async getUsuario(email: string) {
     return await this.prisma.usuario.findUnique({
@@ -130,7 +130,21 @@ export class UsuariosService {
     }
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} usuario`;
+  async remove(id: string) {
+    try {
+      await this.prisma.usuario.delete({
+        where: {
+          id,
+        },
+      });
+
+      return {
+        message: "Usuário removido com sucesso",
+      };
+    } catch (error) {
+      return {
+        message: error.message,
+      };
+    }
   }
 }
