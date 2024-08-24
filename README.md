@@ -42,5 +42,15 @@ Build
 ```bun run build```
 
 Start/prod
-
 ```bun run start```
+
+
+## Prisma
+### Realizar o Seed do Banco de Dados
+```bunx prisma db seed``` ou ```npx prisma db seed```
+
+### Migrar alterações no banco
+```bunx prisma migrate dev``` ou ```npx prisma migrate dev```
+
+### Gerar o Prisma Client
+```bunx prisma generate``` ou ```npx prisma generate```

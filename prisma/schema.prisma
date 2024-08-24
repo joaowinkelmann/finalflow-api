@@ -19,7 +19,7 @@ model Usuario {
   email         String       @unique
   senha         String
   nivel_acesso  NivelAcesso
-  data_cadastro DateTime     @default(now())
+  data_cadastro DateTime     @default(now()) @db.Timestamptz(3)
   Aluno         Aluno?
   Professor     Professor?
   Coordenador   Coordenador?
@@ -66,8 +66,8 @@ model Orientador {
   id_orientador String    @id @default(uuid())
   professorId   String
   alunoId       String
-  dataInicio    DateTime
-  dataFim       DateTime?
+  dataInicio    DateTime  @db.Timestamptz(3)
+  dataFim       DateTime? @db.Timestamptz(3)
   Professor     Professor @relation(fields: [professorId], references: [id_professor])
   Aluno         Aluno     @relation(fields: [alunoId], references: [id_aluno])
   Reuniao       Reuniao[]
@@ -77,8 +77,8 @@ model Cronograma {
   id_cronograma String    @id @default(uuid())
   coordenadorId String
   descricao     String
-  dataInicio    DateTime
-  dataFim       DateTime
+  dataInicio    DateTime  @db.Timestamptz(3)
+  dataFim       DateTime  @db.Timestamptz(3)
   Professor     Professor @relation(fields: [coordenadorId], references: [id_professor])
   Banca         Banca[]
   Prazo         Prazo[]
@@ -112,30 +112,30 @@ model Avaliacao {
 model Reuniao {
   id_reuniao   String     @id @default(uuid())
   orientadorId String
-  dataReuniao  DateTime
+  dataReuniao  DateTime  @db.Timestamptz(3)
   descricao    String
   documento    String?
   Orientador   Orientador @relation(fields: [orientadorId], references: [id_orientador])
 }
 
 model Prazo {
-  id_prazo            Int        @id @default(autoincrement())
+  id_prazo            String        @id @default(uuid())
   cronogramaId        String
   tipoPrazo           TipoPrazo
-  dataLimite          DateTime
-  dataAvaliacaoLimite DateTime
+  dataLimite          DateTime     @db.Timestamptz(3)
+  dataAvaliacaoLimite DateTime     @db.Timestamptz(3)
   Cronograma          Cronograma @relation(fields: [cronogramaId], references: [id_cronograma])
   Alerta              Alerta[]
 }
 
 model Alerta {
-  id_alerta  Int      @id @default(autoincrement())
-  prazoId    Int
+  id_alerta  String      @id @default(uuid())
+  prazoId    String
   usuarioId  String
   mensagem   String
-  dataAlerta DateTime
-  Prazo      Prazo    @relation(fields: [prazoId], references: [id_prazo])
-  Usuario    Usuario  @relation(fields: [usuarioId], references: [id])
+  dataAlerta DateTime   @db.Timestamptz(3)
+  Prazo      Prazo      @relation(fields: [prazoId], references: [id_prazo])
+  Usuario    Usuario    @relation(fields: [usuarioId], references: [id])
 }
 
 // Enums
