@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { MailController } from './mail.controller';
 import { MailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from 'prisma/prisma.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
