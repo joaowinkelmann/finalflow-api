@@ -4,9 +4,17 @@ import { PrismaService } from './prisma/prisma.service';
 import { CursosModule } from './cursos/cursos.module';
 import { ProfessoresModule } from './professores/professores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { AuthModule } from './auth/auth.module';
+import { AuthGuard } from './auth/auth.guard';
 
 @Module({
-  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule],
-  providers: [PrismaService],
+  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule],
+  providers: [
+    PrismaService,
+    {
+      provide: 'APP_GUARD',
+      useClass: AuthGuard
+    }
+  ],
 })
-export class AppModule {}
+export class AppModule { }
