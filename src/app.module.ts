@@ -4,9 +4,10 @@ import { PrismaService } from './prisma/prisma.service';
 import { CursosModule } from './cursos/cursos.module';
 import { ProfessoresModule } from './professores/professores.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
-  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule],
+  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule],
   providers: [PrismaService],
 })
 export class AppModule {}

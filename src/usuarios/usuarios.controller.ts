@@ -18,6 +18,7 @@ export class UsuariosController {
   }
 
   @Get('/getOne/:id')
+  // @todo proteger isso aqui please
   findOne(@Param('id') id: string) {
     return this.usuariosService.findOne(id);
   }

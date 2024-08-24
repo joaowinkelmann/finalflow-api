@@ -65,6 +65,27 @@ export class UsuariosService {
         nome: true,
         email: true,
         nivel_acesso: true,
+        // senha: true, // comparar com a senha enviada, mas nao expor
+      },
+    });
+  }
+
+  /**
+   * Metodo para retornar o usuario inteiro, usando internamente para realizar o login
+   * @param email 
+   * @returns 
+   */
+  async getUsuario(email: string) {
+    return await this.prisma.usuario.findUnique({
+      where: {
+        email,
+      },
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        nivel_acesso: true,
+        senha: true,
       },
     });
   }
