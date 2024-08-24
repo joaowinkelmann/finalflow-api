@@ -2,11 +2,17 @@ import { Injectable } from "@nestjs/common";
 import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../prisma/prisma.service";
+import { MailerService } from '@nestjs-modules/mailer';
+import { JwtService } from "@nestjs/jwt";
 import * as bcrypt from "bcrypt";
+import { decrypt } from "dotenv";
 
 @Injectable()
 export class UsuariosService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private mailerService: MailerService,
+  ) {}
 
   async create(createUsuarioDto: CreateUsuarioDto) {
     try {
@@ -23,6 +29,7 @@ export class UsuariosService {
       }
 
       const salt = await bcrypt.genSalt();
+      const senhaSemHash = createUsuarioDto.senha;
       const hash = await bcrypt.hash(createUsuarioDto.senha, salt);
 
       const user = await this.prisma.usuario.create({
@@ -32,6 +39,15 @@ export class UsuariosService {
           senha: hash,
           nivel_acesso: createUsuarioDto.nivel_acesso,
         },
+      });
+
+      // Enviar e-mail após criar o aluno
+      await this.mailerService.sendMail({
+        to: user?.email,  
+        subject: `Primeiro Acesso Ao Site: ${user?.nome}`,
+        text: `Olá ${user?.nome}, seu cadastro foi criado com sucesso!
+        Seu login é: ${user?.email}
+        Senha: ${senhaSemHash}`,
       });
 
       return {
