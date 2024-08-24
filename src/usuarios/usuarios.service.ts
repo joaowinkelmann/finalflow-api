@@ -12,7 +12,7 @@ export class UsuariosService {
     private mailerService: MailerService
   ) {}
 
-  async create(createUsuarioDto: CreateUsuarioDto) {
+  async create(createUsuarioDto: CreateUsuarioDto): Promise<any> {
     try {
       const userExists = await this.prisma.usuario.findUnique({
         where: {
@@ -32,9 +32,7 @@ export class UsuariosService {
       let senhaPrimeiroAcesso: string;
       if (!createUsuarioDto.senha) {
         // a senha precisa ter uma letra maiuscula, uma minuscula, um numero e um caractere especial
-        // senhaPrimeiroAcesso = Math.random().toString(36).slice(-6) + "bA1_";
         senhaPrimeiroAcesso = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
-        console.log(senhaPrimeiroAcesso);
       } else {
         senhaPrimeiroAcesso = createUsuarioDto.senha;
       }

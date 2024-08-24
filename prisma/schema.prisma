@@ -47,8 +47,8 @@ model Aluno {
 model Professor {
   id_professor String       @id @default(uuid())
   departamento String
-  usuarioId    String       @unique
-  usuario      Usuario      @relation(fields: [usuarioId], references: [id])
+  idUsuario    String       @unique
+  usuario      Usuario      @relation(fields: [idUsuario], references: [id])
   Orientador   Orientador[]
   Cronograma   Cronograma[]
   Banca1       Banca[]      @relation("Professor1")
@@ -58,8 +58,8 @@ model Professor {
 model Coordenador {
   id_coordenador String  @id @default(uuid())
   departamento   String
-  usuarioId      String  @unique
-  usuario        Usuario @relation(fields: [usuarioId], references: [id])
+  idUsuario      String  @unique
+  usuario        Usuario @relation(fields: [idUsuario], references: [id])
 }
 
 model Orientador {
@@ -131,11 +131,11 @@ model Prazo {
 model Alerta {
   id_alerta  String      @id @default(uuid())
   prazoId    String
-  usuarioId  String
+  idUsuario  String
   mensagem   String
   dataAlerta DateTime   @db.Timestamptz(3)
   Prazo      Prazo      @relation(fields: [prazoId], references: [id_prazo])
-  Usuario    Usuario    @relation(fields: [usuarioId], references: [id])
+  Usuario    Usuario    @relation(fields: [idUsuario], references: [id])
 }
 
 // Enums

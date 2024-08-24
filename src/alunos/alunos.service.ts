@@ -2,21 +2,35 @@ import { Injectable } from '@nestjs/common';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { PrismaService } from '../../prisma/prisma.service';
-import { MailerService } from '@nestjs-modules/mailer';
+import { UsuariosService } from '../usuarios/usuarios.service';
 
 @Injectable()
 export class AlunosService {
   constructor(
     private prisma: PrismaService,
+    private usuariosService: UsuariosService
   ) {}
 
   async create(createAlunoDto: CreateAlunoDto) {
     try {
-      return await this.prisma.aluno.create({
-        data: createAlunoDto,
+      this.usuariosService.create({
+        nome: createAlunoDto.nome,
+        email: createAlunoDto.email,
+        senha: createAlunoDto.senha,
+        nivel_acesso: 'aluno',
+      }).then((usuario) => {
+        this.prisma.aluno.create({
+          data: {
+            matricula: createAlunoDto.matricula,
+            cursoId: createAlunoDto.cursoId,
+            idUsuario: usuario.id,
+          }
+        });
+      }
+      ).then((aluno) => {
+        return aluno;
       });
-    }
-    catch (error) {
+    } catch (error) {
       return error.message;
     }
   }

@@ -74,13 +74,27 @@ async function main() {
     },
   });
 
+  const coordenadoraRoberta = await prisma.coordenador.upsert({
+    where: { id_coordenador: "0" },
+    update: {},
+    create: {
+      id_coordenador: '0',
+      idUsuario: '0',
+      departamento: 'Departamento de Computação'
+      // id_coordenador String       @id @default(uuid())
+      // usuarioId       String       @unique
+      // usuario         Usuario      @relation(fields: [usuarioId], references: [id])
+      // Curso           Curso[]
+    }
+  });
+
   const professorAmilton = await prisma.professor.upsert({
     where : { id_professor: "1" },
     update: {},
     create: {
       id_professor: '1',
       departamento: 'Departamento de Computação',
-      usuarioId: '1'
+      idUsuario: '1'
       // id_professor String       @id @default(uuid())
       // departamento String
       // usuarioId    String       @unique
