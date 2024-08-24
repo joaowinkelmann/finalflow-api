@@ -52,9 +52,12 @@ export class UsuariosService {
       await this.mailerService.sendMail({
         to: user?.email,
         subject: `Primeiro Acesso Ao Site: ${user?.nome}`,
-        text: `Olá ${user?.nome}, seu cadastro foi criado com sucesso!
-        Seu login é: ${user?.email}
-        Senha: ${senhaPrimeiroAcesso}`,
+        template: "sign-up",
+        context: {
+          nome: user?.nome,
+          email: user?.email,
+          senha: senhaPrimeiroAcesso,
+        },
       });
 
       return {
@@ -64,7 +67,9 @@ export class UsuariosService {
         nivel_acesso: user.nivel_acesso,
       };
     } catch (error) {
-      return error.message;
+      return {
+        message: error,
+      }
     }
   }
   async findAll() {
