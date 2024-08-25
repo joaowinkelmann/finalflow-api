@@ -14,18 +14,18 @@ datasource db {
 }
 
 model Usuario {
-  id               String       @id @default(uuid())
-  nome             String
-  email            String       @unique
-  senha            String
-  nivel_acesso     NivelAcesso
-  data_cadastro    DateTime     @default(now()) @db.Timestamptz(3)
-  primeiro_acesso  Boolean      @default(true)
-  avatar           String?
-  Aluno            Aluno?
-  Professor        Professor?
-  Coordenador      Coordenador?
-  Alerta           Alerta[]
+  id              String       @id @default(uuid())
+  nome            String
+  email           String       @unique
+  senha           String
+  nivel_acesso    NivelAcesso
+  data_cadastro   DateTime     @default(now()) @db.Timestamptz(3)
+  primeiro_acesso Boolean      @default(true)
+  avatar          String?
+  Aluno           Aluno?
+  Professor       Professor?
+  Coordenador     Coordenador?
+  Alerta          Alerta[]
 }
 
 model Curso {
@@ -52,16 +52,16 @@ model Professor {
   idUsuario    String       @unique
   usuario      Usuario      @relation(fields: [idUsuario], references: [id])
   Orientador   Orientador[]
-  Cronograma   Cronograma[]
   Banca1       Banca[]      @relation("Professor1")
   Banca2       Banca[]      @relation("Professor2")
 }
 
 model Coordenador {
-  id_coordenador String  @id @default(uuid())
+  id_coordenador String       @id @default(uuid())
   departamento   String
-  idUsuario      String  @unique
-  usuario        Usuario @relation(fields: [idUsuario], references: [id])
+  idUsuario      String       @unique
+  usuario        Usuario      @relation(fields: [idUsuario], references: [id])
+  Cronograma     Cronograma[]
 }
 
 model Orientador {
@@ -76,14 +76,14 @@ model Orientador {
 }
 
 model Cronograma {
-  id_cronograma String    @id @default(uuid())
-  coordenadorId String
-  descricao     String
-  dataInicio    DateTime  @db.Timestamptz(3)
-  dataFim       DateTime  @db.Timestamptz(3)
-  Professor     Professor @relation(fields: [coordenadorId], references: [id_professor])
-  Banca         Banca[]
-  Prazo         Prazo[]
+  id_cronograma         String      @id @default(uuid())
+  coordenadorId         String
+  descricao             String
+  dataInicio            DateTime    @db.Timestamptz(3)
+  dataFim               DateTime    @db.Timestamptz(3)
+  Coordenador           Coordenador @relation(fields: [coordenadorId], references: [id_coordenador])
+  Banca                 Banca[]
+  Prazo                 Prazo[]
 }
 
 model Banca {
@@ -114,30 +114,32 @@ model Avaliacao {
 model Reuniao {
   id_reuniao   String     @id @default(uuid())
   orientadorId String
-  dataReuniao  DateTime  @db.Timestamptz(3)
+  dataReuniao  DateTime   @db.Timestamptz(3)
   descricao    String
   documento    String?
   Orientador   Orientador @relation(fields: [orientadorId], references: [id_orientador])
 }
 
 model Prazo {
-  id_prazo            String        @id @default(uuid())
+  id_prazo            String     @id @default(uuid())
   cronogramaId        String
   tipoPrazo           TipoPrazo
-  dataLimite          DateTime     @db.Timestamptz(3)
-  dataAvaliacaoLimite DateTime     @db.Timestamptz(3)
+  dataLimite          DateTime   @db.Timestamptz(3)
+  dataAvaliacaoLimite DateTime   @db.Timestamptz(3)
   Cronograma          Cronograma @relation(fields: [cronogramaId], references: [id_cronograma])
   Alerta              Alerta[]
 }
 
 model Alerta {
-  id_alerta  String      @id @default(uuid())
+  id_alerta  String   @id @default(uuid())
   prazoId    String
   idUsuario  String
+  assunto    String
   mensagem   String
-  dataAlerta DateTime   @db.Timestamptz(3)
-  Prazo      Prazo      @relation(fields: [prazoId], references: [id_prazo])
-  Usuario    Usuario    @relation(fields: [idUsuario], references: [id])
+  dataAlerta DateTime @db.Timestamptz(3)
+  jaEnviado  Boolean  @default(false)
+  Prazo      Prazo    @relation(fields: [prazoId], references: [id_prazo])
+  Usuario    Usuario  @relation(fields: [idUsuario], references: [id])
 }
 
 // Enums
