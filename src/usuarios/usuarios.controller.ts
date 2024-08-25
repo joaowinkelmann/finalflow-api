@@ -43,5 +43,4 @@ export class UsuariosController {
   uploadAvatar(@Body() avatar: any, @Request() req) {
     return this.usuariosService.uploadAvatar(avatar, req.user.id);
   }
-
 }

@@ -18,8 +18,10 @@ export class MailService {
       to,
       subject,
       text,
+      template,
+      context, // @todo - ta quebrado isso aqui ainda
     }).then((info: SentMessageInfo) => {
-      console.log(info);
+      // console.log(info);
       return true;
     }).catch((error) => {
       console.error(error);

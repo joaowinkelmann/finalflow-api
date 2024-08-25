@@ -3,11 +3,12 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateAlertaDto } from './dto/create-alerta.dto';
 import { UpdateAlertaDto } from './dto/update-alerta.dto';
 import { PrismaService } from 'prisma/prisma.service';
-import { MailService } from 'src/mail/mail.service';
+// import { MailService } from 'src/mail/mail.service';
+import { MailerService } from "@nestjs-modules/mailer";
 
 @Injectable()
 export class AlertasService {
-  constructor(private readonly prisma: PrismaService, private readonly mailService: MailService) {}
+  constructor(private readonly prisma: PrismaService, private readonly mailService: MailerService) {}
   create(createAlertaDto: CreateAlertaDto
   ) {
     // return 'This action adds a new alerta';
@@ -15,7 +16,7 @@ export class AlertasService {
     return this.prisma.alerta.create({
       data: createAlertaDto,
     }).then((data) => {
-      console.log(data);
+      // console.log(data);
     });
   }
 
@@ -40,7 +41,8 @@ export class AlertasService {
   }
 
   // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  @Cron(CronExpression.EVERY_10_SECONDS)
+  // @Cron(CronExpression.EVERY_10_SECONDS)
+  @Cron(CronExpression.EVERY_MINUTE)
   async handleCron() {
     console.log('Running scheduled task to process Alertas');
 
@@ -52,25 +54,31 @@ export class AlertasService {
       },
       include: {
         Usuario: true,
+        Prazo: true,
       },
     });
 
     // envia cada alerta
     for (const alerta of alertas) {
-      // Add your processing logic here
-      // console.log(`Processing Aviso: ${alerta.id_alerta}`);
-
-      console.log(alerta);
-
       // Enviar email
-      let foiEnviado = await this.mailService.sendEmail({
+      let foiEnviado = await this.mailService.sendMail({
+
+        // to: alerta.Usuario.email,
+        // subject: `Primeiro Acesso Ao Site: ${alerta.Usuario.nome}`,
+        // template: "sign-up",
+        // context: {
+        //   name: alerta.Usuario.nome,
+        //   message: alerta.mensagem,
+        // },
+
         to: alerta.Usuario.email,
         subject: alerta.assunto,
         text: alerta.mensagem,
-        template: "sign-up",
+        template: "alert",
         context: {
-          name: alerta.Usuario.nome,
-          message: alerta.mensagem,
+          nome: alerta.Usuario.nome,
+          data: alerta.Prazo.dataLimite,
+          mensagem: alerta.mensagem,
         },
       });
 

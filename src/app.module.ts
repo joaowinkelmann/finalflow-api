@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { CursosModule } from './cursos/cursos.module';
 import { CoordenadoresModule } from './coordenadores/coordenadores.module';
@@ -8,7 +9,6 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { MailModule } from './mail/mail.module';
-import { ScheduleModule } from '@nestjs/schedule';
 import { AlertasModule } from './alertas/alertas.module';
 import { PrazosModule } from './prazos/prazos.module';
 import { CronogramasModule } from './cronogramas/cronogramas.module';
