@@ -4,6 +4,7 @@ import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
 import { MailerService } from "@nestjs-modules/mailer";
 import * as bcrypt from "bcrypt";
+import * as sharp from 'sharp';
 
 @Injectable()
 export class UsuariosService {
@@ -27,8 +28,6 @@ export class UsuariosService {
       }
 
       const salt = await bcrypt.genSalt();
-
-      // cria uma senha aleatória caso não tenha sido informada
       let senhaPrimeiroAcesso = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
 
       const hash = await bcrypt.hash(senhaPrimeiroAcesso, salt);
@@ -106,8 +105,8 @@ export class UsuariosService {
         id: true,
         nome: true,
         email: true,
-        nivel_acesso: true,
         senha: true,
+        nivel_acesso: true,
         primeiro_acesso: true,
         avatar: true,
       },
@@ -174,6 +173,28 @@ export class UsuariosService {
       return {
         message: error.message,
       };
+    }
+  }
+
+  async uploadAvatar(avatar: any, userId: string): Promise<boolean> {
+    try {
+      const buffer = Buffer.from(avatar, 'base64');
+
+      const resizedImageBuffer = await sharp(buffer)
+        .resize(128, 128)
+        .toBuffer();
+
+      const resizedImageBase64 = resizedImageBuffer.toString('base64');
+
+      await this.prisma.usuario.update({
+        where: { id: userId },
+        data: { avatar: resizedImageBase64 },
+      });
+
+      return true;
+    } catch (error) {
+      console.error(error);
+      return false;
     }
   }
 }
