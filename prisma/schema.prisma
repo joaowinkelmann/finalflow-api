@@ -40,7 +40,7 @@ model Aluno {
   matricula  Int
   idUsuario  String       @unique
   usuario    Usuario      @relation(fields: [idUsuario], references: [id])
-  Orientador Orientador[]
+  Orientacao Orientacao[]
   Banca      Banca[]
   Curso      Curso        @relation(fields: [cursoId], references: [id_curso])
   cursoId    String
@@ -51,7 +51,7 @@ model Professor {
   departamento String
   idUsuario    String       @unique
   usuario      Usuario      @relation(fields: [idUsuario], references: [id])
-  Orientador   Orientador[]
+  Orientacao   Orientacao[]
   Banca1       Banca[]      @relation("Professor1")
   Banca2       Banca[]      @relation("Professor2")
 }
@@ -64,8 +64,8 @@ model Coordenador {
   Cronograma     Cronograma[]
 }
 
-model Orientador {
-  id_orientador String    @id @default(uuid())
+model Orientacao {
+  id_orientacao String    @id @default(uuid())
   professorId   String
   alunoId       String
   dataInicio    DateTime  @db.Timestamptz(3)
@@ -113,11 +113,11 @@ model Avaliacao {
 
 model Reuniao {
   id_reuniao   String     @id @default(uuid())
-  orientadorId String
+  orientacaoId String
   dataReuniao  DateTime   @db.Timestamptz(3)
   descricao    String
   documento    String?
-  Orientador   Orientador @relation(fields: [orientadorId], references: [id_orientador])
+  Orientacao   Orientacao @relation(fields: [orientacaoId], references: [id_orientacao])
 }
 
 model Prazo {
