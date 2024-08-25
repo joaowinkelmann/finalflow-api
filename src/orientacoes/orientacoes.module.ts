@@ -7,4 +7,4 @@ import { PrismaService } from 'prisma/prisma.service';
   controllers: [OrientacoesController],
   providers: [OrientacoesService, PrismaService],
 })
-export class OrientacaosModule {}
+export class OrientacoesModule {}
