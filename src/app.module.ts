@@ -12,9 +12,10 @@ import { MailModule } from './mail/mail.module';
 import { AlertasModule } from './alertas/alertas.module';
 import { PrazosModule } from './prazos/prazos.module';
 import { CronogramasModule } from './cronogramas/cronogramas.module';
+import { OrientacaosModule } from './Orientacaos/Orientacaos.module';
 
 @Module({
-  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule, MailModule, CoordenadoresModule, ScheduleModule.forRoot(), AlertasModule, PrazosModule, CronogramasModule],
+  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule, MailModule, CoordenadoresModule, ScheduleModule.forRoot(), AlertasModule, PrazosModule, CronogramasModule, OrientacaosModule],
   providers: [
     PrismaService,
     {
