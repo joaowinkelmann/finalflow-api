@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alerta de Aviso</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    .header {
+      background-color: #cbe4de;
+      padding: 10px;
+      text-align: center;
+    }
+    .header img {
+      width: 165px;
+      height: auto;
+    }
+    .content {
+      padding: 20px;
+      background-color: #fce4e4;
+      border-left: 5px solid #e57373;
+      position: relative;
+    }
+    .content h1 {
+      color: #114658;
+      font-size: 24px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+    }
+    .content .alert-icon {
+      width: 30px;
+      height: auto;
+      margin-right: 10px;
+    }
+    .content p {
+      font-size: 16px;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .content .button {
+      display: inline-block;
+      background-color: #e57373;
+      color: #ffffff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+    }
+    .footer {
+      background-color: #114658;
+      color: #ffffff;
+      text-align: center;
+      padding: 15px;
+      font-size: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer img {
+      width: 89px;
+      height: auto;
+    }
+    .date {
+      text-align: start;
+      font-size: 15px;
+      color: #666;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <img src="https://noodletop.com.br/publicftp/finalflow/logo.png" alt="FinalFlow Logo">
+    </div>
+    <div class="content">
+      <div class="date">
+        {{ data }}
+      </div>
+      <h1><img src="https://img.icons8.com/ios-filled/50/e57373/error.png" alt="Alerta" class="alert-icon"/> Atenção, {{nome}}!</h1>
+      <p>Este é um alerta importante que você precisa saber. Por favor, leia com atenção.</p>
+      <p><strong>Detalhes do Alerta:</strong></p>
+      <p>{{mensagem}}</p>
+      <a href="#" class="button">Saiba Mais</a>
+    </div>
+    <div class="footer">
+      <p>&copy; 2024 FinalFlow. Todos os direitos reservados.</p>
+      {{!-- <img src="https://noodletop.com.br/publicftp/finalflow/mascote.png" alt="Mascote"> --}}
+    </div>
+  </div>
+</body>
+</html>
