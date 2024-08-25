@@ -1,16 +1,20 @@
 import { Module } from '@nestjs/common';
-import { AlunosModule } from './alunos/alunos.module';
+import { ScheduleModule } from '@nestjs/schedule';
 import { PrismaService } from '../prisma/prisma.service';
 import { CursosModule } from './cursos/cursos.module';
+import { CoordenadoresModule } from './coordenadores/coordenadores.module';
 import { ProfessoresModule } from './professores/professores.module';
+import { AlunosModule } from './alunos/alunos.module';
 import { UsuariosModule } from './usuarios/usuarios.module';
 import { AuthModule } from './auth/auth.module';
 import { AuthGuard } from './auth/auth.guard';
 import { MailModule } from './mail/mail.module';
-import { CoordenadorModule } from './coordenador/coordenador.module';
+import { AlertasModule } from './alertas/alertas.module';
+import { PrazosModule } from './prazos/prazos.module';
+import { CronogramasModule } from './cronogramas/cronogramas.module';
 
 @Module({
-  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule, MailModule, CoordenadorModule],
+  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule, MailModule, CoordenadoresModule, ScheduleModule.forRoot(), AlertasModule, PrazosModule, CronogramasModule],
   providers: [
     PrismaService,
     {

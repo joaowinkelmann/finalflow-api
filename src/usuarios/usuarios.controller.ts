@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Request } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -37,5 +37,9 @@ export class UsuariosController {
   @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
     return this.usuariosService.remove(id);
+  }
+  @Post('/setAvatar')
+  uploadAvatar(@Body() avatar: any, @Request() req) {
+    return this.usuariosService.uploadAvatar(avatar, req.user.id);
   }
 }

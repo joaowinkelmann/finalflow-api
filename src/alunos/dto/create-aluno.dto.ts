@@ -18,7 +18,7 @@ export class CreateAlunoDto extends CreateUsuarioDto {
   )
   cursoId: string;
 
-  // @IsString()
-  // @IsNotEmpty()
-  // idUsuario: string;
+  @IsString()
+  @IsNotEmpty()
+  idUsuario: string;
 }
