@@ -6,8 +6,8 @@
     "seed": "npx tsx prisma/seed/seed.ts"
   },
   "scripts": {
-    "build": "nest build",
-    "dev": "nest start --watch",
+    "build": "npx prisma generate && nest build",
+    "dev": "npx prisma generate && nest start --watch",
     "start": "bun .",
     "start:node": "node ."
   },
