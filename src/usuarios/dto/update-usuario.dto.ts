@@ -4,5 +4,5 @@ export class UpdateUsuarioDto {
     nome?: string;
     email?: string;
     senha?: string;
-    nivel_acesso?: NivelAcesso;
+    // nivel_acesso?: NivelAcesso;
 }

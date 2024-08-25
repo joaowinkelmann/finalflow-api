@@ -16,7 +16,6 @@ export class AlunosService {
       this.usuariosService.create({
         nome: createAlunoDto.nome,
         email: createAlunoDto.email,
-        senha: createAlunoDto.senha,
         nivel_acesso: 'aluno',
       }).then((usuario) => {
         this.prisma.aluno.create({

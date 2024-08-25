@@ -16,22 +16,25 @@ export class UsuariosController {
   }
 
   @Get('/getAll')
+  @NiveisAcesso(NivelAcesso.coordenador)
   findAll() {
     return this.usuariosService.findAll();
   }
 
   @Get('/getOne/:id')
-  // @todo proteger isso aqui please
+  @NiveisAcesso(NivelAcesso.coordenador)
   findOne(@Param('id') id: string) {
     return this.usuariosService.findOne(id);
   }
 
   @Put('/update/:id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   update(@Param('id') id: string, @Body() updateUsuarioDto: UpdateUsuarioDto) {
     return this.usuariosService.update(id, updateUsuarioDto);
   }
 
   @Delete('/deleteUser/:id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
     return this.usuariosService.remove(id);
   }

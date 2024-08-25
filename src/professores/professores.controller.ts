@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { ProfessoresService } from './professores.service';
 import { CreateProfessorDto } from './dto/create-professor.dto';
-import { UpdateProfessorDto } from './dto/update-professore.dto';
+import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 
@@ -16,11 +16,13 @@ export class ProfessoresController {
   }
 
   @Get()
+  @NiveisAcesso(NivelAcesso.coordenador)
   findAll() {
     return this.professoresService.findAll();
   }
 
   @Get(':id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   findOne(@Param('id') id: string) {
     return this.professoresService.findOne(+id);
   }
@@ -31,6 +33,7 @@ export class ProfessoresController {
   }
 
   @Delete(':id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
     return this.professoresService.remove(+id);
   }

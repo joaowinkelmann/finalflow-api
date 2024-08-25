@@ -12,12 +12,6 @@ export class CreateUsuarioDto {
   })
   email: string;
 
-  @IsOptional()
-  @IsStrongPassword({}, {
-    message: "A senha deve conter letras maiúsculas, minúsculas, números e caracteres especiais",
-  })
-  senha?: string;
-
   @IsNotEmpty({
     message: "O campo nível de acesso é obrigatório",
   })

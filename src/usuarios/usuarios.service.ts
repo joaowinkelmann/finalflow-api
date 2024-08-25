@@ -29,13 +29,7 @@ export class UsuariosService {
       const salt = await bcrypt.genSalt();
 
       // cria uma senha aleatória caso não tenha sido informada
-      let senhaPrimeiroAcesso: string;
-      if (!createUsuarioDto.senha) {
-        // a senha precisa ter uma letra maiuscula, uma minuscula, um numero e um caractere especial
-        senhaPrimeiroAcesso = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
-      } else {
-        senhaPrimeiroAcesso = createUsuarioDto.senha;
-      }
+      let senhaPrimeiroAcesso = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
 
       const hash = await bcrypt.hash(senhaPrimeiroAcesso, salt);
 
@@ -114,6 +108,8 @@ export class UsuariosService {
         email: true,
         nivel_acesso: true,
         senha: true,
+        primeiro_acesso: true,
+        avatar: true,
       },
     });
   }
@@ -127,7 +123,7 @@ export class UsuariosService {
         data: {
           nome: updateUsuarioDto.nome,
           email: updateUsuarioDto.email,
-          nivel_acesso: updateUsuarioDto.nivel_acesso,
+          // nivel_acesso: updateUsuarioDto.nivel_acesso, // nao atualiza o nivel de acesso
         },
       });
 
@@ -137,6 +133,27 @@ export class UsuariosService {
         email: user.email,
         nivel_acesso: user.nivel_acesso,
       };
+    } catch (error) {
+      return error.message;
+    }
+  }
+
+  /**
+   * Define a propriedade `primeiro_acesso` de um usuário com o `id` especificado para `false`.
+   * 
+   * @param id - id do usuário
+   * @returns A promise that resolves with the updated user object, or an error message if an error occurs.
+   */
+  async expiraPrimeiroAcesso(id: string) {
+    try {
+      await this.prisma.usuario.update({
+        where: {
+          id,
+        },
+        data: {
+          primeiro_acesso: false,
+        },
+      });
     } catch (error) {
       return error.message;
     }

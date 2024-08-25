@@ -14,16 +14,18 @@ datasource db {
 }
 
 model Usuario {
-  id            String       @id @default(uuid())
-  nome          String
-  email         String       @unique
-  senha         String
-  nivel_acesso  NivelAcesso
-  data_cadastro DateTime     @default(now()) @db.Timestamptz(3)
-  Aluno         Aluno?
-  Professor     Professor?
-  Coordenador   Coordenador?
-  Alerta        Alerta[]
+  id               String       @id @default(uuid())
+  nome             String
+  email            String       @unique
+  senha            String
+  nivel_acesso     NivelAcesso
+  data_cadastro    DateTime     @default(now()) @db.Timestamptz(3)
+  primeiro_acesso  Boolean      @default(true)
+  avatar           String?
+  Aluno            Aluno?
+  Professor        Professor?
+  Coordenador      Coordenador?
+  Alerta           Alerta[]
 }
 
 model Curso {
