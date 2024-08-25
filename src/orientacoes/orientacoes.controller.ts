@@ -5,7 +5,7 @@ import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 
-@Controller('Orientacaos')
+@Controller('orientacoes')
 export class OrientacoesController {
   constructor(private readonly orientacoesService: OrientacoesService) {}
 
