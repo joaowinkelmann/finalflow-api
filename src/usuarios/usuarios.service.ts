@@ -5,6 +5,7 @@ import { PrismaService } from "../../prisma/prisma.service";
 import { MailerService } from "@nestjs-modules/mailer";
 import * as bcrypt from "bcrypt";
 import * as sharp from 'sharp';
+import { SetAvatarDto } from "./dto/set-avatar.dto";
 
 @Injectable()
 export class UsuariosService {
@@ -176,9 +177,13 @@ export class UsuariosService {
     }
   }
 
-  async uploadAvatar(avatar: any, userId: string): Promise<boolean> {
+  async uploadAvatar(avatar: SetAvatarDto, userId: string): Promise<boolean> {
     try {
-      const buffer = Buffer.from(avatar, 'base64');
+      // const buffer = Buffer.from(avatar, 'base64');
+      const buffer = Buffer.from(avatar.base64data, 'base64');
+
+      // get image format
+      const metadata = await sharp(buffer).metadata();
 
       const resizedImageBuffer = await sharp(buffer)
         .resize(128, 128)
@@ -198,7 +203,14 @@ export class UsuariosService {
     }
   }
 
-  async updatePasswordByMail(email: string, senha: string) {
+  /**
+   * 
+   * @param email 
+   * @param senha 
+   * @param recovery - If a recovery email should be sent
+   * @returns 
+   */
+  async updatePassword(email: string, password: string, recovery: boolean): Promise<any> {
     try {
 
       const user = await this.prisma.usuario.findUnique({
@@ -216,7 +228,7 @@ export class UsuariosService {
       }
 
       const salt = await bcrypt.genSalt();
-      const hash = await bcrypt.hash(senha, salt);
+      const hash = await bcrypt.hash(password, salt);
 
       await this.prisma.usuario.update({
         where: {
@@ -228,18 +240,19 @@ export class UsuariosService {
         },
       });
 
-      // Enviar e-mail com a nova senha
-      await this.mailerService.sendMail({
-        to: user.email,
-        subject: `Recuperação de Senha: ${user.nome}`,
-        template: "recovery-password",
-        context: {
-          nome: user.nome,
-          email: user.email,
-          senha: senha,
-        },
-      });
-
+      if (recovery) {
+        // Se for uma redefinição de senha, envia e-mail
+        await this.mailerService.sendMail({
+          to: user.email,
+          subject: `Recuperação de Senha: ${user.nome}`,
+          template: "recovery-password",
+          context: {
+            nome: user.nome,
+            email: user.email,
+            senha: password,
+          },
+        });
+      }
 
       return {
         message: "Senha atualizada com sucesso",

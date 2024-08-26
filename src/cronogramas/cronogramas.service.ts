@@ -6,7 +6,7 @@ import { PrismaService } from 'prisma/prisma.service';
 @Injectable()
 export class CronogramasService {
   constructor(private prisma: PrismaService) {}
-  create(createCronogramaDto: CreateCronogramaDto) {
+  create(createCronogramaDto: CreateCronogramaDto, idusuario: string) {
     // return 'This action adds a new cronograma';
     return this.prisma.cronograma.create({
       data: createCronogramaDto,

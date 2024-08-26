@@ -1,7 +1,6 @@
 import { Injectable, Dependencies, UnauthorizedException } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { JwtService } from '@nestjs/jwt';
-import { MailerService } from '@nestjs-modules/mailer';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
@@ -19,7 +18,6 @@ export class AuthService {
     constructor(
         private usuariosService: UsuariosService,
         private jwtService: JwtService,
-        private mailerService: MailerService, // Ensure this is correctly injected
     ) { }
 
     /**
@@ -91,7 +89,7 @@ export class AuthService {
             // Gerar nova senha
             let novaSenha = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
 
-            await this.usuariosService.updatePasswordByMail(email.email, novaSenha);
+            await this.usuariosService.updatePassword(email.email, novaSenha, true);
 
             return {
                 message: "Nova senha enviada para o e-mail cadastrado, caso exista",
