@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { CronogramasService } from './cronogramas.service';
 import { CreateCronogramaDto } from './dto/create-cronograma.dto';
 import { UpdateCronogramaDto } from './dto/update-cronograma.dto';
@@ -11,7 +11,9 @@ export class CronogramasController {
 
   @Post('create')
   @NiveisAcesso(NivelAcesso.coordenador)
-  create(@Body() createCronogramaDto: CreateCronogramaDto) {
+  create(@Body() createCronogramaDto: CreateCronogramaDto, @Req() request) {
+    const idusuario = request.user.id;
+    console.log(idusuario);
     return this.cronogramasService.create(createCronogramaDto);
   }
 
