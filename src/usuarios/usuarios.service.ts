@@ -11,7 +11,7 @@ export class UsuariosService {
   constructor(
     private prisma: PrismaService,
     private mailerService: MailerService
-  ) {}
+  ) { }
 
   async create(createUsuarioDto: CreateUsuarioDto): Promise<any> {
     try {
@@ -197,4 +197,58 @@ export class UsuariosService {
       return false;
     }
   }
+
+  async updatePasswordByMail(email: string, senha: string) {
+    try {
+
+      const user = await this.prisma.usuario.findUnique({
+        where: {
+          email,
+        },
+      });
+
+      if (!user) {
+        // sleep for 2 seconds
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        return {
+          message: "Usuário não encontrado",
+        };
+      }
+
+      const salt = await bcrypt.genSalt();
+      const hash = await bcrypt.hash(senha, salt);
+
+      await this.prisma.usuario.update({
+        where: {
+          email,
+        },
+        data: {
+          senha: hash,
+          primeiro_acesso: true,
+        },
+      });
+
+      // Enviar e-mail com a nova senha
+      await this.mailerService.sendMail({
+        to: user.email,
+        subject: `Recuperação de Senha: ${user.nome}`,
+        template: "recovery-password",
+        context: {
+          nome: user.nome,
+          email: user.email,
+          senha: senha,
+        },
+      });
+
+
+      return {
+        message: "Senha atualizada com sucesso",
+      };
+    } catch (error) {
+      return {
+        message: error.message,
+      };
+    }
+  }
+
 }

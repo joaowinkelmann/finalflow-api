@@ -1,6 +1,8 @@
 import { Injectable, Dependencies, UnauthorizedException } from '@nestjs/common';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
+import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import * as dotenv from 'dotenv';
 
@@ -9,13 +11,15 @@ dotenv.config();
 import { SignInDto } from './dto/signin.dto';
 import { SignInReturnDto } from './dto/signin-return.dto';
 import { PayloadDto } from './dto/payload.dto';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
 
 @Injectable()
 @Dependencies(UsuariosService, JwtService)
 export class AuthService {
     constructor(
         private usuariosService: UsuariosService,
-        private jwtService: JwtService
+        private jwtService: JwtService,
+        private mailerService: MailerService, // Ensure this is correctly injected
     ) { }
 
     /**
@@ -50,7 +54,7 @@ export class AuthService {
             }
         };
     }
-    
+
 
 
     // @todo - verificar se vale a pena, parece ser uma mao de implementar no front
@@ -64,7 +68,7 @@ export class AuthService {
     //         expiresIn: '60s',
     //       },
     //     );
-    
+
     //     const refreshToken = this.jwtService.sign(
     //       { email: payload.email },
     //       {
@@ -74,4 +78,29 @@ export class AuthService {
     //     );
     //     return { access_token: accessToken, refresh_token: refreshToken };
     //   }
+
+
+    /**
+     * Receives a recovery password request for a user with the given email.
+     * 
+     * @param email - The email of the user requesting the recovery password.
+     * @returns A promise that resolves to an object with a message indicating the result of the operation.
+     */
+    async receiveRecoveryPassword(email: RecoverPasswordDto): Promise<any> {
+        try {
+            // Gerar nova senha
+            let novaSenha = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
+
+            await this.usuariosService.updatePasswordByMail(email.email, novaSenha);
+
+            return {
+                message: "Nova senha enviada para o e-mail cadastrado, caso exista",
+            };
+        } catch (error) {
+            console.error(error);
+            return {
+                message: "Nova senha enviada para o e-mail cadastrado, caso exista", // nao informa pro cara que o email nao existe
+            };
+        }
+    }
 }
