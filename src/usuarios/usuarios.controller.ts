@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Request } from '@nestj
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { SetAvatarDto } from './dto/set-avatar.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 
@@ -39,7 +40,7 @@ export class UsuariosController {
     return this.usuariosService.remove(id);
   }
   @Post('/setAvatar')
-  uploadAvatar(@Body() avatar: any, @Request() req) {
-    return this.usuariosService.uploadAvatar(avatar, req.user.id);
+  uploadAvatar(@Body() setAvatarDto: SetAvatarDto, @Request() req) {
+    return this.usuariosService.uploadAvatar(setAvatarDto, req.user.sub);
   }
 }

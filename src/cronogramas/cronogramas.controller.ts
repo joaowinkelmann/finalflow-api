@@ -11,10 +11,9 @@ export class CronogramasController {
 
   @Post('create')
   @NiveisAcesso(NivelAcesso.coordenador)
-  create(@Body() createCronogramaDto: CreateCronogramaDto, @Req() request) {
-    const idusuario = request.user.id;
-    console.log(idusuario);
-    return this.cronogramasService.create(createCronogramaDto);
+  create(@Body() createCronogramaDto: CreateCronogramaDto, @Req() req) {
+    const idusuario = req.user.sub;
+    return this.cronogramasService.create(createCronogramaDto, idusuario);
   }
 
   @Get()
