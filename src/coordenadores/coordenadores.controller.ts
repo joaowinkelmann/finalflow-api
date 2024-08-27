@@ -1,18 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { CoordenadoresService } from './coordenadores.service';
-import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
+import { TransferCoordenadorDto } from './dto/transfer-coordenador.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 
-@Controller('professores')
+@Controller('coordenadores')
 export class CoordenadoresController {
   constructor(private readonly coordenadoresService: CoordenadoresService) {}
 
-  @Post()
+  @Post('/transfer')
   @NiveisAcesso(NivelAcesso.coordenador)
-  create(@Body() createCoordenadorDto: CreateCoordenadorDto) {
-    return this.coordenadoresService.create(createCoordenadorDto);
+  transfer(@Body() transferCoordenadorDto: TransferCoordenadorDto, @Req() req) {
+    return this.coordenadoresService.transfer(transferCoordenadorDto, req.user.sub);
   }
 
   @Get()

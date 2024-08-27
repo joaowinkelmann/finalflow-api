@@ -3,6 +3,7 @@ import { CreateProfessorDto } from './dto/create-professor.dto';
 import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
+import { Professor } from './entities/professor.entity';
 
 @Injectable()
 export class ProfessoresService {
@@ -11,44 +12,64 @@ export class ProfessoresService {
     private usuariosService: UsuariosService
   ) { }
 
-  create(createProfessorDto: CreateProfessorDto) {
-
+  async create(createProfessorDto: CreateProfessorDto) {
     try {
-      this.usuariosService.create({
+      const usuario = await this.usuariosService.create({
         nome: createProfessorDto.nome,
         email: createProfessorDto.email,
         nivel_acesso: 'professor',
-      }).then((usuario) => {
-        this.prisma.professor.create({
-          data: {
-            departamento: createProfessorDto.departamento,
-            idUsuario: usuario.id,
-          }
-        });
-      }
-      ).then((professor) => {
-        return professor;
       });
+
+      if (!usuario) {
+        console.error('Erro ao criar usuário');
+        throw new Error('Erro ao criar usuário');
+      }
+
+      const professor = await this.prisma.professor.create({
+        data: {
+          departamento: createProfessorDto.departamento,
+          usuario: {
+            connect: {
+              id: usuario.id
+            }
+          }
+        }
+      });
+
+      return professor;
     } catch (error) {
-      return error.message;
+      console.error(error.message);
+      throw new Error(error.message);
     }
-
-    // return 'This action adds a new professore';
   }
 
-  findAll() {
-    return `This action returns all professores`;
+  async findAll() {
+    // return `This action returns all professores`;
+    return await this.prisma.professor.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} professore`;
+  async findOne(id: string) {
+    return await this.prisma.professor.findUnique({
+      where: {
+        id_professor: id
+      }
+    });
   }
 
-  update(id: number, updateProfessorDto: UpdateProfessorDto) {
+  // getProfessorById(id_professor: string): Promise<Professor | null> {
+  getProfessorById(id_professor: string): Promise<any> {
+    return this.prisma.professor.findUnique({
+      where: {
+        id_professor: id_professor
+      }
+    });
+  }
+
+  update(id: string, updateProfessorDto: UpdateProfessorDto) {
     return `This action updates a #${id} professore`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} professore`;
   }
 }
