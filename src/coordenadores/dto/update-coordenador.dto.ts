@@ -1,4 +1,4 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { CreateCoordenadorDto } from './create-coordenador.dto';
+import { TransferCoordenadorDto } from './transfer-coordenador.dto';
 
-export class UpdateCoordenadorDto extends PartialType(CreateCoordenadorDto) {}
+export class UpdateCoordenadorDto extends PartialType(TransferCoordenadorDto) {}

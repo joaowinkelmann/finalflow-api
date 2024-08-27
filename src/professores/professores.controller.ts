@@ -9,13 +9,13 @@ import { NivelAcesso } from '@prisma/client';
 export class ProfessoresController {
   constructor(private readonly professoresService: ProfessoresService) {}
 
-  @Post()
+  @Post('/create')
   @NiveisAcesso(NivelAcesso.coordenador)
   create(@Body() createProfessorDto: CreateProfessorDto) {
     return this.professoresService.create(createProfessorDto);
   }
 
-  @Get()
+  @Get('/getAll')
   @NiveisAcesso(NivelAcesso.coordenador)
   findAll() {
     return this.professoresService.findAll();
@@ -24,17 +24,17 @@ export class ProfessoresController {
   @Get(':id')
   @NiveisAcesso(NivelAcesso.coordenador)
   findOne(@Param('id') id: string) {
-    return this.professoresService.findOne(+id);
+    return this.professoresService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProfessorDto: UpdateProfessorDto) {
-    return this.professoresService.update(+id, updateProfessorDto);
+    return this.professoresService.update(id, updateProfessorDto);
   }
 
   @Delete(':id')
   @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
-    return this.professoresService.remove(+id);
+    return this.professoresService.remove(id);
   }
 }

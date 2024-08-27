@@ -1,3 +1,4 @@
+import { IsNotEmpty, IsString } from 'class-validator';
 import { CreateUsuarioDto } from '../../usuarios/dto/create-usuario.dto';
 export class CreateProfessorDto extends CreateUsuarioDto {
     // id_professor String       @id @default(uuid())
@@ -9,5 +10,7 @@ export class CreateProfessorDto extends CreateUsuarioDto {
     // Banca1       Banca[]      @relation("Professor1")
     // Banca2       Banca[]      @relation("Professor2")
 
+    @IsString()
+    @IsNotEmpty()
     departamento: string;
 }
