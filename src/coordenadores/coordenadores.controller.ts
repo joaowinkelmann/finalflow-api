@@ -24,17 +24,17 @@ export class CoordenadoresController {
   @Get(':id')
   @NiveisAcesso(NivelAcesso.coordenador)
   findOne(@Param('id') id: string) {
-    return this.coordenadoresService.findOne(+id);
+    return this.coordenadoresService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCoordenadorDto: UpdateCoordenadorDto) {
-    return this.coordenadoresService.update(+id, updateCoordenadorDto);
+    return this.coordenadoresService.update(id, updateCoordenadorDto);
   }
 
   @Delete(':id')
   @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
-    return this.coordenadoresService.remove(+id);
+    return this.coordenadoresService.remove(id);
   }
 }

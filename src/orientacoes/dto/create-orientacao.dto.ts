@@ -8,7 +8,9 @@ export class CreateOrientacaoDto {
     // Aluno         Aluno     @relation(fields: [alunoId], references: [id_aluno])
     // Reuniao       Reuniao[]
 
-
+    orientadorId: string;
+    idBanca: string;
+    tituloTrabalho: string;
     professorId: string;
     alunoId: string;
     dataInicio: Date;

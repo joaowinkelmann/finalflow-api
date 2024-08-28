@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { NivelAcesso } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { randomUUID } from 'crypto';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
@@ -24,10 +25,10 @@ async function main() {
 
   // COORDENADORA
   const roberta = await prisma.usuario.upsert({
-    where: { email: "robertateste@appkurt.io" },
+    where: { email: "000robertateste@appkurt.io" },
     update: {},
     create: {
-      id: '0',
+      id: randomUUID(),
       email: 'robertateste@appkurt.io',
       nome: 'Roberta Teste',
       senha: hashedPassword,
@@ -38,10 +39,10 @@ async function main() {
   
   // PROFESSOR
   const amilton = await prisma.usuario.upsert({
-    where: { email: "amiltonteste@appkurt.io"},
+    where: { email: "000amiltonteste@appkurt.io"},
     update: {},
     create: {
-      id: '1',
+      id: randomUUID(),
       email: 'amiltonteste@appkurt.io',
       nome: 'Amilton Teste',
       senha: hashedPassword,
@@ -52,10 +53,10 @@ async function main() {
 
   // ALUNO
   const carlos = await prisma.usuario.upsert({
-    where: { email: "carlosteste@appkurt.io" },
+    where: { email: "000carlosteste@appkurt.io" },
     update: {},
     create: {
-      id: '2',
+      id: randomUUID(),
       email: 'carlosteste@appkurt.io',
       nome: 'Carlos Teste',
       senha: hashedPassword,
@@ -80,7 +81,7 @@ async function main() {
     create: {
       id_coordenador: '0',
       idUsuario: '0',
-      departamento: 'Departamento de Computação'
+      // departamento: 'Departamento de Computação'
       // id_coordenador String       @id @default(uuid())
       // usuarioId       String       @unique
       // usuario         Usuario      @relation(fields: [usuarioId], references: [id])

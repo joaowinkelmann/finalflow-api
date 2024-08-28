@@ -9,9 +9,11 @@ export class CreateCronogramaDto {
     //     Professor     Professor @relation(fields: [coordenadorId], references: [id_professor])
     //   }
     
-    @IsNotEmpty()
-    @IsString()
-    coordenadorId: string;
+
+    // nao precisa, pega da request
+    // @IsNotEmpty()
+    // @IsString()
+    // coordenadorId: string;
 
     @IsNotEmpty()
     @IsString()

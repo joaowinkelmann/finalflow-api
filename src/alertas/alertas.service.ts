@@ -49,7 +49,7 @@ export class AlertasService {
     // pegar os alertas pendentes do banco
     const alertas = await this.prisma.alerta.findMany({
       where: {
-        dataAlerta: { lte: new Date() }, // lte: less than or equal (ja passou)
+        dataEnvio: { lte: new Date() }, // lte: less than or equal (ja passou)
         jaEnviado: false,
       },
       include: {
@@ -77,7 +77,7 @@ export class AlertasService {
         template: "alert",
         context: {
           nome: alerta.Usuario.nome,
-          data: alerta.Prazo.dataLimite,
+          data: alerta.dataEnvio,
           mensagem: alerta.mensagem,
         },
       });

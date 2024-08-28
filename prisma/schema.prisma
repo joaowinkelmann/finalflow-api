@@ -29,10 +29,9 @@ model Usuario {
 }
 
 model Curso {
-  id_curso String @id @default(uuid())
+  id_curso String  @id @default(uuid())
   nome     String
-
-  Aluno Aluno[]
+  Aluno    Aluno[]
 }
 
 model Aluno {
@@ -56,34 +55,45 @@ model Professor {
   Banca2       Banca[]      @relation("Professor2")
 }
 
+// O "admin" do sistema. Pode criar e gerenciar os Cursos, Orientações, Cronogramas, e os Usuários em geral.
+// Existe apenas um Coordenador no sistema.
 model Coordenador {
   id_coordenador String       @id @default(uuid())
-  departamento   String
+  // departamento   String // nao parece fazer muito sentido guardar isso aqui, parece redundante com o dpto guardado no professor.
   idUsuario      String       @unique
   usuario        Usuario      @relation(fields: [idUsuario], references: [id])
   Cronograma     Cronograma[]
 }
 
+// Descreve uma orientação para um trabalho de TCC de algum aluno qualquer. Vincula um professor que será o orientador, e também um aluno que será orientado, linkando também as reuniões que ocorrerão durante a orientação.
+// Também de certa forma guarda metadados sobre o trabalho.
 model Orientacao {
   id_orientacao String    @id @default(uuid())
-  professorId   String
+  orientadorId  String
+  idBanca       String
   alunoId       String
   dataInicio    DateTime  @db.Timestamptz(3)
   dataFim       DateTime? @db.Timestamptz(3)
-  Professor     Professor @relation(fields: [professorId], references: [id_professor])
+  Professor     Professor @relation(fields: [orientadorId], references: [id_professor])
   Aluno         Aluno     @relation(fields: [alunoId], references: [id_aluno])
   Reuniao       Reuniao[]
+  Banca         Banca? // uma orientação tem somente uma banca
+  Avaliacao     Avaliacao[]
+
+  tituloTrabalho String
 }
 
+// Descreve um cronograma de atividades para um semestre letivo, definidos através de Prazos.
+// Cada cronograma é vinculado a um Coordenador.
 model Cronograma {
-  id_cronograma         String      @id @default(uuid())
-  coordenadorId         String
-  descricao             String
-  dataInicio            DateTime    @db.Timestamptz(3)
-  dataFim               DateTime    @db.Timestamptz(3)
-  Coordenador           Coordenador @relation(fields: [coordenadorId], references: [id_coordenador])
-  Banca                 Banca[]
-  Prazo                 Prazo[]
+  id_cronograma String      @id @default(uuid())
+  coordenadorId String
+  descricao     String
+  dataInicio    DateTime    @db.Timestamptz(3)
+  dataFim       DateTime    @db.Timestamptz(3)
+  Coordenador   Coordenador @relation(fields: [coordenadorId], references: [id_coordenador])
+  Banca         Banca[]
+  Prazo         Prazo[]
 }
 
 model Banca {
@@ -98,28 +108,44 @@ model Banca {
   Professor2   Professor   @relation("Professor2", fields: [professor2Id], references: [id_professor])
   Avaliacao    Avaliacao[]
 
+  orientacaoId String     @unique // uma banca tem somente uma orientação
+  Orientacao   Orientacao @relation(fields: [orientacaoId], references: [id_orientacao])
+
   @@unique([professor1Id, professor2Id, cronogramaId])
 }
 
 model Avaliacao {
   id_avaliacao  String        @id @default(uuid())
   bancaId       String
+  orientacaoId  String
   tipoAvaliacao TipoAvaliacao
   criterio      String
   nota          Float
   comentario    String?
   Banca         Banca         @relation(fields: [bancaId], references: [id_banca])
+  Orientacao    Orientacao    @relation(fields: [orientacaoId], references: [id_orientacao])
 }
 
+// Reuniões que ocorrem durante a Orientação de um aluno. Permite também o upload de documentos.
 model Reuniao {
-  id_reuniao   String     @id @default(uuid())
+  id_reuniao   String      @id @default(uuid())
   orientacaoId String
-  dataReuniao  DateTime   @db.Timestamptz(3)
+  dataReuniao  DateTime    @db.Timestamptz(3)
   descricao    String
-  documento    String?
-  Orientacao   Orientacao @relation(fields: [orientacaoId], references: [id_orientacao])
+  Documento    Documento[]
+  Orientacao   Orientacao  @relation(fields: [orientacaoId], references: [id_orientacao])
 }
 
+// Guarda indivudalmente os documentos que são enviados para alguma Reunião.
+model Documento {
+  id_documento String  @id @default(uuid())
+  nome         String
+  arquivo      String
+  reuniaoId    String
+  Reuniao      Reuniao @relation(fields: [reuniaoId], references: [id_reuniao])
+}
+
+// Define os prazos para entrega de documentos e avaliações para os alunos.
 model Prazo {
   id_prazo            String     @id @default(uuid())
   cronogramaId        String
@@ -130,20 +156,22 @@ model Prazo {
   Alerta              Alerta[]
 }
 
+// Guarda as mensagens que serão enviadas para os usuários.
+// Pode estar vinculado a um Prazo de algum Cronograma
+// Pode ser simplemsmente uma mensagem genérica a ser eneviada no sistema.
 model Alerta {
   id_alerta  String   @id @default(uuid())
-  prazoId    String
+  prazoId    String?
   idUsuario  String
   assunto    String
   mensagem   String
-  dataAlerta DateTime @db.Timestamptz(3)
+  dataEnvio  DateTime @db.Timestamptz(3) // data de quando será enviado o email
   jaEnviado  Boolean  @default(false)
-  Prazo      Prazo    @relation(fields: [prazoId], references: [id_prazo])
+  Prazo      Prazo?   @relation(fields: [prazoId], references: [id_prazo])
   Usuario    Usuario  @relation(fields: [idUsuario], references: [id])
 }
 
 // Enums
-
 enum NivelAcesso {
   coordenador
   professor
