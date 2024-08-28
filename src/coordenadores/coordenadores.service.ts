@@ -55,7 +55,7 @@ export class CoordenadoresService {
     // transfere o cargo para o professor, caso dê certo, rebaixa o coordenador atual
     const novoCoordenador = await this.prisma.coordenador.create({
       data: {
-        departamento: transferCoordenadorDto.departamento,
+        // departamento: transferCoordenadorDto.departamento,
         idUsuario: professor.idUsuario
       }
     });
@@ -87,15 +87,23 @@ export class CoordenadoresService {
     return `This action returns all professores`;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} professore`;
+  async findOne(idusuario: string) {
+    // return `This action returns a #${id} professore`;
+
+    // console.log(idusuario);
+    // console.log('id', id);
+    return await this.prisma.coordenador.findUnique({
+      where: {
+        idUsuario: idusuario
+      }
+    });
   }
 
-  update(id: number, updateCoordenadorDto: UpdateCoordenadorDto) {
+  update(id: string, updateCoordenadorDto: UpdateCoordenadorDto) {
     return `This action updates a #${id} professore`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} professore`;
   }
 }

@@ -7,9 +7,10 @@ import { UpdateReunioeDto } from './dto/update-reunioe.dto';
 export class ReunioesController {
   constructor(private readonly reunioesService: ReunioesService) {}
 
-  @Post()
-  create(@Body() createReunioeDto: CreateReunioeDto) {
-    return this.reunioesService.create(createReunioeDto);
+  @Post('/addToOrientacao')
+  create(@Param('idOrientacao') idOrientacao: string, @Body() createReunioeDto: CreateReunioeDto) {
+    console.log('idOrientacao', idOrientacao);
+    // return this.reunioesService.create(createReunioeDto);
   }
 
   @Get()
