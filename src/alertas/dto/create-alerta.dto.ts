@@ -29,5 +29,5 @@ export class CreateAlertaDto {
 
     @IsNotEmpty()
     // @IsDate()
-    dataAlerta: string;
+    dataEnvio: string;
 }

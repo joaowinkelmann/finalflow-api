@@ -4,23 +4,29 @@ import { UpdateBancaDto } from './dto/update-banca.dto';
 
 @Injectable()
 export class BancasService {
-  create(createBancaDto: CreateBancaDto) {
-    return 'This action adds a new banca';
+  defineBanca(createBancaDto: CreateBancaDto) {
+    // return 'This action adds a new banca';
+    // essa ação é chamada pelo coordenador para definir uma banca à uma orientação
+
+    
+
+
+
   }
 
   findAll() {
     return `This action returns all bancas`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} banca`;
   }
 
-  update(id: number, updateBancaDto: UpdateBancaDto) {
+  update(id: string, updateBancaDto: UpdateBancaDto) {
     return `This action updates a #${id} banca`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} banca`;
   }
 }

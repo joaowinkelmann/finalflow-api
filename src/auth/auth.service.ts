@@ -88,7 +88,6 @@ export class AuthService {
         try {
             // Gerar nova senha
             let novaSenha = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
-
             await this.usuariosService.updatePassword(email.email, novaSenha, true);
 
             return {
