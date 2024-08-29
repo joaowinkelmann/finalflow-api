@@ -11,6 +11,7 @@ import { SignInDto } from './dto/signin.dto';
 import { SignInReturnDto } from './dto/signin-return.dto';
 import { PayloadDto } from './dto/payload.dto';
 import { RecoverPasswordDto } from './dto/recover-password.dto';
+import { error } from 'console';
 
 @Injectable()
 @Dependencies(UsuariosService, JwtService)
@@ -33,7 +34,7 @@ export class AuthService {
 
         const user = await this.usuariosService.getUsuario(signInDto.email);
         if (!user || await bcrypt.compare(signInDto.senha, user.senha) === false) {
-            throw new UnauthorizedException();
+            throw new UnauthorizedException("Usuário ou senha incorreta");
         }
         const payload: PayloadDto = { sub: user.id, email: user.email, nivel_acesso: user.nivel_acesso };
 
