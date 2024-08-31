@@ -5,9 +5,14 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { ProfessoresService } from 'src/professores/professores.service';
 import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
+import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
+import { NivelAcesso } from '@prisma/client';
 
 @Injectable()
 export class CoordenadoresService {
+  
+  private ambienteInicializado: boolean = false;
+
   constructor(
     private prisma: PrismaService,
     private usuariosService: UsuariosService,
@@ -15,6 +20,11 @@ export class CoordenadoresService {
   ) { }
 
   async init(createCoordenadorDto: CreateCoordenadorDto) {
+
+    if (this.ambienteInicializado) {
+      throw new ConflictException('Ambiente já inicializado');
+    }
+
     // verificar se de fato não existe nenhum coordenador ainda
     // na real, somente deixa criar um coordenador se não existir nenhum usuario ainda no ambiente
     // const usuario = await this.prisma.usuario.findFirst();
@@ -23,6 +33,7 @@ export class CoordenadoresService {
     // se ja tem algum usuario ou coordenador, não deixa criar dai
     // if (usuario || coordenador) {
     if (coordenador) {
+      this.ambienteInicializado = true;
       throw new ConflictException('Ambiente já inicializado');
     }
 
@@ -30,7 +41,6 @@ export class CoordenadoresService {
 
     // cria o usuario e depois o coordenador
     const adminUser = await this.usuariosService.create(createCoordenadorDto);
-
 
     // vincular o usuario ao coordenador
     return await this.prisma.coordenador.create({

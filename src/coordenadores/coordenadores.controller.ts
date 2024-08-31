@@ -11,7 +11,7 @@ import { Public } from 'src/auth/public.decorator';
 export class CoordenadoresController {
   constructor(private readonly coordenadoresService: CoordenadoresService) {}
 
-  // somente quando não houver nenhum usuário no sistema ainda
+  // somente quando não houver nenhum usuário no sistema ainda (ambiente vazio)
   @Post('/init')
   @Public()
   init(@Body() createCoordenadorDto: CreateCoordenadorDto) {
