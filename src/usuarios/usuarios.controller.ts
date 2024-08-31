@@ -5,6 +5,7 @@ import { UpdateUsuarioDto } from './dto/update-usuario.dto';
 import { SetAvatarDto } from './dto/set-avatar.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
+import { Public } from 'src/auth/public.decorator';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -12,6 +13,7 @@ export class UsuariosController {
 
   @Post('/create')
   @NiveisAcesso(NivelAcesso.coordenador)
+  @Public()
   create(@Body() createUsuarioDto: CreateUsuarioDto) {
     return this.usuariosService.create(createUsuarioDto);
   }

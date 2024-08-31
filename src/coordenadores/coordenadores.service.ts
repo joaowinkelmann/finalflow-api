@@ -4,17 +4,55 @@ import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { ProfessoresService } from 'src/professores/professores.service';
+import { CreateCoordenadorDto } from './dto/create-coordenador.dto';
+import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
+import { NivelAcesso } from '@prisma/client';
 
 @Injectable()
 export class CoordenadoresService {
+  
+  private ambienteInicializado: boolean = false;
+
   constructor(
     private prisma: PrismaService,
     private usuariosService: UsuariosService,
     private professoresService: ProfessoresService
   ) { }
 
+  async init(createCoordenadorDto: CreateCoordenadorDto) {
+
+    if (this.ambienteInicializado) {
+      throw new ConflictException('Ambiente já inicializado');
+    }
+
+    // verificar se de fato não existe nenhum coordenador ainda
+    // na real, somente deixa criar um coordenador se não existir nenhum usuario ainda no ambiente
+    // const usuario = await this.prisma.usuario.findFirst();
+    const coordenador = await this.prisma.coordenador.findFirst();
+
+    // se ja tem algum usuario ou coordenador, não deixa criar dai
+    // if (usuario || coordenador) {
+    if (coordenador) {
+      this.ambienteInicializado = true;
+      throw new ConflictException('Ambiente já inicializado');
+    }
+
+    createCoordenadorDto.nivel_acesso = 'coordenador';
+
+    // cria o usuario e depois o coordenador
+    const adminUser = await this.usuariosService.create(createCoordenadorDto);
+
+    // vincular o usuario ao coordenador
+    return await this.prisma.coordenador.create({
+      data: {
+        idUsuario: adminUser.id
+      }
+    });
+  }
+
   async transfer(transferCoordenadorDto: TransferCoordenadorDto, idusuario: string) {
-    // não existe "criar" um coordenador, mas sim, passar a tocha adiante
+    // não existe "criar" um coordenador, mas sim, passar a tocha adiante (isso é, caso exista um coordenador)
+    // caso ainda não exista um coordenador (ambiente zerado), o primeiro pode ser cadastrado dai
 
     // pra isso, devemos então assegurar que quem está acessando esse endpoint é um coordenador, e que o usuário que está
     // recebendo o cargo é um professor.
