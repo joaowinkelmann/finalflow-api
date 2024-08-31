@@ -2,6 +2,8 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReuniaoDto } from './dto/create-reuniao.dto';
 import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { CreateDocumentoDto } from './dto/create-documento.dto';
+import { UpdateDocumentoDto } from './dto/update-documento.dto';
 
 @Injectable()
 export class ReunioesService {
@@ -29,6 +31,16 @@ export class ReunioesService {
     });
   }
 
+  async createDocumento(createDocumentoDto: CreateDocumentoDto) {
+    return await this.prisma.documento.create({
+      data: {
+        nome: createDocumentoDto.nome,
+        arquivo: createDocumentoDto.arquivo,
+        reuniaoId: createDocumentoDto.reuniaoId
+      }
+    });
+  }
+
   async findAll() {
     return await this.prisma.reuniao.findMany();
   }
@@ -50,6 +62,19 @@ export class ReunioesService {
         orientacaoId: updateReuniaoDto.orientacaoId,
         dataReuniao: updateReuniaoDto.dataReuniao,
         descricao: updateReuniaoDto.descricao
+      }
+    });
+  }
+
+  async updateDocumento(updateDocumentoDto: UpdateDocumentoDto) {
+    return await this.prisma.documento.update({
+      where: {
+        id_documento: updateDocumentoDto.id_documento
+      },
+      data: {
+        nome: updateDocumentoDto.nome,
+        arquivo: updateDocumentoDto.arquivo,
+        reuniaoId: updateDocumentoDto.reuniaoId
       }
     });
   }

@@ -46,6 +46,15 @@ export class OrientacoesService {
     return this.prisma.orientacao.findMany();
   }
 
+  async getOrientacoesByProfessor(idusuario: string) {
+    return this.prisma.orientacao.findMany({
+      where: {
+        orientadorId: idusuario,
+      },
+      // fazer join com a table de usuario
+    });
+  }
+
   async findOne(id: string) {
     return await this.prisma.orientacao.findUnique({
       where: {

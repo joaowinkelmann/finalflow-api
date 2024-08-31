@@ -2,6 +2,10 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { ReunioesService } from './reunioes.service';
 import { CreateReuniaoDto } from './dto/create-reuniao.dto';
 import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
+
+import { CreateDocumentoDto } from './dto/create-documento.dto';
+import { UpdateDocumentoDto } from './dto/update-documento.dto';
+
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 
@@ -12,11 +16,22 @@ export class ReunioesController {
   @Post('/addToOrientacao')
   // @NiveisAcesso(NivelAcesso.aluno, NivelAcesso.professor)
   @NiveisAcesso(NivelAcesso.professor) // sepah só professor cria uma reuniao ne
-  create(@Param('idOrientacao') idOrientacao: string, @Body() createReuniaoDto: CreateReuniaoDto) {
-    // console.log('idOrientacao', idOrientacao);
-
+  create(@Body() createReuniaoDto: CreateReuniaoDto) {
     return this.reunioesService.create(createReuniaoDto);
   }
+
+  @Post('/addDocumento')
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
+  createDocumento(@Body() createDocumentoDto: CreateDocumentoDto) {
+    return this.reunioesService.createDocumento(createDocumentoDto);
+  }
+
+  @Post('/updateDocumento')
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
+  updateDocumento(@Body() updateDocumentoDto: UpdateDocumentoDto) {
+    return this.reunioesService.updateDocumento(updateDocumentoDto);
+  }
+
 
   @Get()
   findAll() {
