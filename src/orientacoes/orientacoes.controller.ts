@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { OrientacoesService } from './orientacoes.service';
 import { CreateOrientacaoDto } from './dto/create-orientacao.dto';
 import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
@@ -15,10 +15,16 @@ export class OrientacoesController {
     return this.orientacoesService.create(createOrientacaoDto);
   }
 
-  @Get()
+  @Get('/getAll')
   @NiveisAcesso(NivelAcesso.coordenador)
   findAll() {
     return this.orientacoesService.findAll();
+  }
+
+  @Get('/getMyOrientacoes')
+  @NiveisAcesso(NivelAcesso.professor)
+  orientacoesByProfessor(@Req() req) {
+    return this.orientacoesService.getOrientacoesByProfessor(req.user.sub);
   }
 
   @Get(':id')
