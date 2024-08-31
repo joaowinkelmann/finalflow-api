@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrientacaoDto } from './dto/create-orientacao.dto';
 import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -6,34 +6,68 @@ import { PrismaService } from 'prisma/prisma.service';
 @Injectable()
 export class OrientacoesService {
   constructor(private prisma: PrismaService) {}
-  create(createOrientacaoDto: CreateOrientacaoDto) {
-    // return 'This action adds a new orientacao';
-    return this.prisma.orientacao.create({
+  async create(createOrientacaoDto: CreateOrientacaoDto) {
+    // verifica se createOrientacaoDto.orientadorId é um professor
+    const professor = await this.prisma.professor.findUnique({
+      where: {
+        id_professor: createOrientacaoDto.orientadorId,
+      },
+    });
+
+    if (!createOrientacaoDto.orientadorId) {
+      throw new NotFoundException('Professor não encontrado');
+    } else {
+      console.log('Professor encontrado', professor);
+    }
+
+    // verifica se createOrientacaoDto.alunoId é um aluno
+    const aluno = await this.prisma.aluno.findUnique({
+      where: {
+        id_aluno: createOrientacaoDto.alunoId,
+      },
+    });
+
+    if (!createOrientacaoDto.alunoId) {
+      throw new NotFoundException('Aluno não encontrado');
+    } else {
+      console.log('Aluno encontrado', aluno);
+    }
+
+    // return;
+
+    // verificou tudo, pode criar a orientação então
+
+    return await this.prisma.orientacao.create({
       data: createOrientacaoDto,
     });
   }
 
-  findAll() {
-    // return `This action returns all Orientacaos`;
-
+  async findAll() {
     return this.prisma.orientacao.findMany();
   }
 
-  findOne(id: string) {
-    // return `This action returns a #${id} orientacao`;
-
-    return this.prisma.orientacao.findUnique({
+  async findOne(id: string) {
+    return await this.prisma.orientacao.findUnique({
       where: {
         id_orientacao: id,
       },
     });
   }
 
-  update(id: string, updateOrientacaoDto: UpdateOrientacaoDto) {
-    return `This action updates a #${id} orientacao`;
+  async update(id: string, updateOrientacaoDto: UpdateOrientacaoDto) {
+    return await this.prisma.orientacao.update({
+      where: {
+        id_orientacao: id,
+      },
+      data: updateOrientacaoDto,
+    });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} orientacao`;
+  async remove(id: string) {
+    return await this.prisma.orientacao.delete({
+      where: {
+        id_orientacao: id,
+      },
+    });
   }
 }

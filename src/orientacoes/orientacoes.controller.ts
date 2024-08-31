@@ -9,7 +9,7 @@ import { NivelAcesso } from '@prisma/client';
 export class OrientacoesController {
   constructor(private readonly orientacoesService: OrientacoesService) {}
 
-  @Post()
+  @Post('/create')
   @NiveisAcesso(NivelAcesso.coordenador)
   create(@Body() createOrientacaoDto: CreateOrientacaoDto) {
     return this.orientacoesService.create(createOrientacaoDto);

@@ -38,19 +38,23 @@ export class CronogramasService {
     });
   }
 
-  findAll() {
-    return `This action returns all cronogramas`;
+  async findAll() {
+    return await this.prisma.cronograma.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cronograma`;
+  async findOne(id: string) {
+    return await this.prisma.cronograma.findUnique({
+      where: {
+        id_cronograma: id,
+      },
+    });
   }
 
-  update(id: number, updateCronogramaDto: UpdateCronogramaDto) {
+  update(id: string, updateCronogramaDto: UpdateCronogramaDto) {
     return `This action updates a #${id} cronograma`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} cronograma`;
   }
 }

@@ -70,7 +70,6 @@ model Coordenador {
 model Orientacao {
   id_orientacao String    @id @default(uuid())
   orientadorId  String
-  idBanca       String
   alunoId       String
   dataInicio    DateTime  @db.Timestamptz(3)
   dataFim       DateTime? @db.Timestamptz(3)

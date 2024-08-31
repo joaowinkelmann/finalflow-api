@@ -16,23 +16,23 @@ export class CronogramasController {
     return this.cronogramasService.create(createCronogramaDto, idusuario);
   }
 
-  @Get()
+  @Get('/getAll')
   findAll() {
     return this.cronogramasService.findAll();
   }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.cronogramasService.findOne(+id);
+    return this.cronogramasService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCronogramaDto: UpdateCronogramaDto) {
-    return this.cronogramasService.update(+id, updateCronogramaDto);
+    return this.cronogramasService.update(id, updateCronogramaDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.cronogramasService.remove(+id);
+    return this.cronogramasService.remove(id);
   }
 }

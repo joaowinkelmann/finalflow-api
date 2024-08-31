@@ -1,26 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { CreateReunioeDto } from './dto/create-reunioe.dto';
-import { UpdateReunioeDto } from './dto/update-reunioe.dto';
+import { CreateReuniaoDto } from './dto/create-reuniao.dto';
+import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class ReunioesService {
-  create(createReunioeDto: CreateReunioeDto) {
-    return 'This action adds a new reunioe';
+  constructor(private prisma: PrismaService) { }
+  async create(createReuniaoDto: CreateReuniaoDto) {
+    return await this.prisma.reuniao.create({
+      data: {
+        orientacaoId: createReuniaoDto.orientacaoId,
+        dataReuniao: createReuniaoDto.dataReuniao,
+        descricao: createReuniaoDto.descricao
+      }
+    });
   }
 
-  findAll() {
-    return `This action returns all reunioes`;
+  async findAll() {
+    return await this.prisma.reuniao.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} reunioe`;
+  async findOne(id: string) {
+    return await this.prisma.reuniao.findUnique({
+      where: {
+        id_reuniao: id
+      }
+    });
   }
 
-  update(id: number, updateReunioeDto: UpdateReunioeDto) {
-    return `This action updates a #${id} reunioe`;
+  async update(id: string, updateReuniaoDto: UpdateReuniaoDto) {
+    return await this.prisma.reuniao.update({
+      where: {
+        id_reuniao: id
+      },
+      data: {
+        orientacaoId: updateReuniaoDto.orientacaoId,
+        dataReuniao: updateReuniaoDto.dataReuniao,
+        descricao: updateReuniaoDto.descricao
+      }
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} reunioe`;
+  async remove(id: string) {
+    return await this.prisma.reuniao.delete({
+      where: {
+        id_reuniao: id
+      }
+    });
   }
 }

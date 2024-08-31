@@ -80,7 +80,7 @@ async function main() {
     update: {},
     create: {
       id_coordenador: '0',
-      idUsuario: '0',
+      idUsuario: roberta.id
       // departamento: 'Departamento de Computação'
       // id_coordenador String       @id @default(uuid())
       // usuarioId       String       @unique
@@ -95,7 +95,7 @@ async function main() {
     create: {
       id_professor: '1',
       departamento: 'Departamento de Computação',
-      idUsuario: '1'
+      idUsuario: amilton.id
       // id_professor String       @id @default(uuid())
       // departamento String
       // usuarioId    String       @unique
@@ -121,7 +121,7 @@ async function main() {
     create: {
       id_aluno: '1',
       matricula: 123456,
-      idUsuario: '2',
+      idUsuario: carlos.id,
       cursoId: '1'
     },
   }
