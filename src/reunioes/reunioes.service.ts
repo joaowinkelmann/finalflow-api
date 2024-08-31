@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateReuniaoDto } from './dto/create-reuniao.dto';
 import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -7,6 +7,19 @@ import { PrismaService } from 'prisma/prisma.service';
 export class ReunioesService {
   constructor(private prisma: PrismaService) { }
   async create(createReuniaoDto: CreateReuniaoDto) {
+
+
+    // verificar se a orientacao existe
+    const orientacao = await this.prisma.orientacao.findUnique({
+      where: {
+        id_orientacao: createReuniaoDto.orientacaoId
+      }
+    });
+
+    if (!orientacao) {
+      throw new NotFoundException(`Orientação não encontrada`);
+    }
+
     return await this.prisma.reuniao.create({
       data: {
         orientacaoId: createReuniaoDto.orientacaoId,

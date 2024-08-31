@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProfessorDto } from './dto/create-professor.dto';
 import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -13,38 +13,36 @@ export class ProfessoresService {
   ) { }
 
   async create(createProfessorDto: CreateProfessorDto) {
-    try {
-      const usuario = await this.usuariosService.create({
-        nome: createProfessorDto.nome,
-        email: createProfessorDto.email,
-        nivel_acesso: 'professor',
-      });
+    const usuario = await this.usuariosService.create({
+      nome: createProfessorDto.nome,
+      email: createProfessorDto.email,
+      nivel_acesso: 'professor',
+    });
 
-      if (!usuario) {
-        console.error('Erro ao criar usuário');
-        throw new Error('Erro ao criar usuário');
-      }
-
-      const professor = await this.prisma.professor.create({
-        data: {
-          departamento: createProfessorDto.departamento,
-          usuario: {
-            connect: {
-              id: usuario.id
-            }
-          }
-        }
-      });
-
-      return professor;
-    } catch (error) {
-      console.error(error.message);
-      throw new Error(error.message);
+    if (!usuario || !usuario.id) {
+      throw new BadRequestException('Falha ao criar usuário: dados inválidos');
     }
+
+    const professorData = {
+      departamento: createProfessorDto.departamento,
+      usuario: {
+        connect: {
+          id: usuario.id
+        }
+      }
+    };
+
+    const professor = await this.prisma.professor.create({
+      data: professorData,
+      include: {
+        usuario: true
+      }
+    });
+
+    return professor;
   }
 
   async findAll() {
-    // return `This action returns all professores`;
     return await this.prisma.professor.findMany();
   }
 

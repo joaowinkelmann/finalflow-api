@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -23,9 +23,10 @@ export class UsuariosService {
       });
 
       if (userExists) {
-        return {
-          message: "Usuário já existe",
-        };
+        // return {
+        //   message: "Usuário já existe",
+        // };
+        throw new ConflictException("Usuário já existe");
       }
 
       const salt = await bcrypt.genSalt();
@@ -61,11 +62,14 @@ export class UsuariosService {
         nivel_acesso: user.nivel_acesso,
       };
     } catch (error) {
-      return {
-        message: error,
-      }
+      // return {
+      //   message: error,
+      // }
+      console.error(error);
+      throw error;
     }
   }
+
   async findAll() {
     return await this.prisma.usuario.findMany({
       select: {
