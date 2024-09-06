@@ -43,6 +43,7 @@ model Aluno {
   Banca      Banca[]
   Curso      Curso        @relation(fields: [cursoId], references: [id_curso])
   cursoId    String
+  Entrega    Entrega[]
 }
 
 model Professor {
@@ -68,18 +69,19 @@ model Coordenador {
 // Descreve uma orientação para um trabalho de TCC de algum aluno qualquer. Vincula um professor que será o orientador, e também um aluno que será orientado, linkando também as reuniões que ocorrerão durante a orientação.
 // Também de certa forma guarda metadados sobre o trabalho.
 model Orientacao {
-  id_orientacao String    @id @default(uuid())
+  id_orientacao String      @id @default(uuid())
   orientadorId  String
   alunoId       String
-  dataInicio    DateTime  @db.Timestamptz(3)
-  dataFim       DateTime? @db.Timestamptz(3)
-  Professor     Professor @relation(fields: [orientadorId], references: [id_professor])
-  Aluno         Aluno     @relation(fields: [alunoId], references: [id_aluno])
+  dataInicio    DateTime    @db.Timestamptz(3)
+  dataFim       DateTime?   @db.Timestamptz(3)
+  Professor     Professor   @relation(fields: [orientadorId], references: [id_professor])
+  Aluno         Aluno       @relation(fields: [alunoId], references: [id_aluno])
   Reuniao       Reuniao[]
   Banca         Banca? // uma orientação tem somente uma banca
   Avaliacao     Avaliacao[]
 
   tituloTrabalho String
+  Entrega        Entrega[]
 }
 
 // Descreve um cronograma de atividades para um semestre letivo, definidos através de Prazos.
@@ -150,24 +152,40 @@ model Prazo {
   cronogramaId        String
   tipoPrazo           TipoPrazo
   dataLimite          DateTime   @db.Timestamptz(3)
-  dataAvaliacaoLimite DateTime   @db.Timestamptz(3)
+  dataAvaliacaoLimite DateTime   @db.Timestamptz(3) // estimativa de até quando será feita a avaliação pelo professor
   Cronograma          Cronograma @relation(fields: [cronogramaId], references: [id_cronograma])
   Alerta              Alerta[]
+  Entrega             Entrega[]
+}
+
+model Entrega {
+  id_entrega   String     @id @default(uuid())
+  tipoPrazo    TipoPrazo // Linka o tipo de prazo (Proposta, TC, etc)
+  dataEnvio    DateTime   @db.Timestamptz(3) // Data de envio da proposta/TC
+  arquivo      String // O arquivo enviado pelo aluno
+  alunoId      String
+  aluno        Aluno      @relation(fields: [alunoId], references: [id_aluno])
+  orientacaoId String
+  orientacao   Orientacao @relation(fields: [orientacaoId], references: [id_orientacao])
+  prazoId      String
+  prazo        Prazo      @relation(fields: [prazoId], references: [id_prazo])
+
+  @@unique([alunoId, tipoPrazo])
 }
 
 // Guarda as mensagens que serão enviadas para os usuários.
 // Pode estar vinculado a um Prazo de algum Cronograma
 // Pode ser simplemsmente uma mensagem genérica a ser eneviada no sistema.
 model Alerta {
-  id_alerta  String   @id @default(uuid())
-  prazoId    String?
-  idUsuario  String
-  assunto    String
-  mensagem   String
-  dataEnvio  DateTime @db.Timestamptz(3) // data de quando será enviado o email
-  jaEnviado  Boolean  @default(false)
-  Prazo      Prazo?   @relation(fields: [prazoId], references: [id_prazo])
-  Usuario    Usuario  @relation(fields: [idUsuario], references: [id])
+  id_alerta String   @id @default(uuid())
+  prazoId   String?
+  idUsuario String
+  assunto   String
+  mensagem  String
+  dataEnvio DateTime @db.Timestamptz(3) // data de quando será enviado o email
+  jaEnviado Boolean  @default(false)
+  Prazo     Prazo?   @relation(fields: [prazoId], references: [id_prazo])
+  Usuario   Usuario  @relation(fields: [idUsuario], references: [id])
 }
 
 // Enums

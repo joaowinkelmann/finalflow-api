@@ -1,4 +1,5 @@
-import { IsNumber, IsString, IsNotEmpty } from 'class-validator';
+import { NivelAcesso } from '@prisma/client';
+import { IsNumber, IsString, IsNotEmpty, IsEmpty, IsOptional } from 'class-validator';
 import { CreateUsuarioDto } from 'src/usuarios/dto/create-usuario.dto';
 
 export class CreateAlunoDto extends CreateUsuarioDto {
@@ -21,4 +22,8 @@ export class CreateAlunoDto extends CreateUsuarioDto {
   @IsString()
   @IsNotEmpty()
   idUsuario: string;
+
+  @IsEmpty()
+  // @IsOptional()
+  nivel_acesso: NivelAcesso; // setado como aluno
 }

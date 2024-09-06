@@ -10,7 +10,7 @@ export class BancasController {
   constructor(private readonly bancasService: BancasService) {}
 
   @Post('/create')
-  @NiveisAcesso(NivelAcesso.coordenador) // os coordenadores que definem as bancase
+  @NiveisAcesso(NivelAcesso.coordenador) // os coordenadores que definem as bancas
   define(@Body() createBancaDto: CreateBancaDto) {
     return this.bancasService.defineBanca(createBancaDto);
   }

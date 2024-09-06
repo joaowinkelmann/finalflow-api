@@ -9,7 +9,7 @@ API para controle de Trabalhos de Conclusão de Curso (TCC)
 - Definição pelo coordenador do cronograma de entregas
 - Coordenador define os 2 professores que compõem a banca
 - Lançar notas por critérios para Proposta, Reelaboração Proposta, TC e Reelaboração de TC
-- Registro de reuniões de orientações com upload de documentos
+- Registro de reuniões de orientações com upload de documentos ✅
 - Controle dos prazos para entrega de Proposta, Reelaboração Proposta, TC e Reelaboração de TC
 - Controle dos tempos para Avaliação de Proposta, Reelaboração Proposta, TC e Reelaboração de TC
 - Alerta de atrasos para prazos de entrega e tempos para Avaliação de Proposta, Reelaboração Proposta, TC e Reelaboração de TC

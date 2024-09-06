@@ -3,6 +3,7 @@ import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from '../usuarios/usuarios.service';
+import { NivelAcesso } from '@prisma/client';
 
 @Injectable()
 export class AlunosService {
@@ -13,24 +14,22 @@ export class AlunosService {
 
   async create(createAlunoDto: CreateAlunoDto) {
     try {
-      this.usuariosService.create({
+      const usuario = await this.usuariosService.create({
         nome: createAlunoDto.nome,
         email: createAlunoDto.email,
-        nivel_acesso: 'aluno',
-      }).then((usuario) => {
-        this.prisma.aluno.create({
-          data: {
-            matricula: createAlunoDto.matricula,
-            cursoId: createAlunoDto.cursoId,
-            idUsuario: usuario.id,
-          }
-        });
-      }
-      ).then((aluno) => {
-        return aluno;
+        nivel_acesso: NivelAcesso.aluno
       });
+      const aluno = await this.prisma.aluno.create({
+        data: {
+          matricula: createAlunoDto.matricula,
+          cursoId: createAlunoDto.cursoId,
+          idUsuario: usuario.id,
+        }
+      });
+
+      return aluno;
     } catch (error) {
-      return error.message;
+      throw error;
     }
   }
 
@@ -39,7 +38,7 @@ export class AlunosService {
       return await this.prisma.aluno.findMany();
     }
     catch (error) {
-      return error.message;
+      return error;
     }
   }
 
