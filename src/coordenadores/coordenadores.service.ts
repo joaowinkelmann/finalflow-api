@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotAcceptableException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { TransferCoordenadorDto } from './dto/transfer-coordenador.dto';
 import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -126,15 +126,18 @@ export class CoordenadoresService {
   }
 
   async findOne(idusuario: string) {
-    // return `This action returns a #${id} professore`;
 
-    // console.log(idusuario);
-    // console.log('id', id);
-    return await this.prisma.coordenador.findUnique({
+    const cordenador =  await this.prisma.coordenador.findUnique({
       where: {
         idUsuario: idusuario
       }
     });
+
+    if(cordenador == null){
+      throw new NotAcceptableException('Cordenador não encontrado');
+    }
+
+    return cordenador;
   }
 
   update(id: string, updateCoordenadorDto: UpdateCoordenadorDto) {
