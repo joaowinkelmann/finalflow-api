@@ -1,5 +1,5 @@
 import { NivelAcesso } from "@prisma/client";
-import { IsEmail, IsNotEmpty, IsStrongPassword, IsOptional } from "class-validator";
+import { IsEmail, IsNotEmpty } from "class-validator";
 
 export class CreateUsuarioDto {
   @IsNotEmpty({

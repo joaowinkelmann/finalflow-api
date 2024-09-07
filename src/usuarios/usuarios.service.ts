@@ -23,16 +23,13 @@ export class UsuariosService {
       });
 
       if (userExists) {
-        // return {
-        //   message: "Usuário já existe",
-        // };
-        throw new ConflictException("Usuário já existe");
+        throw new ConflictException("Um usuário com o mesmo e-mail já existe");
       }
 
       const salt = await bcrypt.genSalt();
-      let senhaPrimeiroAcesso = crypto.getRandomValues(new Uint32Array(1))[0].toString(36) + "bA1_";
+      const firstAccessPassword = this.generatePassword(8);
 
-      const hash = await bcrypt.hash(senhaPrimeiroAcesso, salt);
+      const hash = await bcrypt.hash(firstAccessPassword, salt);
 
       const user = await this.prisma.usuario.create({
         data: {
@@ -51,7 +48,7 @@ export class UsuariosService {
         context: {
           nome: user?.nome,
           email: user?.email,
-          senha: senhaPrimeiroAcesso,
+          senha: firstAccessPassword,
         },
       });
 
@@ -62,12 +59,22 @@ export class UsuariosService {
         nivel_acesso: user.nivel_acesso,
       };
     } catch (error) {
-      // return {
-      //   message: error,
-      // }
       console.error(error);
       throw error;
     }
+  }
+
+  private generatePassword(length: number): string {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const array = new Uint32Array(length);
+    crypto.getRandomValues(array); // alta entropia hehe
+
+    let password = '';
+    for (let i = 0; i < length; i++) {
+      password += characters[array[i] % characters.length];
+    }
+
+    return password;
   }
 
   async findAll() {

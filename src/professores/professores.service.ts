@@ -4,6 +4,7 @@ import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { Professor } from './entities/professor.entity';
+import { NivelAcesso } from '@prisma/client';
 
 @Injectable()
 export class ProfessoresService {
@@ -16,7 +17,7 @@ export class ProfessoresService {
     const usuario = await this.usuariosService.create({
       nome: createProfessorDto.nome,
       email: createProfessorDto.email,
-      nivel_acesso: 'professor',
+      nivel_acesso: NivelAcesso.professor
     });
 
     if (!usuario || !usuario.id) {
