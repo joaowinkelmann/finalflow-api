@@ -1,10 +1,11 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
 import { CreateProfessorDto } from './dto/create-professor.dto';
 import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
 import { Professor } from './entities/professor.entity';
 import { NivelAcesso } from '@prisma/client';
+import { bool } from 'sharp';
 
 @Injectable()
 export class ProfessoresService {
@@ -44,31 +45,92 @@ export class ProfessoresService {
   }
 
   async findAll() {
-    return await this.prisma.professor.findMany();
+    const professores =  await this.prisma.professor.findMany();
+
+    if(professores == null){
+      throw new NotAcceptableException('Nenhum professor cadastrado');
+    }
+
+    return professores;
   }
 
   async findOne(id: string) {
-    return await this.prisma.professor.findUnique({
+    const professor =  await this.prisma.professor.findUnique({
       where: {
         id_professor: id
       }
     });
+
+    if(professor == null){
+      throw new NotAcceptableException('Por favor informe um id válido');
+    }
+
+    return professor;
   }
 
   // getProfessorById(id_professor: string): Promise<Professor | null> {
-  getProfessorById(id_professor: string): Promise<any> {
-    return this.prisma.professor.findUnique({
+  async getProfessorById(id_professor: string): Promise<any> {
+    const  professor =  await this.prisma.professor.findUnique({
       where: {
         id_professor: id_professor
       }
     });
+
+    if(professor == null){
+      throw new NotAcceptableException('Por favor informe um id válido');
+    }
+
+    return professor;
   }
 
-  update(id: string, updateProfessorDto: UpdateProfessorDto) {
-    return `This action updates a #${id} professore`;
+  async update(id: string, updateProfessorDto: UpdateProfessorDto) {
+    const retorno = await this.prisma.professor.update({
+      where: {
+        id_professor: id
+      },
+      data: {
+        departamento: updateProfessorDto.departamento
+      }
+    })
+
+    if(retorno == null){
+      throw new NotAcceptableException('Por favor informe um id válido');
+    }
+
+    return {
+      message: "Sucesso ao atualizar o departamento",
+    };
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} professore`;
+  async remove(id: string) {
+    const temProfessor = await this.prisma.professor.findFirst({
+      where: {
+        id_professor: id
+      }
+    })
+    if(temProfessor == null){
+      throw new NotAcceptableException('Por favor informe um id válido');
+    }
+
+    const temOrientacao = await this.prisma.orientacao.findFirst({
+      where: {
+        orientadorId: id
+      }
+    })
+
+    if(temOrientacao != null){
+      throw new NotAcceptableException('Professor já presente em uma orientação, não é possível exclui-lo');
+    }
+
+    await this.prisma.professor.delete({
+      where: {
+        id_professor: id
+      }
+    });
+
+    return {
+      message: "Professor removido com sucesso",
+    };
   }
+  
 }
