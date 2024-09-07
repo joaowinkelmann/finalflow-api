@@ -15,7 +15,7 @@ export class BancasController {
     return this.bancasService.defineBanca(createBancaDto);
   }
 
-  @Get()
+  @Get('/getAll')
   @NiveisAcesso(NivelAcesso.coordenador, NivelAcesso.professor) // verificar: professor tem permissão de ver todas as bancas disponíveis?
   findAll() {
     return this.bancasService.findAll();

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { CreateBancaDto } from './dto/create-banca.dto';
 import { UpdateBancaDto } from './dto/update-banca.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -18,19 +18,46 @@ export class BancasService {
     });
   }
 
-  findAll() {
-    return `This action returns all bancas`;
+  async findAll() {
+    const bancas = await this.prisma.banca.findMany();
+
+    if(bancas.length == 0){
+      throw new ForbiddenException('Nenhuma orientação cadastrada.');
+    }
+
+    return bancas;
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} banca`;
+  async findOne(id: string) {
+    const banca = await this.prisma.banca.findUnique({
+      where: {
+        id_banca: id
+      }
+    });
+
+    if(banca == null){
+      throw new ForbiddenException('Banca não encontrada');
+    }
+    return banca;
   }
 
-  update(id: string, updateBancaDto: UpdateBancaDto) {
+  async update(id: string, updateBancaDto: UpdateBancaDto) {
     return `This action updates a #${id} banca`;
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} banca`;
+  async remove(id: string) {
+    try {
+      const bancaRemovido = await this.prisma.banca.delete({
+        where: {
+          id_banca: id
+        }
+      })
+  
+      return {
+        message: "Banca removida com sucesso!"
+      }
+    } catch (error) {
+      throw new ForbiddenException('Banca não encontrada para remoção');
+    }
   }
 }
