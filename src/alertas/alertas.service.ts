@@ -21,11 +21,12 @@ export class AlertasService {
   }
 
   // async createMany(alerts: { prazoId: string; assunto: string; mensagem: string; dataEnvio: Date; jaEnviado: boolean; idUsuario: string }[]) {
-  //   // throw new Error('Method not implemented.');
-  //   return await this.prisma.alerta.createMany({
-  //     data: alerts,
-  //   });
-  // }
+  async createMany(alerts: CreateAlertaDto[]) {
+    // throw new Error('Method not implemented.');
+    return await this.prisma.alerta.createMany({
+      data: alerts,
+    });
+  }
 
   findAll() {
     // return `This action returns all alertas`;
@@ -100,27 +101,79 @@ export class AlertasService {
   }
 
   // busca se não entrou algum usuário em algum cronograma/orientação que precisa salvar os seus alertas no banco
+  // @Cron(CronExpression.EVERY_10_SECONDS)
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   async generateAlertasforOrientacoes() {
+    console.log('Running scheduled task to process Orientacoes');
+
     const cronogramas = await this.prisma.cronograma.findMany({
       where: {
         data_inicio: { lte: new Date() },
         data_fim: { gte: new Date() },
-      },
-      include: {
-        Prazo: true,
-      },
+      }
     });
 
     for (const cronograma of cronogramas) {
-      // buscar as orientações que estão dentro do cronograma
       const orientacoes = await this.prisma.orientacao.findMany({
+        where: {
+          idcronograma: cronograma.id_cronograma,
+        },
+        include: {
+          Aluno: {
+            select: {
+              idusuario: true,
+            }
+          }
+        }
+      });
+
+      const prazos = await this.prisma.prazo.findMany({
         where: {
           idcronograma: cronograma.id_cronograma,
         }
       });
+  
+      for (const orientacao of orientacoes) {
+        for (const prazo of prazos) {
+          const existingAlerts = await this.prisma.alerta.findMany({
+            where: {
+              idprazo: prazo.id_prazo,
+              idusuario: orientacao.Aluno.idusuario,
+            }
+          });
+  
+          const alertIntervals = [30, 20, 10, 5, 3, 1];
+  
+          const unscheduledIntervals = alertIntervals.filter(interval => {
+            const alertDate = new Date(prazo.data_entrega);
+            alertDate.setDate(alertDate.getDate() - interval);
+  
+            return !existingAlerts.some(alert => 
+              alert.data_envio.toISOString() === alertDate.toISOString()
+            );
+          });
 
+          const newAlerts = unscheduledIntervals.map(interval => {
+            const alertDate = new Date(prazo.data_entrega);
+            alertDate.setDate(alertDate.getDate() - interval);
+  
+            return {
+              idprazo: prazo.id_prazo,
+              idusuario: orientacao.Aluno.idusuario, // Assuming alerts go to the Aluno
+              assunto: `Reminder: ${interval} days until deadline for ${prazo.prazo_tipo}`,
+              mensagem: `You have ${interval} days left to submit ${prazo.prazo_tipo}.`,
+              data_envio: alertDate,
+              ja_enviado: false,
+            };
+          });
+
+          if (newAlerts.length > 0) {
+            await this.prisma.alerta.createMany({
+              data: newAlerts,
+            });
+          }
+        }
+      }
     }
-
   }
 }

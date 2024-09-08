@@ -13,7 +13,7 @@ export class CronogramasService {
     // vamos pegar o idcoordenador da tabela de coordenador
     let idusuario_coordenador = await this.coordenadoresService.findOne(idusuario);
     if (!idusuario_coordenador) {
-      return new NotFoundException('Coordenador não encontrado');
+      throw new NotFoundException('Coordenador não encontrado');
     }
 
     return this.prisma.cronograma.create({

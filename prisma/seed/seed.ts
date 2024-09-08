@@ -24,6 +24,8 @@ async function main() {
   });
 
   // COORDENADORA
+  // com  isso aqui fica impossivel usar o "init"
+  /*
   const roberta = await prisma.usuario.upsert({
     where: { email: "000robertateste@appkurt.io" },
     update: {},
@@ -36,6 +38,7 @@ async function main() {
       data_cadastro: new Date()
     },
   });
+  */
   
   // PROFESSOR
   const amilton = await prisma.usuario.upsert({
@@ -65,14 +68,14 @@ async function main() {
     },
   });
 
-  const coordenadoraRoberta = await prisma.coordenador.upsert({
-    where: { id_coordenador: "0" },
-    update: {},
-    create: {
-      id_coordenador: '0',
-      idusuario: roberta.id_usuario
-    }
-  });
+  // const coordenadoraRoberta = await prisma.coordenador.upsert({
+  //   where: { id_coordenador: "0" },
+  //   update: {},
+  //   create: {
+  //     id_coordenador: '0',
+  //     idusuario: roberta.id_usuario
+  //   }
+  // });
 
   const professorAmilton = await prisma.professor.upsert({
     where : { id_professor: "1" },

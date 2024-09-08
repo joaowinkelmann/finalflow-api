@@ -1,15 +1,32 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CreatePrazoDto } from './dto/create-prazo.dto';
 import { UpdatePrazoDto } from './dto/update-prazo.dto';
 import { PrismaService } from 'prisma/prisma.service';
-import { AlertasService } from 'src/alertas/alertas.service';
-
 @Injectable()
 export class PrazosService {
-  constructor(private prisma: PrismaService, private alertasService: AlertasService) {}
-  create(createPrazoDto: CreatePrazoDto) {
-    return this.prisma.prazo.create({
+  constructor(private prisma: PrismaService) { }
+  async create(createPrazoDto: CreatePrazoDto) {
+
+    // verificar se o cronograma existe mesmo
+    const cronograma = await this.prisma.cronograma.findUnique({
+      where: {
+        id_cronograma: createPrazoDto.idcronograma,
+      },
+    });
+
+    if (!cronograma) {
+      throw new NotFoundException('Cronograma não encontrado');
+    }
+
+    return await this.prisma.prazo.create({
       data: createPrazoDto,
+    }).catch((err) => {
+      if (err.code === 'P2002') {
+        throw new ConflictException('Prazo já cadastrado');
+      } else {
+        console.log(err);
+        throw new UnprocessableEntityException('Erro ao cadastrar prazo');
+      }
     });
   }
 
@@ -47,15 +64,15 @@ export class PrazosService {
 
   //   const today = new Date();
   //   const deadline = new Date(prazo.dataLimite);
-  
+
   //   // Step 2: Calculate the total number of days between today and the deadline
   //   const totalDays = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   //   // If the deadline is already passed, return or handle accordingly
   //   if (totalDays <= 0) {
   //     throw new Error('Deadline has already passed');
   //   }
-  
+
   //   // Step 3: Define the alert intervals based on the total days
   //   const alertIntervals = [
   //     30, // 30 days before
@@ -65,16 +82,16 @@ export class PrazosService {
   //     3,  // 3 days before
   //     1   // 1 day before
   //   ];
-  
+
   //   // Filter only intervals that are smaller than totalDays to avoid past alerts
   //   const validAlerts = alertIntervals.filter(interval => interval <= totalDays);
   //   const idUsuario = prazo.idUsuario; // Adjust as necessary to fetch `idUsuario`
-  
+
   //   // Step 4: Generate alerts based on valid intervals
   //   const alerts = validAlerts.map((daysBefore) => {
   //     const alertDate = new Date(deadline);
   //     alertDate.setDate(alertDate.getDate() - daysBefore); // Calculate the alert date based on daysBefore
-  
+
   //     return {
   //       prazoId: id,
   //       assunto: `Alerta de Prazo: ${prazo.prazo_tipo}`,
@@ -84,12 +101,19 @@ export class PrazosService {
   //       idUsuario: idUsuario, // Include the idUsuario for each alert
   //     };
   //   });
-  
+
   //   // Step 5: Save the generated alerts to the database
   //   return this.alertasService.createMany(alerts);
   // }
 
-  remove(id: string) {
-    return `This action removes a #${id} prazo`;
+  async remove(id: string) {
+    return await this.prisma.prazo.delete({
+      where: {
+        id_prazo: id,
+      },
+    }).catch((err) => {
+      console.log(err);
+      throw new NotFoundException('Prazo não encontrado');
+    });
   }
 }

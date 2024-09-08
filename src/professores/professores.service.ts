@@ -19,7 +19,7 @@ export class ProfessoresService {
       nivel_acesso: NivelAcesso.professor
     });
 
-    if (!usuario || !usuario.id_usuario) {
+    if (!usuario || !usuario.idusuario) {
       throw new BadRequestException('Falha ao criar usuário: dados inválidos');
     }
 
@@ -27,7 +27,7 @@ export class ProfessoresService {
       departamento: createProfessorDto.departamento,
       usuario: {
         connect: {
-          id_usuario: usuario.id_usuario
+          id_usuario: usuario.idusuario
         }
       }
     };
@@ -35,7 +35,13 @@ export class ProfessoresService {
     const professor = await this.prisma.professor.create({
       data: professorData,
       include: {
-        usuario: true
+        usuario: {
+          select: {
+            id_usuario: true,
+            nome: true,
+            email: true
+          }
+        }
       }
     });
 
@@ -43,7 +49,19 @@ export class ProfessoresService {
   }
 
   async findAll() {
-    const professores =  await this.prisma.professor.findMany();
+    // const professores =  await this.prisma.professor.findMany();
+    // include usuario.nome
+
+    const professores = await this.prisma.professor.findMany({
+      include: {
+        usuario: {
+          select: {
+            nome: true,
+            email: true
+          }
+        }
+      }
+    });
 
     if(professores == null){
       throw new NotAcceptableException('Nenhum professor cadastrado');

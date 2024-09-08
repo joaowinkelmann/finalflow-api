@@ -14,10 +14,8 @@ export class OrientacoesService {
       },
     });
 
-    if (!createOrientacaoDto.idprofessor) {
+    if (!professor) {
       throw new NotFoundException('Professor não encontrado');
-    } else {
-      console.log('Professor encontrado', professor);
     }
 
     // verifica se createOrientacaoDto.alunoId é um aluno
@@ -27,10 +25,8 @@ export class OrientacoesService {
       },
     });
 
-    if (!createOrientacaoDto.idaluno) {
+    if (!aluno) {
       throw new NotFoundException('Aluno não encontrado');
-    } else {
-      console.log('Aluno encontrado', aluno);
     }
 
     // return;

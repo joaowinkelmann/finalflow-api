@@ -1,15 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Req } from '@nestjs/common';
 import { EntregasService } from './entregas.service';
 import { CreateEntregaDto } from './dto/create-entrega.dto';
 import { UpdateEntregaDto } from './dto/update-entrega.dto';
+import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
+import { NivelAcesso } from '@prisma/client';
 
 @Controller('entregas')
 export class EntregasController {
   constructor(private readonly entregasService: EntregasService) {}
 
-  @Post()
-  create(@Body() createEntregasDto: CreateEntregaDto) {
-    return this.entregasService.create(createEntregasDto);
+  // o cara vai fazer a entrega na tela de prazos dele /na orientacao
+
+  @NiveisAcesso(NivelAcesso.aluno)
+  @Post('/create')
+  submit(@Body() createEntregasDto: CreateEntregaDto, @Req() req) {
+    return this.entregasService.submit(createEntregasDto, req.user.id);
   }
 
   @Get()
