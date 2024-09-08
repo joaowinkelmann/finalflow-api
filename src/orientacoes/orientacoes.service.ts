@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrientacaoDto } from './dto/create-orientacao.dto';
 import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -43,36 +43,74 @@ export class OrientacoesService {
   }
 
   async getOrientacoesByProfessor(idusuario: string) {
-    return this.prisma.orientacao.findMany({
+    const orientacaoProfessor = await this.prisma.orientacao.findMany({
       where: {
         idprofessor: idusuario,
       },
       // fazer join com a table de usuario
     });
+
+    if(orientacaoProfessor == null){
+      throw new ForbiddenException('Nenhuma orientação encontrado do professor com id:' + idusuario);
+    }
+
+    return orientacaoProfessor;
   }
 
   async findOne(id: string) {
-    return await this.prisma.orientacao.findUnique({
+    const findOne =  await this.prisma.orientacao.findUnique({
       where: {
         id_orientacao: id,
       },
     });
+
+    if(findOne == null){
+      throw new ForbiddenException('Orientação não encontrada');
+    }
+
+    return findOne;
   }
 
   async update(id: string, updateOrientacaoDto: UpdateOrientacaoDto) {
-    return await this.prisma.orientacao.update({
-      where: {
-        id_orientacao: id,
-      },
-      data: updateOrientacaoDto,
-    });
+    try {
+      const updateOrientacao = await this.prisma.orientacao.update({
+        where: {
+          id_orientacao: id,
+        },
+        data: updateOrientacaoDto,
+      });
+    
+      return {
+        message: "Atualizado com sucesso!",
+        orientacao: updateOrientacao,
+      };
+    } catch (error) {
+      if (error.code === 'P2025') { 
+        throw new ForbiddenException('Orientação não encontrada para update');
+      } else {
+        throw error;
+      }
+    }    
   }
 
   async remove(id: string) {
-    return await this.prisma.orientacao.delete({
-      where: {
-        id_orientacao: id,
-      },
-    });
+    try {
+      const deleteOrientacao = await this.prisma.orientacao.delete({
+        where: {
+          id_orientacao: id,
+        },
+      });
+    
+      return {
+        message: 'Sucesso ao excluir!',
+        orientacao: deleteOrientacao,
+      };
+    } catch (error) {
+      if (error.code === 'P2025') { 
+        throw new ForbiddenException('Não foi possível excluir a orientação, por favor informe um id válido');
+      } else {
+        throw error; 
+      }
+    }    
   }
 }
