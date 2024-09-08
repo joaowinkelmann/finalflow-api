@@ -14,7 +14,7 @@ export class ReunioesService {
     // verificar se a orientacao existe
     const orientacao = await this.prisma.orientacao.findUnique({
       where: {
-        id_orientacao: createReuniaoDto.orientacaoId
+        id_orientacao: createReuniaoDto.idorientacao
       }
     });
 
@@ -24,8 +24,8 @@ export class ReunioesService {
 
     return await this.prisma.reuniao.create({
       data: {
-        orientacaoId: createReuniaoDto.orientacaoId,
-        dataReuniao: createReuniaoDto.dataReuniao,
+        idorientacao: createReuniaoDto.idorientacao,
+        data_reuniao: createReuniaoDto.data_reuniao,
         descricao: createReuniaoDto.descricao
       }
     });
@@ -36,7 +36,7 @@ export class ReunioesService {
       data: {
         nome: createDocumentoDto.nome,
         arquivo: createDocumentoDto.arquivo,
-        reuniaoId: createDocumentoDto.reuniaoId
+        idreuniao: createDocumentoDto.idreuniao
       }
     });
   }
@@ -59,8 +59,8 @@ export class ReunioesService {
         id_reuniao: id
       },
       data: {
-        orientacaoId: updateReuniaoDto.orientacaoId,
-        dataReuniao: updateReuniaoDto.dataReuniao,
+        idorientacao: updateReuniaoDto.idorientacao,
+        data_reuniao: updateReuniaoDto.data_reuniao,
         descricao: updateReuniaoDto.descricao
       }
     });
@@ -74,7 +74,7 @@ export class ReunioesService {
       data: {
         nome: updateDocumentoDto.nome,
         arquivo: updateDocumentoDto.arquivo,
-        reuniaoId: updateDocumentoDto.reuniaoId
+        idreuniao: updateDocumentoDto.idreuniao
       }
     });
   }

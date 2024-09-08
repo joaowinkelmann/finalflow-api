@@ -27,7 +27,7 @@ export class UsuariosService {
       }
 
       const salt = await bcrypt.genSalt();
-      const firstAccessPassword = this.generatePassword(8);
+      const firstAccessPassword = this.generatePassword(12);
 
       const hash = await bcrypt.hash(firstAccessPassword, salt);
 
@@ -53,7 +53,7 @@ export class UsuariosService {
       });
 
       return {
-        id: user.id,
+        idusuario: user.id_usuario,
         nome: user.nome,
         email: user.email,
         nivel_acesso: user.nivel_acesso,
@@ -64,7 +64,7 @@ export class UsuariosService {
     }
   }
 
-  private generatePassword(length: number): string {
+  public generatePassword(length: number): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     const array = new Uint32Array(length);
     crypto.getRandomValues(array); // alta entropia hehe
@@ -80,7 +80,7 @@ export class UsuariosService {
   async findAll() {
     return await this.prisma.usuario.findMany({
       select: {
-        id: true,
+        id_usuario: true,
         nome: true,
         email: true,
         nivel_acesso: true,
@@ -91,10 +91,10 @@ export class UsuariosService {
   async findOne(id: string) {
     return await this.prisma.usuario.findUnique({
       where: {
-        id,
+        id_usuario: id,
       },
       select: {
-        id: true,
+        id_usuario: true,
         nome: true,
         email: true,
         nivel_acesso: true,
@@ -114,7 +114,7 @@ export class UsuariosService {
         email,
       },
       select: {
-        id: true,
+        id_usuario: true,
         nome: true,
         email: true,
         senha: true,
@@ -129,7 +129,7 @@ export class UsuariosService {
     try {
       const user = await this.prisma.usuario.update({
         where: {
-          id,
+          id_usuario: id,
         },
         data: {
           nome: updateUsuarioDto.nome,
@@ -139,7 +139,7 @@ export class UsuariosService {
       });
 
       return {
-        id: user.id,
+        idusuario: user.id_usuario,
         nome: user.nome,
         email: user.email,
         nivel_acesso: user.nivel_acesso,
@@ -159,7 +159,7 @@ export class UsuariosService {
     try {
       await this.prisma.usuario.update({
         where: {
-          id,
+          id_usuario: id,
         },
         data: {
           primeiro_acesso: false,
@@ -174,7 +174,7 @@ export class UsuariosService {
     try {
       await this.prisma.usuario.delete({
         where: {
-          id,
+          id_usuario: id,
         },
       });
 
@@ -203,7 +203,7 @@ export class UsuariosService {
       const resizedImageBase64 = resizedImageBuffer.toString('base64');
 
       await this.prisma.usuario.update({
-        where: { id: userId },
+        where: { id_usuario: userId },
         data: { avatar: resizedImageBase64 },
       });
 

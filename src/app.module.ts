@@ -16,9 +16,10 @@ import { OrientacoesModule } from './orientacoes/orientacoes.module';
 import { BancasModule } from './bancas/bancas.module';
 import { AvaliacoesModule } from './avaliacoes/avaliacoes.module';
 import { ReunioesModule } from './reunioes/reunioes.module';
+import { EntregasModule } from './entregas/entregas.module';
 
 @Module({
-  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule, MailModule, CoordenadoresModule, ScheduleModule.forRoot(), AlertasModule, PrazosModule, CronogramasModule, OrientacoesModule, BancasModule, AvaliacoesModule, ReunioesModule],
+  imports: [AlunosModule, UsuariosModule, CursosModule, ProfessoresModule, AuthModule, MailModule, CoordenadoresModule, ScheduleModule.forRoot(), AlertasModule, PrazosModule, CronogramasModule, OrientacoesModule, BancasModule, AvaliacoesModule, ReunioesModule, EntregasModule],
   providers: [
     PrismaService,
     {

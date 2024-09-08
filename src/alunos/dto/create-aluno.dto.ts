@@ -17,11 +17,11 @@ export class CreateAlunoDto extends CreateUsuarioDto {
         message: 'Informe o id do curso',
       }
   )
-  cursoId: string;
+  idcurso: string;
 
   @IsString()
   @IsNotEmpty()
-  idUsuario: string;
+  idusuario: string;
 
   @IsEmpty()
   // @IsOptional()

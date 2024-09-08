@@ -9,16 +9,23 @@ import { MailerService } from "@nestjs-modules/mailer";
 @Injectable()
 export class AlertasService {
   constructor(private readonly prisma: PrismaService, private readonly mailService: MailerService) {}
-  create(createAlertaDto: CreateAlertaDto
+  async create(createAlertaDto: CreateAlertaDto
   ) {
     // return 'This action adds a new alerta';
     // add a new alerta to the database
-    return this.prisma.alerta.create({
+    return await this.prisma.alerta.create({
       data: createAlertaDto,
     }).then((data) => {
       // console.log(data);
     });
   }
+
+  // async createMany(alerts: { prazoId: string; assunto: string; mensagem: string; dataEnvio: Date; jaEnviado: boolean; idUsuario: string }[]) {
+  //   // throw new Error('Method not implemented.');
+  //   return await this.prisma.alerta.createMany({
+  //     data: alerts,
+  //   });
+  // }
 
   findAll() {
     // return `This action returns all alertas`;
@@ -42,15 +49,15 @@ export class AlertasService {
 
   // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
   // @Cron(CronExpression.EVERY_10_SECONDS)
-  @Cron(CronExpression.EVERY_MINUTE)
+  @Cron(CronExpression.EVERY_10_MINUTES)
   async handleCron() {
     console.log('Running scheduled task to process Alertas');
 
     // pegar os alertas pendentes do banco
     const alertas = await this.prisma.alerta.findMany({
       where: {
-        dataEnvio: { lte: new Date() }, // lte: less than or equal (ja passou)
-        jaEnviado: false,
+        data_envio: { lte: new Date() }, // lte: less than or equal (ja passou)
+        ja_enviado: false,
       },
       include: {
         Usuario: true,
@@ -77,7 +84,7 @@ export class AlertasService {
         template: "alert",
         context: {
           nome: alerta.Usuario.nome,
-          data: alerta.dataEnvio,
+          data: alerta.data_envio,
           mensagem: alerta.mensagem,
         },
       });
@@ -86,9 +93,34 @@ export class AlertasService {
         // Atualizar o alerta como jaEnviado
         await this.prisma.alerta.update({
           where: { id_alerta: alerta.id_alerta },
-          data: { jaEnviado: true },
+          data: { ja_enviado: true },
         });
       }
     }
+  }
+
+  // busca se não entrou algum usuário em algum cronograma/orientação que precisa salvar os seus alertas no banco
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async generateAlertasforOrientacoes() {
+    const cronogramas = await this.prisma.cronograma.findMany({
+      where: {
+        data_inicio: { lte: new Date() },
+        data_fim: { gte: new Date() },
+      },
+      include: {
+        Prazo: true,
+      },
+    });
+
+    for (const cronograma of cronogramas) {
+      // buscar as orientações que estão dentro do cronograma
+      const orientacoes = await this.prisma.orientacao.findMany({
+        where: {
+          idcronograma: cronograma.id_cronograma,
+        }
+      });
+
+    }
+
   }
 }

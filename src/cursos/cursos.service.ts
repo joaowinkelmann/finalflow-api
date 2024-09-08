@@ -36,8 +36,8 @@ export class CursosService {
             select: {
               id_aluno: true,
               matricula: true,
-              idUsuario: true,
-              cursoId: true,
+              idusuario: true,
+              idcurso: true,
             },
           },
         },

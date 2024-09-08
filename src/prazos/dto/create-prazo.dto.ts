@@ -2,23 +2,16 @@ import { IsNotEmpty } from 'class-validator';
 import { TipoPrazo } from '@prisma/client';
 
 export class CreatePrazoDto {
-    // id_prazo            String        @id @default(uuid())
-    // cronogramaId        String
-    // tipoPrazo           TipoPrazo
-    // dataLimite          DateTime     @db.Timestamptz(3)
-    // dataAvaliacaoLimite DateTime     @db.Timestamptz(3)
-    // Cronograma          Cronograma @relation(fields: [cronogramaId], references: [id_cronograma])
-    // Alerta              Alerta[]
 
     @IsNotEmpty()
-    cronogramaId: string;
+    idcronograma: string;
 
     @IsNotEmpty()
-    tipoPrazo: TipoPrazo;
+    prazo_tipo: TipoPrazo;
 
     @IsNotEmpty()
-    dataLimite: string;
+    data_entrega: string;
 
     @IsNotEmpty()
-    dataAvaliacaoLimite: string;
+    data_retorno: string;
 }

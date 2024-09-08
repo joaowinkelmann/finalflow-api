@@ -3,9 +3,7 @@ import { CreateProfessorDto } from './dto/create-professor.dto';
 import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { UsuariosService } from 'src/usuarios/usuarios.service';
-import { Professor } from './entities/professor.entity';
 import { NivelAcesso } from '@prisma/client';
-import { bool } from 'sharp';
 
 @Injectable()
 export class ProfessoresService {
@@ -21,7 +19,7 @@ export class ProfessoresService {
       nivel_acesso: NivelAcesso.professor
     });
 
-    if (!usuario || !usuario.id) {
+    if (!usuario || !usuario.id_usuario) {
       throw new BadRequestException('Falha ao criar usuário: dados inválidos');
     }
 
@@ -29,7 +27,7 @@ export class ProfessoresService {
       departamento: createProfessorDto.departamento,
       usuario: {
         connect: {
-          id: usuario.id
+          id_usuario: usuario.id_usuario
         }
       }
     };
@@ -114,7 +112,7 @@ export class ProfessoresService {
 
     const temOrientacao = await this.prisma.orientacao.findFirst({
       where: {
-        orientadorId: id
+        idprofessor: id
       }
     })
 
@@ -132,5 +130,4 @@ export class ProfessoresService {
       message: "Professor removido com sucesso",
     };
   }
-  
 }

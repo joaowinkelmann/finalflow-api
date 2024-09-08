@@ -22,8 +22,8 @@ export class AlunosService {
       const aluno = await this.prisma.aluno.create({
         data: {
           matricula: createAlunoDto.matricula,
-          cursoId: createAlunoDto.cursoId,
-          idUsuario: usuario.id,
+          idcurso: createAlunoDto.idcurso,
+          idusuario: usuario.id_usuario,
         }
       });
 
