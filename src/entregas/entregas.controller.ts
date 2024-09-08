@@ -17,7 +17,7 @@ export class EntregasController {
     return this.entregasService.submit(createEntregasDto, req.user.id);
   }
 
-  @Get()
+  @Get('/getAll')
   findAll() {
     return this.entregasService.findAll();
   }

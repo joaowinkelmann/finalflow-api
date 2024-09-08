@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { NotAcceptableException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrientacaoDto } from './dto/create-orientacao.dto';
 import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -51,7 +51,7 @@ export class OrientacoesService {
     });
 
     if(orientacaoProfessor == null){
-      throw new ForbiddenException('Nenhuma orientação encontrado do professor com id:' + idusuario);
+      throw new NotAcceptableException('Nenhuma orientação encontrado do professor com id:' + idusuario);
     }
 
     return orientacaoProfessor;
@@ -65,7 +65,7 @@ export class OrientacoesService {
     });
 
     if(findOne == null){
-      throw new ForbiddenException('Orientação não encontrada');
+      throw new NotAcceptableException('Orientação não encontrada');
     }
 
     return findOne;
@@ -86,7 +86,7 @@ export class OrientacoesService {
       };
     } catch (error) {
       if (error.code === 'P2025') { 
-        throw new ForbiddenException('Orientação não encontrada para update');
+        throw new NotAcceptableException('Orientação não encontrada para update');
       } else {
         throw error;
       }
@@ -107,7 +107,7 @@ export class OrientacoesService {
       };
     } catch (error) {
       if (error.code === 'P2025') { 
-        throw new ForbiddenException('Não foi possível excluir a orientação, por favor informe um id válido');
+        throw new NotAcceptableException('Não foi possível excluir a orientação, por favor informe um id válido');
       } else {
         throw error; 
       }
