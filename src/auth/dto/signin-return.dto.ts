@@ -1,7 +1,7 @@
 export class SignInReturnDto {
     access_token: string;
     user: {
-        id: string;
+        idusuario: string;
         nome: string;
         email: string;
         nivel_acesso: string;

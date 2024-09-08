@@ -1,23 +1,13 @@
-import { IsDate, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
 
 export class CreateAlertaDto {
-    // id_alerta  String      @id @default(uuid())
-    // prazoId    String
-    // idUsuario  String
-    // assunto    String
-    // mensagem   String
-    // dataAlerta DateTime   @db.Timestamptz(3)
-    // jaEnviado  Boolean    @default(false)
-    // Prazo      Prazo      @relation(fields: [prazoId], references: [id_prazo])
-    // Usuario    Usuario    @relation(fields: [idUsuario], references: [id])
-
     // @IsNotEmpty()
     // @IsString()
-    prazoId: string;
+    idprazo: string;
 
     @IsNotEmpty()
     @IsString()
-    idUsuario: string;
+    idusuario: string;
     
     @IsNotEmpty()
     @IsString()
@@ -28,6 +18,6 @@ export class CreateAlertaDto {
     mensagem: string;
 
     @IsNotEmpty()
-    // @IsDate()
-    dataEnvio: string;
+    @IsDateString()
+    data_envio: string;
 }

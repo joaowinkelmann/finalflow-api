@@ -15,6 +15,12 @@ export class PrazosController {
     return this.prazosService.create(createPrazoDto);
   }
 
+  @Post('/generateAlerts/:id')
+  @NiveisAcesso(NivelAcesso.coordenador, NivelAcesso.professor)
+  generateAlerts(@Param('id') id: string) {
+    // return this.prazosService.generateAlerts(id);
+  }
+
   @Get()
   findAll() {
     return this.prazosService.findAll();
@@ -22,16 +28,16 @@ export class PrazosController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.prazosService.findOne(+id);
+    return this.prazosService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updatePrazoDto: UpdatePrazoDto) {
-    return this.prazosService.update(+id, updatePrazoDto);
+    return this.prazosService.update(id, updatePrazoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.prazosService.remove(+id);
+    return this.prazosService.remove(id);
   }
 }

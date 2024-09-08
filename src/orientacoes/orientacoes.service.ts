@@ -10,11 +10,11 @@ export class OrientacoesService {
     // verifica se createOrientacaoDto.orientadorId é um professor
     const professor = await this.prisma.professor.findUnique({
       where: {
-        id_professor: createOrientacaoDto.orientadorId,
+        id_professor: createOrientacaoDto.idprofessor,
       },
     });
 
-    if (!createOrientacaoDto.orientadorId) {
+    if (!createOrientacaoDto.idprofessor) {
       throw new NotFoundException('Professor não encontrado');
     } else {
       console.log('Professor encontrado', professor);
@@ -23,11 +23,11 @@ export class OrientacoesService {
     // verifica se createOrientacaoDto.alunoId é um aluno
     const aluno = await this.prisma.aluno.findUnique({
       where: {
-        id_aluno: createOrientacaoDto.alunoId,
+        id_aluno: createOrientacaoDto.idaluno,
       },
     });
 
-    if (!createOrientacaoDto.alunoId) {
+    if (!createOrientacaoDto.idaluno) {
       throw new NotFoundException('Aluno não encontrado');
     } else {
       console.log('Aluno encontrado', aluno);
@@ -49,7 +49,7 @@ export class OrientacoesService {
   async getOrientacoesByProfessor(idusuario: string) {
     return this.prisma.orientacao.findMany({
       where: {
-        orientadorId: idusuario,
+        idprofessor: idusuario,
       },
       // fazer join com a table de usuario
     });

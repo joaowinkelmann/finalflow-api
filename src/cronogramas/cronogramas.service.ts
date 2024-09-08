@@ -16,24 +16,13 @@ export class CronogramasService {
       return new NotFoundException('Coordenador não encontrado');
     }
 
-    // console.log('idusuario_coordenador', idusuario_coordenador);
-
     return this.prisma.cronograma.create({
-      // data: createCronogramaDto,
-      // id_cronograma String      @id @default(uuid())
-      // coordenadorId String
-      // descricao     String
-      // dataInicio    DateTime    @db.Timestamptz(3)
-      // dataFim       DateTime    @db.Timestamptz(3)
-      // Coordenador   Coordenador @relation(fields: [coordenadorId], references: [id_coordenador])
-      // Banca         Banca[]
-      // Prazo         Prazo[]
 
       data: {
-        coordenadorId: idusuario_coordenador.id_coordenador,
+        idcoordenador: idusuario_coordenador.id_coordenador,
         descricao: createCronogramaDto.descricao,
-        dataInicio: new Date(createCronogramaDto.dataInicio),
-        dataFim: new Date(createCronogramaDto.dataFim),
+        data_inicio: new Date(createCronogramaDto.dataInicio),
+        data_fim: new Date(createCronogramaDto.dataFim),
       }
     });
   }

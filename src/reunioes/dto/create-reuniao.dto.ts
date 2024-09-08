@@ -1,22 +1,13 @@
-
-
-// id_reuniao   String      @id @default(uuid())
-// orientacaoId String
-// dataReuniao  DateTime    @db.Timestamptz(3)
-// descricao    String
-// Documento    Documento[]
-// Orientacao   Orientacao  @relation(fields: [orientacaoId], references: [id_orientacao])
-
 import { IsDateString, IsNotEmpty, IsString } from "class-validator";
 
 export class CreateReuniaoDto {
     @IsString()
     @IsNotEmpty()
-    orientacaoId: string;
+    idorientacao: string;
 
     @IsDateString()
     @IsNotEmpty()
-    dataReuniao: Date;
+    data_reuniao: Date;
 
     @IsString()
     @IsNotEmpty()

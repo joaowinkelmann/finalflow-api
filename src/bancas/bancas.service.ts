@@ -9,11 +9,11 @@ export class BancasService {
   async defineBanca(createBancaDto: CreateBancaDto) {
     return await this.prisma.banca.create({
       data: {
-        cronogramaId: createBancaDto.cronogramaId,
-        alunoId: createBancaDto.alunoId,
-        professor1Id: createBancaDto.professor1Id,
-        professor2Id: createBancaDto.professor2Id,
-        orientacaoId: createBancaDto.orientacaoId,
+        idcronograma: createBancaDto.idcronograma, // ja vai estar na orientacao, talvez daria pra tirar
+        idaluno: createBancaDto.idaluno,
+        idprofessor1: createBancaDto.idprofessor1,
+        idprofessor2: createBancaDto.idprofessor2,
+        idorientacao: createBancaDto.idorientacao,
       }
     });
   }

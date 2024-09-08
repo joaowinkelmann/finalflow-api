@@ -45,7 +45,7 @@ export class CoordenadoresService {
     // vincular o usuario ao coordenador
     return await this.prisma.coordenador.create({
       data: {
-        idUsuario: adminUser.id
+        idusuario: adminUser.id_usuario
       }
     });
   }
@@ -71,7 +71,7 @@ export class CoordenadoresService {
     // verifica se o professor já é coordenador
     const coordenador = await this.prisma.coordenador.findUnique({
       where: {
-        idUsuario: professor.idUsuario
+        idusuario: professor.idusuario
       }
     });
 
@@ -82,7 +82,7 @@ export class CoordenadoresService {
     // verifica se o professor que está transferindo o cargo é um coordenador
     const coordenaLogado = await this.prisma.coordenador.findUnique({
       where: {
-        idUsuario: idusuario
+        idusuario: idusuario
       }
     });
 
@@ -94,7 +94,7 @@ export class CoordenadoresService {
     const novoCoordenador = await this.prisma.coordenador.create({
       data: {
         // departamento: transferCoordenadorDto.departamento,
-        idUsuario: professor.idUsuario
+        idusuario: professor.idusuario
       }
     });
 
@@ -105,13 +105,13 @@ export class CoordenadoresService {
     // criou o novo coordenador, agora rebaixa o antigo
     await this.prisma.coordenador.delete({
       where: {
-        idUsuario: idusuario
+        idusuario: idusuario
       }
     });
 
     await this.prisma.usuario.update({
       where: {
-        id: idusuario
+        id_usuario: idusuario
       },
       data: {
         nivel_acesso: 'professor'
@@ -129,7 +129,7 @@ export class CoordenadoresService {
 
     const cordenador =  await this.prisma.coordenador.findUnique({
       where: {
-        idUsuario: idusuario
+        idusuario: idusuario
       }
     });
 
