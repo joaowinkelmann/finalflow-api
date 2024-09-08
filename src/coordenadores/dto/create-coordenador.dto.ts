@@ -1,5 +1,5 @@
 import { NivelAcesso } from '@prisma/client';
-import {IsString, IsNotEmpty, IsEmail, IsEmpty, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsEmpty, IsOptional } from 'class-validator';
 
 export class CreateCoordenadorDto {
   @IsNotEmpty({

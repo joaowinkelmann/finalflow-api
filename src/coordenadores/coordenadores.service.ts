@@ -45,7 +45,7 @@ export class CoordenadoresService {
     // vincular o usuario ao coordenador
     return await this.prisma.coordenador.create({
       data: {
-        idusuario: adminUser.id_usuario
+        idusuario: adminUser.idusuario
       }
     });
   }

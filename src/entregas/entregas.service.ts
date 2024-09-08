@@ -1,11 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateEntregaDto } from './dto/create-entrega.dto';
 import { UpdateEntregaDto } from './dto/update-entrega.dto';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class EntregasService {
-  create(createEntregasDto: CreateEntregaDto) {
-    return 'This action adds a new entrega';
+  constructor(private prisma: PrismaService) { }
+  async submit(createEntregasDto: CreateEntregaDto, idusuario: string) {
+
+    const aluno = await this.prisma.aluno.findUnique({
+      where: {
+        idusuario: idusuario
+      },
+    });
+    if (!aluno) {
+      throw new UnauthorizedException('Usuário não é um aluno'); // @todo - verificar se unauthorized faz sentido
+    }
+
+    const prazo = await this.prisma.prazo.findUnique({
+      where: {
+        id_prazo: createEntregasDto.idprazo
+      }
+    });
+    if (!prazo) {
+      throw new NotFoundException('Prazo não encontrado');
+    }
+
+    const data_envio = new Date();
+
+    const entrega = await this.prisma.entrega.create({
+      data: {
+        ...createEntregasDto,
+        data_envio: data_envio,
+        idaluno: aluno.id_aluno,
+        prazo_tipo: prazo.prazo_tipo,
+        }
+    });
   }
 
   findAll() {

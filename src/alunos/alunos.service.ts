@@ -23,7 +23,7 @@ export class AlunosService {
         data: {
           matricula: createAlunoDto.matricula,
           idcurso: createAlunoDto.idcurso,
-          idusuario: usuario.id_usuario,
+          idusuario: usuario.idusuario,
         }
       });
 
@@ -35,7 +35,16 @@ export class AlunosService {
 
   async findAll() {
     try {
-      return await this.prisma.aluno.findMany();
+      return await this.prisma.aluno.findMany({
+        include: {
+          usuario: {
+            select: {
+              nome: true,
+              email: true
+            }
+          }
+        }
+      });
     }
     catch (error) {
       return error;
