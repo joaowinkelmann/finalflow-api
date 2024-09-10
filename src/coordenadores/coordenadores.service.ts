@@ -121,13 +121,21 @@ export class CoordenadoresService {
     return novoCoordenador;
   }
 
-  findAll() {
-    return `This action returns all professores`;
+  async findAll() {
+    return await this.prisma.coordenador.findMany({
+      include: {
+        usuario: {
+          select: {
+            nome: true,
+            email: true
+          }
+        }
+      }
+    });
   }
 
   async findOne(idusuario: string) {
-
-    const cordenador =  await this.prisma.coordenador.findUnique({
+    const cordenador = await this.prisma.coordenador.findUnique({
       where: {
         idusuario: idusuario
       }
@@ -141,10 +149,10 @@ export class CoordenadoresService {
   }
 
   update(id: string, updateCoordenadorDto: UpdateCoordenadorDto) {
-    return `This action updates a #${id} professore`;
+    return `This action updates a #${id} coordenador`;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} professore`;
+    return `This action removes a #${id} coordenador`;
   }
 }

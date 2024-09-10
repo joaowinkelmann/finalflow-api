@@ -1,11 +1,11 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { CreateCursoDto } from "./dto/create-curso.dto";
 import { UpdateCursoDto } from "./dto/update-curso.dto";
 import { PrismaService } from "../../prisma/prisma.service";
 
 @Injectable()
 export class CursosService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
 
   async create(createCursoDto: CreateCursoDto) {
     try {
@@ -50,11 +50,22 @@ export class CursosService {
     }
   }
 
-  update(id: number, updateCursoDto: UpdateCursoDto) {
-    return `This action updates a #${id} curso`;
+  async update(id: string, updateCursoDto: UpdateCursoDto) {
+    return await this.prisma.curso.update({
+      where: { id_curso: id },
+      data: updateCursoDto,
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException("Curso não encontrado");
+    });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} curso`;
+  async remove(id: string) {
+    return await this.prisma.curso.delete({
+      where: { id_curso: id },
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException("Curso não encontrado");
+    });
   }
 }

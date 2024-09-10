@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -10,7 +10,7 @@ export class AlunosService {
   constructor(
     private prisma: PrismaService,
     private usuariosService: UsuariosService
-  ) {}
+  ) { }
 
   async create(createAlunoDto: CreateAlunoDto) {
     try {
@@ -51,15 +51,41 @@ export class AlunosService {
     }
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} aluno`;
+  async findOne(id: string) {
+    return await this.prisma.aluno.findUnique({
+      where: {
+        id_aluno: id
+      }
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException("Aluno não encontrado");
+    });
   }
 
-  update(id: number, updateAlunoDto: UpdateAlunoDto) {
-    return `This action updates a #${id} aluno`;
+  async update(id: string, updateAlunoDto: UpdateAlunoDto) {
+    const aluno = await this.prisma.aluno.update({
+      where: {
+        id_aluno: id
+      },
+      data: updateAlunoDto
+    }).catch((error) => {
+      throw new NotFoundException("Aluno não encontrado");
+    });
+
+    return aluno;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} aluno`;
+  async remove(id: string) {
+    await this.prisma.aluno.delete({
+      where: {
+        id_aluno: id
+      }
+    }).catch((error) => {
+      throw new NotFoundException("Aluno não encontrado");
+    });
+
+    return {
+      message: "Aluno removido com sucesso"
+    };
   }
 }

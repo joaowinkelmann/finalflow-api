@@ -34,14 +34,14 @@ export class EntregasService {
         data_envio: data_envio,
         idaluno: aluno.id_aluno,
         prazo_tipo: prazo.prazo_tipo,
-        }
+      }
     });
   }
 
   async findAll() {
     const entregas = await this.prisma.entrega.findMany();
 
-    if(entregas.length == 0){
+    if (entregas.length == 0) {
       throw new NotAcceptableException('Nenhuma entrega cadastrada até o momento!');
     }
 
@@ -55,15 +55,23 @@ export class EntregasService {
       }
     })
 
-    if(findOneEntrega == null){
+    if (findOneEntrega == null) {
       throw new NotAcceptableException('Entrega não encontrada, informe id valido');
     }
 
     return findOneEntrega;
   }
 
-  update(id: string, updateEntregasDto: UpdateEntregaDto) {
-    return `This action updates a #${id} entrega`;
+  async update(id: string, updateEntregasDto: UpdateEntregaDto) {
+    return await this.prisma.entrega.update({
+      where: {
+        id_entrega: id
+      },
+      data: updateEntregasDto
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException('Entrega não encontrada');
+    });
   }
 
   async remove(id: string) {
@@ -73,17 +81,17 @@ export class EntregasService {
           id_entrega: id,
         },
       });
-    
+
       return {
         message: 'Sucesso ao excluir!',
         entrega: deleteEntrega,
       };
     } catch (error) {
-      if (error.code === 'P2025') { 
+      if (error.code === 'P2025') {
         throw new NotAcceptableException('Não foi possível excluir a entrega, por favor informe um id válido');
       } else {
-        throw error; 
+        throw error;
       }
-    }    
+    }
   }
 }

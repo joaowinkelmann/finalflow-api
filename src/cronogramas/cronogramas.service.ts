@@ -6,9 +6,8 @@ import { CoordenadoresService } from '../coordenadores/coordenadores.service';
 
 @Injectable()
 export class CronogramasService {
-  constructor(private prisma: PrismaService, private coordenadoresService: CoordenadoresService) {}
+  constructor(private prisma: PrismaService, private coordenadoresService: CoordenadoresService) { }
   async create(createCronogramaDto: CreateCronogramaDto, idusuario: string) {
-    // return 'This action adds a new cronograma';
 
     // vamos pegar o idcoordenador da tabela de coordenador
     let idusuario_coordenador = await this.coordenadoresService.findOne(idusuario);
@@ -17,7 +16,6 @@ export class CronogramasService {
     }
 
     return this.prisma.cronograma.create({
-
       data: {
         idcoordenador: idusuario_coordenador.id_coordenador,
         descricao: createCronogramaDto.descricao,
@@ -36,14 +34,30 @@ export class CronogramasService {
       where: {
         id_cronograma: id,
       },
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException("Cronograma não encontrado");
     });
   }
 
-  update(id: string, updateCronogramaDto: UpdateCronogramaDto) {
-    return `This action updates a #${id} cronograma`;
+  async update(id: string, updateCronogramaDto: UpdateCronogramaDto) {
+    return await this.prisma.cronograma.update({
+      where: { id_cronograma: id },
+      data: updateCronogramaDto,
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException("Cronograma não encontrado");
+    });
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} cronograma`;
+  async remove(id: string) {
+    return await this.prisma.cronograma.delete({
+      where: { id_cronograma: id },
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException("Cronograma não encontrado");
+    }).then(() => {
+      return "Cronograma removido com sucesso";
+    });
   }
 }
