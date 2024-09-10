@@ -120,7 +120,7 @@ model Banca {
 // Guarda dados sobre alguma avaliação feita por um professor sobre um trabalho de TCC de um aluno. Também linka avaliações feitas para entregas de propostas, por exemplo.
 model Avaliacao {
   id_avaliacao   String        @id @default(uuid())
-  idbanca        String? // nem toda avaliaçãwo vai ter uma banca
+  idbanca        String? // nem toda avaliação vai ter uma banca
   idorientacao   String? // nem toda avaliacao vai ter uma orientacao
   identrega      String? // talvez nem toda avaliacao vai ter uma entrega
   avaliacao_tipo TipoAvaliacao

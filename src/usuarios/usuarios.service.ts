@@ -1,4 +1,4 @@
-import { ConflictException, Injectable } from "@nestjs/common";
+import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -6,6 +6,7 @@ import { MailerService } from "@nestjs-modules/mailer";
 import * as bcrypt from "bcrypt";
 import * as sharp from 'sharp';
 import { SetAvatarDto } from "./dto/set-avatar.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 
 @Injectable()
 export class UsuariosService {
@@ -221,7 +222,7 @@ export class UsuariosService {
    * @param recovery - If a recovery email should be sent
    * @returns 
    */
-  async updatePassword(email: string, password: string, recovery: boolean): Promise<any> {
+  async setPassword(email: string, password: string, recovery: boolean): Promise<any> {
     try {
 
       const user = await this.prisma.usuario.findUnique({
@@ -275,4 +276,22 @@ export class UsuariosService {
     }
   }
 
+  /**
+   * Troca a senha de um usuario que já está logado
+   * @param changePasswordDto 
+   * @param sub 
+   */
+  async changePassword(changePasswordDto: ChangePasswordDto, idusuario: any) {
+    const user = await this.prisma.usuario.findUnique({
+      where: {
+        id_usuario: idusuario,
+      },
+    });
+
+    if (!user) {
+      throw new InternalServerErrorException("Usuário inválido");
+    }
+
+    return await this.setPassword(user.email, changePasswordDto.senha, false);
+  }
 }

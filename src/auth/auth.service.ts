@@ -82,7 +82,7 @@ export class AuthService {
     async receiveRecoveryPassword(email: RecoverPasswordDto): Promise<any> {
         try {
             let novaSenha = this.usuariosService.generatePassword(12);
-            await this.usuariosService.updatePassword(email.email, novaSenha, true);
+            await this.usuariosService.setPassword(email.email, novaSenha, true);
         } catch (error) {
             console.error(error);
             await new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2800));

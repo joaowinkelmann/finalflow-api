@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Put, Param, Delete, Request } from '@nestj
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 import { SetAvatarDto } from './dto/set-avatar.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
@@ -16,6 +17,11 @@ export class UsuariosController {
   @Public()
   create(@Body() createUsuarioDto: CreateUsuarioDto) {
     return this.usuariosService.create(createUsuarioDto);
+  }
+
+  @Post('/changepassword')
+  changePassword(@Body() changePasswordDto: ChangePasswordDto, @Request() req) {
+    return this.usuariosService.changePassword(changePasswordDto, req.user.sub);
   }
 
   @Get('/getAll')
