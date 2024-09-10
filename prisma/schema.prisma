@@ -98,6 +98,7 @@ model Cronograma {
   Orientacao    Orientacao[]
 }
 
+// Vincula os dois Professores que compõem a Banca de um Aluno durante a Orientação de um trabalho de TCC.
 model Banca {
   id_banca     String      @id @default(uuid())
   idcronograma String
@@ -116,16 +117,22 @@ model Banca {
   @@unique([idprofessor1, idprofessor2, idcronograma])
 }
 
+// Guarda dados sobre alguma avaliação feita por um professor sobre um trabalho de TCC de um aluno. Também linka avaliações feitas para entregas de propostas, por exemplo.
 model Avaliacao {
   id_avaliacao   String        @id @default(uuid())
-  idbanca        String
-  idorientacao   String
+  idbanca        String? // nem toda avaliaçãwo vai ter uma banca
+  idorientacao   String? // nem toda avaliacao vai ter uma orientacao
+  identrega      String? // talvez nem toda avaliacao vai ter uma entrega
   avaliacao_tipo TipoAvaliacao
+  data_avaliacao DateTime      @db.Timestamptz(3)
   criterio       String
   nota           Float
   comentario     String?
-  Banca          Banca         @relation(fields: [idbanca], references: [id_banca])
-  Orientacao     Orientacao    @relation(fields: [idorientacao], references: [id_orientacao])
+  Banca          Banca?         @relation(fields: [idbanca], references: [id_banca])
+  Orientacao     Orientacao?    @relation(fields: [idorientacao], references: [id_orientacao])
+  Entrega        Entrega?      @relation(fields: [identrega], references: [id_entrega])
+
+  @@index([identrega])
 }
 
 // Reuniões que ocorrem durante a Orientação de um aluno. Permite também o upload de documentos.
@@ -147,9 +154,10 @@ model Documento {
   Reuniao      Reuniao @relation(fields: [idreuniao], references: [id_reuniao])
 }
 
-// Define os Prazos de um Cronograma para relacionar a Entregas do aluno e retorno das avaliações para os alunos pelos professores.
+// Define os Prazos de um Cronograma para relacionar a Entregas do aluno e retorno das Avaliações para os alunos pelos Professores.
 model Prazo {
   id_prazo     String     @id @default(uuid())
+  dscprazo     String?    // descrição do prazo
   idcronograma String
   prazo_tipo   TipoPrazo
   data_entrega DateTime   @db.Timestamptz(3)
@@ -161,24 +169,26 @@ model Prazo {
   @@unique([idcronograma, prazo_tipo])
 }
 
+// Entrega de um trabalho de TCC por um aluno. Pode ser a proposta, a reelaboração da proposta, o TC, ou a reelaboração do TC.
 model Entrega {
-  id_entrega   String     @id @default(uuid())
-  prazo_tipo   TipoPrazo // Linka o tipo de prazo (Proposta, TC, etc)
-  data_envio   DateTime   @db.Timestamptz(3) // Data de envio da proposta/TC
-  arquivo      String // O arquivo enviado pelo aluno
+  id_entrega   String      @id @default(uuid())
+  prazo_tipo   TipoPrazo
+  data_envio   DateTime    @db.Timestamptz(3)
+  arquivo      String
   idaluno      String
-  aluno        Aluno      @relation(fields: [idaluno], references: [id_aluno])
+  aluno        Aluno       @relation(fields: [idaluno], references: [id_aluno])
   idorientacao String
-  orientacao   Orientacao @relation(fields: [idorientacao], references: [id_orientacao])
+  orientacao   Orientacao  @relation(fields: [idorientacao], references: [id_orientacao])
   idprazo      String
-  prazo        Prazo      @relation(fields: [idprazo], references: [id_prazo])
+  prazo        Prazo       @relation(fields: [idprazo], references: [id_prazo])
+  Avaliacao    Avaliacao[]
 
   @@unique([idaluno, prazo_tipo])
 }
 
 // Guarda as mensagens que serão enviadas para os usuários.
 // Pode estar vinculado a um Prazo de algum Cronograma
-// Pode ser simplemsmente uma mensagem genérica a ser eneviada no sistema.
+// Pode ser simplemsmente uma mensagem genérica a ser enviada no sistema.
 model Alerta {
   id_alerta  String   @id @default(uuid())
   idprazo    String?
