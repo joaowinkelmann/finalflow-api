@@ -24,11 +24,11 @@ export class CursosController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateCursoDto: UpdateCursoDto) {
-    return this.cursosService.update(+id, updateCursoDto);
+    return this.cursosService.update(id, updateCursoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.cursosService.remove(+id);
+    return this.cursosService.remove(id);
   }
 }

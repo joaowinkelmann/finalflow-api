@@ -24,7 +24,7 @@ export class CoordenadoresController {
     return this.coordenadoresService.transfer(transferCoordenadorDto, req.user.sub);
   }
 
-  @Get()
+  @Get('/getAll')
   @NiveisAcesso(NivelAcesso.coordenador)
   findAll() {
     return this.coordenadoresService.findAll();

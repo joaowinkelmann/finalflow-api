@@ -1,15 +1,15 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
 import { AvaliacoesService } from './avaliacoes.service';
-import { CreateAvaliacoeDto } from './dto/create-avaliacao.dto';
-import { UpdateAvaliacoeDto } from './dto/update-avaliacao.dto';
+import { CreateAvaliacaoDto } from './dto/create-avaliacao.dto';
+import { UpdateAvaliacaoDto } from './dto/update-avaliacao.dto';
 
 @Controller('avaliacoes')
 export class AvaliacoesController {
   constructor(private readonly avaliacoesService: AvaliacoesService) {}
 
   @Post()
-  create(@Body() createAvaliacoeDto: CreateAvaliacoeDto) {
-    return this.avaliacoesService.create(createAvaliacoeDto);
+  create(@Body() createAvaliacaoDto: CreateAvaliacaoDto) {
+    return this.avaliacoesService.create(createAvaliacaoDto);
   }
 
   @Get()
@@ -19,16 +19,16 @@ export class AvaliacoesController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.avaliacoesService.findOne(+id);
+    return this.avaliacoesService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAvaliacoeDto: UpdateAvaliacoeDto) {
-    return this.avaliacoesService.update(+id, updateAvaliacoeDto);
+  update(@Param('id') id: string, @Body() updateAvaliacaoDto: UpdateAvaliacaoDto) {
+    return this.avaliacoesService.update(id, updateAvaliacaoDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.avaliacoesService.remove(+id);
+    return this.avaliacoesService.remove(id);
   }
 }
