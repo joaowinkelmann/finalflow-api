@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Request } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Param, Delete, Req } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -7,6 +7,7 @@ import { SetAvatarDto } from './dto/set-avatar.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 import { Public } from 'src/auth/public.decorator';
+import { ReqReturnDto } from 'src/auth/dto/req-return.dto';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -20,7 +21,7 @@ export class UsuariosController {
   }
 
   @Post('/changepassword')
-  changePassword(@Body() changePasswordDto: ChangePasswordDto, @Request() req) {
+  changePassword(@Body() changePasswordDto: ChangePasswordDto, @Req() req: ReqReturnDto) {
     return this.usuariosService.changePassword(changePasswordDto, req.user.sub);
   }
 
@@ -48,7 +49,7 @@ export class UsuariosController {
     return this.usuariosService.remove(id);
   }
   @Post('/setAvatar')
-  uploadAvatar(@Body() setAvatarDto: SetAvatarDto, @Request() req) {
+  uploadAvatar(@Body() setAvatarDto: SetAvatarDto, @Req() req: ReqReturnDto) {
     return this.usuariosService.uploadAvatar(setAvatarDto, req.user.sub);
   }
 }

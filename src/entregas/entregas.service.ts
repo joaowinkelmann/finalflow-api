@@ -2,6 +2,7 @@ import { NotAcceptableException, Injectable, NotFoundException, UnauthorizedExce
 import { CreateEntregaDto } from './dto/create-entrega.dto';
 import { UpdateEntregaDto } from './dto/update-entrega.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { NivelAcesso } from '@prisma/client';
 
 @Injectable()
 export class EntregasService {
@@ -39,10 +40,18 @@ export class EntregasService {
   }
 
   async findAll() {
-    const entregas = await this.prisma.entrega.findMany();
+    const entregas = await this.prisma.entrega.findMany({
+      select: {
+        id_entrega: true,
+        data_envio: true,
+        idaluno: true,
+        idorientacao: true,
+        idprazo: true
+      }
+    });
 
     if (entregas.length == 0) {
-      throw new NotAcceptableException('Nenhuma entrega cadastrada até o momento!');
+      throw new NotAcceptableException('Nenhuma entrega cadastrada até o momento');
     }
 
     return entregas;
@@ -60,6 +69,118 @@ export class EntregasService {
     }
 
     return findOneEntrega;
+  }
+
+  async getStudentSubmissions(idusuario: string) {
+    const professor = await this.prisma.professor.findUnique({
+      where: {
+        idusuario: idusuario
+      }
+    });
+    if (!professor) {
+      throw new NotFoundException('Usuário não é um professor');
+    }
+
+    return await this.prisma.entrega.findMany({
+      where: {
+        orientacao: {
+          idprofessor: professor.id_professor
+        }
+      },
+      select: {
+        id_entrega: true,
+        prazo_tipo: true,
+        data_envio: true,
+        idaluno: true,
+        idorientacao: true,
+        idprazo: true,
+      }
+      // include: {
+      //   aluno: true
+      // }
+    });
+  }
+
+  async getMySubmissions(idusuario: string) {
+    const aluno = await this.prisma.aluno.findUnique({
+      where: {
+        idusuario: idusuario
+      }
+    });
+    if (!aluno) {
+      throw new NotFoundException("Usuário não é um aluno");
+    }
+
+    return await this.prisma.entrega.findMany({
+      where: {
+        idaluno: aluno.id_aluno
+      },
+      select: {
+        id_entrega: true,
+        prazo_tipo: true,
+        data_envio: true,
+        idaluno: true,
+        idorientacao: true,
+        idprazo: true,
+      }
+    });
+  }
+
+  // pega o arquivo da entrega em um request separado, pra nao ficar absurdo
+  async getFileFromEntrega(idusuario: string, nivel_acesso: NivelAcesso, identrega: string) {
+    let roleFilter = {};
+  
+    if (nivel_acesso === NivelAcesso.professor) {
+      const professor = await this.prisma.professor.findUnique({
+        where: {
+          idusuario: idusuario
+        }
+      });
+      if (!professor) {
+        throw new UnauthorizedException('Usuário não é um professor vinculado.');
+      }
+
+      roleFilter = {
+        orientacao: {
+          idprofessor: professor.id_professor
+        }
+      };
+    } else if (nivel_acesso === NivelAcesso.aluno) {
+      const aluno = await this.prisma.aluno.findUnique({
+        where: {
+          idusuario: idusuario
+        }
+      });
+      if (!aluno) {
+        throw new UnauthorizedException('Usuário não é um aluno vinculado.');
+      }
+
+      roleFilter = {
+        orientacao: {
+          idaluno: aluno.id_aluno
+        }
+      };
+    } else if ((nivel_acesso !== NivelAcesso.coordenador)) {
+      // se for coordena, azar e acessa kkk
+      // verfificar se nao vale a pena verificar que o cara é coordena mesmo
+      throw new UnauthorizedException('Usuário não tem permissão para acessar esse arquivo.');
+    }
+  
+    const fileEntrega = await this.prisma.entrega.findFirst({
+      where: {
+        id_entrega: identrega,
+        ...roleFilter
+      },
+      select: {
+        arquivo: true
+      }
+    });
+  
+    if (!fileEntrega) {
+      throw new NotFoundException('Arquivo não encontrado. Verifique se a entrega está vinculada à sua orientação.');
+    }
+  
+    return fileEntrega;
   }
 
   async update(id: string, updateEntregasDto: UpdateEntregaDto) {

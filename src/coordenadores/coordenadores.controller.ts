@@ -6,6 +6,7 @@ import { UpdateCoordenadorDto } from './dto/update-coordenador.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 import { Public } from 'src/auth/public.decorator';
+import { ReqReturnDto } from 'src/auth/dto/req-return.dto';
 
 @Controller('coordenadores')
 export class CoordenadoresController {
@@ -20,7 +21,7 @@ export class CoordenadoresController {
 
   @Post('/transfer')
   @NiveisAcesso(NivelAcesso.coordenador)
-  transfer(@Body() transferCoordenadorDto: TransferCoordenadorDto, @Req() req) {
+  transfer(@Body() transferCoordenadorDto: TransferCoordenadorDto, @Req() req: ReqReturnDto) {
     return this.coordenadoresService.transfer(transferCoordenadorDto, req.user.sub);
   }
 

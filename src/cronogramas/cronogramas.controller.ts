@@ -4,6 +4,7 @@ import { CreateCronogramaDto } from './dto/create-cronograma.dto';
 import { UpdateCronogramaDto } from './dto/update-cronograma.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
+import { ReqReturnDto } from 'src/auth/dto/req-return.dto';
 
 @Controller('cronogramas')
 export class CronogramasController {
@@ -11,7 +12,7 @@ export class CronogramasController {
 
   @Post('create')
   @NiveisAcesso(NivelAcesso.coordenador)
-  create(@Body() createCronogramaDto: CreateCronogramaDto, @Req() req) {
+  create(@Body() createCronogramaDto: CreateCronogramaDto, @Req() req: ReqReturnDto) {
     const idusuario = req.user.sub;
     return this.cronogramasService.create(createCronogramaDto, idusuario);
   }
