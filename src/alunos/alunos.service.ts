@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -81,7 +81,18 @@ export class AlunosService {
         id_aluno: id
       }
     }).catch((error) => {
-      throw new NotFoundException("Aluno não encontrado");
+      console.log(error);
+
+      switch (error.code) {
+        case 'P2025':
+          throw new NotFoundException("Aluno não encontrado");
+        case 'P2003':
+          throw new UnprocessableEntityException("Não foi possível remover o aluno. Existem orientações associadas a ele");
+        default:
+          throw new InternalServerErrorException("Não foi possível remover o aluno");
+      }
+
+
     });
 
     return {

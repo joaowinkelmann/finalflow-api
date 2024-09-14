@@ -68,19 +68,19 @@ model Coordenador {
 // Descreve uma orientação para um trabalho de TCC de algum aluno qualquer. Vincula um professor que será o orientador, e também um aluno que será orientado, linkando também as reuniões que ocorrerão durante a orientação.
 // Também de certa forma guarda metadados sobre o trabalho.
 model Orientacao {
-  id_orientacao   String      @id @default(uuid())
+  id_orientacao   String           @id @default(uuid())
   idprofessor     String
   idaluno         String
   idcronograma    String
-  data_inicio     DateTime    @db.Timestamptz(3)
-  data_fim        DateTime?   @db.Timestamptz(3)
+  data_inicio     DateTime         @db.Timestamptz(3)
+  data_fim        DateTime?        @db.Timestamptz(3)
   status          StatusOrientacao @default(EmAndamento)
-  Professor       Professor   @relation(fields: [idprofessor], references: [id_professor])
-  Aluno           Aluno       @relation(fields: [idaluno], references: [id_aluno])
+  Professor       Professor        @relation(fields: [idprofessor], references: [id_professor])
+  Aluno           Aluno            @relation(fields: [idaluno], references: [id_aluno])
   Reuniao         Reuniao[]
   Banca           Banca? // uma orientação tem somente uma banca
   Avaliacao       Avaliacao[]
-  Cronograma      Cronograma  @relation(fields: [idcronograma], references: [id_cronograma])
+  Cronograma      Cronograma       @relation(fields: [idcronograma], references: [id_cronograma])
   titulo_trabalho String
   Entrega         Entrega[]
 }
@@ -129,8 +129,8 @@ model Avaliacao {
   criterio       String
   nota           Float
   comentario     String?
-  Banca          Banca?         @relation(fields: [idbanca], references: [id_banca])
-  Orientacao     Orientacao?    @relation(fields: [idorientacao], references: [id_orientacao])
+  Banca          Banca?        @relation(fields: [idbanca], references: [id_banca])
+  Orientacao     Orientacao?   @relation(fields: [idorientacao], references: [id_orientacao])
   Entrega        Entrega?      @relation(fields: [identrega], references: [id_entrega])
 
   @@index([identrega])
@@ -144,6 +144,7 @@ model Reuniao {
   descricao    String
   Documento    Documento[]
   Orientacao   Orientacao  @relation(fields: [idorientacao], references: [id_orientacao])
+  Alerta       Alerta[]
 }
 
 // Guarda indivudalmente os documentos que são enviados para alguma Reunião.
@@ -158,7 +159,7 @@ model Documento {
 // Define os Prazos de um Cronograma para relacionar a Entregas do aluno e retorno das Avaliações para os alunos pelos Professores.
 model Prazo {
   id_prazo     String     @id @default(uuid())
-  dscprazo     String?    // descrição do prazo
+  dscprazo     String? // descrição do prazo
   idcronograma String
   prazo_tipo   TipoPrazo
   data_entrega DateTime   @db.Timestamptz(3)
@@ -172,16 +173,16 @@ model Prazo {
 
 // Entrega de um trabalho de TCC por um aluno. Pode ser a proposta, a reelaboração da proposta, o TC, ou a reelaboração do TC.
 model Entrega {
-  id_entrega   String      @id @default(uuid())
+  id_entrega   String        @id @default(uuid())
   prazo_tipo   TipoPrazo
-  data_envio   DateTime?   @db.Timestamptz(3) // data de envio é quando o Aluno efetivamente envia, por isso que pode ser nulo
-  arquivo      String?     // arquivo pode ser vazio, pois pré-criamos as Entregas ao criar a Orientação
+  data_envio   DateTime?     @db.Timestamptz(3) // data de envio é quando o Aluno efetivamente envia, por isso que pode ser nulo
+  arquivo      String? // arquivo pode ser vazio, pois pré-criamos as Entregas ao criar a Orientação
   idaluno      String
-  aluno        Aluno       @relation(fields: [idaluno], references: [id_aluno])
+  aluno        Aluno         @relation(fields: [idaluno], references: [id_aluno])
   idorientacao String
-  orientacao   Orientacao  @relation(fields: [idorientacao], references: [id_orientacao])
+  orientacao   Orientacao    @relation(fields: [idorientacao], references: [id_orientacao])
   idprazo      String
-  prazo        Prazo       @relation(fields: [idprazo], references: [id_prazo])
+  prazo        Prazo         @relation(fields: [idprazo], references: [id_prazo])
   Avaliacao    Avaliacao[]
   status       StatusEntrega @default(Pendente)
 
@@ -189,17 +190,20 @@ model Entrega {
 }
 
 // Guarda as mensagens que serão enviadas para os usuários.
-// Pode estar vinculado a um Prazo de algum Cronograma
-// Pode ser simplemsmente uma mensagem genérica a ser enviada no sistema.
+// Pode estar vinculado a um Prazo (vindo do Cronograma) de uma Entrega vinculada a uma Orientação.
+// Ou também pode estar vinculado a uma Reunião de uma Orientação
+// Por último, pode ser simplemsmente uma mensagem genérica a ser enviada no sistema ao usuário.
 model Alerta {
   id_alerta  String   @id @default(uuid())
-  idprazo    String?
+  idprazo    String? // Um alerta pode ser vinculado a um Prazo
+  idreuniao  String? // Ou também pode ser vinculado a uma Reunião
   idusuario  String
   assunto    String
   mensagem   String
   data_envio DateTime @db.Timestamptz(3) // data de quando será enviado o email
   ja_enviado Boolean  @default(false)
   Prazo      Prazo?   @relation(fields: [idprazo], references: [id_prazo])
+  Reuniao    Reuniao? @relation(fields: [idreuniao], references: [id_reuniao])
   Usuario    Usuario  @relation(fields: [idusuario], references: [id_usuario])
 }
 

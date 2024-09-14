@@ -47,6 +47,7 @@ export class UsuariosController {
   remove(@Param('id') id: string) {
     return this.usuariosService.remove(id);
   }
+
   @Post('/setAvatar')
   uploadAvatar(@Body() setAvatarDto: SetAvatarDto, @Request() req) {
     return this.usuariosService.uploadAvatar(setAvatarDto, req.user.sub);

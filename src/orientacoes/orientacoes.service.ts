@@ -55,14 +55,6 @@ export class OrientacoesService {
       console.error(error);
       throw new NotAcceptableException('Erro ao criar orientação');
     });
-
-    
-    // .catch((error) => {
-    //   throw new NotAcceptableException('Erro ao criar orientação');
-    // })
-
-
-    // criou a orientaco, cria as instâncias de entrega para a mesma já
   }
 
   async findAll() {

@@ -5,6 +5,7 @@ import { UpdateAlertaDto } from './dto/update-alerta.dto';
 import { PrismaService } from 'prisma/prisma.service';
 // import { MailService } from 'src/mail/mail.service';
 import { MailerService } from "@nestjs-modules/mailer";
+import { StatusOrientacao } from '@prisma/client';
 
 @Injectable()
 export class AlertasService {
@@ -110,8 +111,11 @@ export class AlertasService {
   // busca se não entrou algum usuário em algum cronograma/orientação que precisa salvar os seus alertas no banco
   // @Cron(CronExpression.EVERY_10_SECONDS)
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async generateAlertasforOrientacoes() {
-    console.log('Running scheduled task to process Orientacoes');
+  async generateAlertasforPrazoEntrega() {
+    console.info('=> Executando rotina para gerar alertas de prazo de entrega...');
+
+    // get current time
+    const start = process.hrtime();
 
     const cronogramas = await this.prisma.cronograma.findMany({
       where: {
@@ -124,6 +128,7 @@ export class AlertasService {
       const orientacoes = await this.prisma.orientacao.findMany({
         where: {
           idcronograma: cronograma.id_cronograma,
+          status: StatusOrientacao.EmAndamento
         },
         include: {
           Aluno: {
@@ -182,5 +187,124 @@ export class AlertasService {
         }
       }
     }
+
+    const end = process.hrtime(start);
+    console.info('### generateAlertasforPrazoEntrega executado em %ds %dms', end[0], end[1] / 1000000);
   }
+
+  // varre as reuniões criadas e busca se tem alguma ainda que não foi agendada para ser enviada
+  // essa task precisa gerar alertas tanto para o professor quanto para o aluno
+  // também irá fazer up (upsert) no banco de dados, caso a reunião tenha sido remarcada
+  // caso a reunião tenha sido
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  async generateAlertasforReunioes() {
+    console.log('=> Executando rotina para gerar alertas de reuniões...');
+    const start = process.hrtime();
+
+
+    // const cronogramas = await this.prisma.cronograma.findMany({
+    //   where: {
+    //     data_inicio: { lte: new Date() },
+    //     data_fim: { gte: new Date() },
+    //   }
+    // });
+    // for (const cronograma of cronogramas) {
+
+
+      // const reunioes = await this.prisma.reuniao.findMany({
+      //   where: {
+      //     data_reuniao: {
+      //       gte: new Date(),
+      //       lte: new Date(new Date().setDate(new Date().getDate() + 10))
+      //     }
+      //   },
+      //   include: {
+      //     Orientacao: {
+      //       include: {
+      //         Aluno: true,
+      //         Professor: true
+      //       }
+      //     }
+      //   }
+      // });
+
+      const daysBefore = [1, 3, 5, 10];
+
+      const reunioes = await this.prisma.reuniao.findMany({
+        where: {
+          data_reuniao: {
+            gte: new Date(), // Meetings in the future or today
+            lte: new Date(new Date().setDate(new Date().getDate() + 10)) // Up to 10 days in the future
+          }
+        },
+        include: {
+          Orientacao: {
+            include: {
+              Aluno: true,
+              Professor: true
+            }
+          }
+        }
+      });
+
+      for (const reuniao of reunioes) {
+        const alertsToCreate = [];
+      
+        const alertDates = daysBefore.map(days => {
+          const alertaDate = new Date(reuniao.data_reuniao);
+          alertaDate.setDate(alertaDate.getDate() - days);
+          return alertaDate;
+        });
+      
+        const existingAlertas = await this.prisma.alerta.findMany({
+          where: {
+            idreuniao: reuniao.id_reuniao,
+            data_envio: { in: alertDates },
+            OR: [
+              { idusuario: reuniao.Orientacao.Aluno.idusuario },
+              { idusuario: reuniao.Orientacao.Professor.idusuario }
+            ]
+          }
+        });
+
+        const existingAlertDates = new Set(existingAlertas.map(alerta => alerta.data_envio.getTime()));
+      
+        for (let i = 0; i < daysBefore.length; i++) {
+          const alertaDate = alertDates[i];
+      
+        //   if (!existingAlertDates.has(alertaDate.getTime())) {
+        //     alertsToCreate.push({
+        //       idreuniao: reuniao.id_reuniao,
+        //       idusuario: reuniao.Orientacao.idaluno,
+        //       assunto: `Lembrete de reunião - ${daysBefore[i]} dias antes`,
+        //       mensagem: `Você tem uma reunião marcada para ${reuniao.data_reuniao}.`,
+        //       data_envio: alertaDate
+        //     });
+
+        //   }
+        // }
+      
+
+        if (alertsToCreate.length > 0) {
+          await this.prisma.alerta.createMany({
+            data: alertsToCreate
+          });
+        }
+      }
+
+
+        // const existingReunioesAlertas = await this.prisma.alerta.findMany({
+        //   where: {
+        //     idreuniao: { in: reunioes.map(reuniao => reuniao.id_reuniao) },
+        //     idusuario: orientacao.idaluno,
+        //   }
+        // });
+
+
+      }
+    }
+
+    // const end = process.hrtime(start);
+    // console.info('### generateAlertasforReunioes executado em %ds %dms', end[0], end[1] / 1000000);
+  // }
 }
