@@ -135,7 +135,7 @@ model Avaliacao {
   @@index([identrega])
 }
 
-// Reuniões que ocorrem durante a Orientação de um aluno. Permite também o upload de documentos.
+// Reuniões que ocorrem durante a Orientação de um aluno.
 model Reuniao {
   id_reuniao   String      @id @default(uuid())
   idorientacao String
@@ -182,6 +182,7 @@ model Entrega {
   idprazo      String
   prazo        Prazo       @relation(fields: [idprazo], references: [id_prazo])
   Avaliacao    Avaliacao[]
+  status       StatusEntrega @default(Pendente)
 
   @@unique([idaluno, prazo_tipo])
 }
@@ -220,4 +221,10 @@ enum TipoPrazo {
   ReelaboracaoProposta
   EntregaTC
   ReelaboracaoTC
+}
+
+enum StatusEntrega {
+  Pendente
+  AguardandoAvaliacao
+  Avaliado
 }
