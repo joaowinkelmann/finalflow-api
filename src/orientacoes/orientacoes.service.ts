@@ -13,7 +13,6 @@ export class OrientacoesService {
         id_professor: createOrientacaoDto.idprofessor,
       },
     });
-
     if (!professor) {
       throw new NotFoundException('Professor não encontrado');
     }
@@ -24,18 +23,46 @@ export class OrientacoesService {
         id_aluno: createOrientacaoDto.idaluno,
       },
     });
-
     if (!aluno) {
       throw new NotFoundException('Aluno não encontrado');
     }
 
-    // return;
 
-    // verificou tudo, pode criar a orientação então
-
-    return await this.prisma.orientacao.create({
+    const orientacao = await this.prisma.orientacao.create({
       data: createOrientacaoDto,
+    }).then(async (orientacao) => {
+      // cria as entregas, baseado nos prazos que estão presentes no cronograma
+
+      const prazos = await this.prisma.prazo.findMany({
+        where: {
+          idcronograma: orientacao.idcronograma,
+        },
+      });
+
+      // pra cada prazo encontrado, cria a entrega respectiva
+      prazos.forEach(async (prazo) => {
+        await this.prisma.entrega.create({
+          data: {
+            idprazo: prazo.id_prazo,
+            idaluno: orientacao.idaluno,
+            idorientacao: orientacao.id_orientacao,
+            prazo_tipo: prazo.prazo_tipo
+          },
+        });
+      });
+
+    }).catch((error) => {
+      console.error(error);
+      throw new NotAcceptableException('Erro ao criar orientação');
     });
+
+    
+    // .catch((error) => {
+    //   throw new NotAcceptableException('Erro ao criar orientação');
+    // })
+
+
+    // criou a orientaco, cria as instâncias de entrega para a mesma já
   }
 
   async findAll() {

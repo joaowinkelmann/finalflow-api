@@ -74,6 +74,7 @@ model Orientacao {
   idcronograma    String
   data_inicio     DateTime    @db.Timestamptz(3)
   data_fim        DateTime?   @db.Timestamptz(3)
+  status          StatusOrientacao @default(EmAndamento)
   Professor       Professor   @relation(fields: [idprofessor], references: [id_professor])
   Aluno           Aluno       @relation(fields: [idaluno], references: [id_aluno])
   Reuniao         Reuniao[]
@@ -173,8 +174,8 @@ model Prazo {
 model Entrega {
   id_entrega   String      @id @default(uuid())
   prazo_tipo   TipoPrazo
-  data_envio   DateTime    @db.Timestamptz(3)
-  arquivo      String
+  data_envio   DateTime?   @db.Timestamptz(3) // data de envio é quando o Aluno efetivamente envia, por isso que pode ser nulo
+  arquivo      String?     // arquivo pode ser vazio, pois pré-criamos as Entregas ao criar a Orientação
   idaluno      String
   aluno        Aluno       @relation(fields: [idaluno], references: [id_aluno])
   idorientacao String
@@ -227,4 +228,9 @@ enum StatusEntrega {
   Pendente
   AguardandoAvaliacao
   Avaliado
+}
+
+enum StatusOrientacao {
+  EmAndamento
+  Concluido
 }
