@@ -1,4 +1,4 @@
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsDateString, IsEnum, IsNotEmpty } from 'class-validator';
 import { TipoPrazo } from '@prisma/client';
 
 export class CreatePrazoDto {
@@ -11,8 +11,10 @@ export class CreatePrazoDto {
     prazo_tipo: TipoPrazo;
 
     @IsNotEmpty()
-    data_entrega: string;
+    @IsDateString()
+    data_entrega: Date;
 
     @IsNotEmpty()
-    data_retorno: string;
+    @IsDateString()
+    data_retorno: Date;
 }

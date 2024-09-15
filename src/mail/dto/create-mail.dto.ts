@@ -19,5 +19,5 @@ export class CreateMailDto {
     
     @IsOptional()
     @IsObject()
-    context: any;
+    context?: any;
 }
