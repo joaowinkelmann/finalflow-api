@@ -1,9 +1,13 @@
-import { IsDateString, IsNotEmpty, IsString } from 'class-validator';
+import { IsDateString, IsJSON, IsNotEmpty, IsNotEmptyObject, IsObject, IsOptional, IsString, ValidateIf } from 'class-validator';
 
 export class CreateAlertaDto {
     // @IsNotEmpty()
     // @IsString()
-    idprazo: string;
+    @IsOptional()
+    idprazo?: string;
+
+    @IsOptional()
+    idreuniao?: string;
 
     @IsNotEmpty()
     @IsString()
@@ -15,9 +19,18 @@ export class CreateAlertaDto {
 
     @IsNotEmpty()
     @IsString()
-    mensagem: string;
+    mensagem?: string | undefined;
 
     @IsNotEmpty()
     @IsDateString()
-    data_envio: string;
+    data_envio: Date;
+
+    @IsOptional()
+    @IsString()
+    template?: string;
+
+    @IsOptional()
+    // @ValidateIf
+    @IsNotEmptyObject()
+    contexto?: Record<string, any> | undefined;
 }

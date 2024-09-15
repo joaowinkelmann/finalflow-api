@@ -118,7 +118,7 @@ model Banca {
   @@unique([idprofessor1, idprofessor2, idcronograma])
 }
 
-// Guarda dados sobre alguma avaliação feita por um professor sobre um trabalho de TCC de um aluno. Também linka avaliações feitas para entregas de propostas, por exemplo.
+// Guarda dados sobre alguma Avaliação feita por um Professor sobre um trabalho de TCC de um Aluno em uma Orientação. Também linka avaliações feitas para entregas de propostas, por exemplo.
 model Avaliacao {
   id_avaliacao   String        @id @default(uuid())
   idbanca        String? // nem toda avaliação vai ter uma banca
@@ -136,7 +136,7 @@ model Avaliacao {
   @@index([identrega])
 }
 
-// Reuniões que ocorrem durante a Orientação de um aluno.
+// Reuniões que ocorrem durante a Orientação de um Aluno.
 model Reuniao {
   id_reuniao   String      @id @default(uuid())
   idorientacao String
@@ -147,7 +147,7 @@ model Reuniao {
   Alerta       Alerta[]
 }
 
-// Guarda indivudalmente os documentos que são enviados para alguma Reunião.
+// Guarda indivudalmente os Documentos que são enviados para alguma Reunião.
 model Documento {
   id_documento String  @id @default(uuid())
   nome         String
@@ -199,7 +199,9 @@ model Alerta {
   idreuniao  String? // Ou também pode ser vinculado a uma Reunião
   idusuario  String
   assunto    String
-  mensagem   String
+  mensagem   String? // se tiver contexto e template, não precisa de mensagem
+  template   String? // template do email/handlebars, caso tenha
+  contexto   Json? // contexto do email/handlebars, caso tenha
   data_envio DateTime @db.Timestamptz(3) // data de quando será enviado o email
   ja_enviado Boolean  @default(false)
   Prazo      Prazo?   @relation(fields: [idprazo], references: [id_prazo])

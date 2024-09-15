@@ -1,4 +1,4 @@
-import { Injectable, NotAcceptableException } from '@nestjs/common';
+import { Injectable, NotAcceptableException, UnprocessableEntityException } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CreateAlertaDto } from './dto/create-alerta.dto';
 import { UpdateAlertaDto } from './dto/update-alerta.dto';
@@ -6,24 +6,25 @@ import { PrismaService } from 'prisma/prisma.service';
 // import { MailService } from 'src/mail/mail.service';
 import { MailerService } from "@nestjs-modules/mailer";
 import { StatusOrientacao } from '@prisma/client';
+import { SentMessageInfo } from 'nodemailer';
 
 @Injectable()
 export class AlertasService {
   constructor(private readonly prisma: PrismaService, private readonly mailService: MailerService) { }
+
   async create(createAlertaDto: CreateAlertaDto
   ) {
     return await this.prisma.alerta.create({
       data: createAlertaDto,
-    }).then((data) => {
-      // console.log(data);
     });
   }
 
-  // async createMany(alerts: { prazoId: string; assunto: string; mensagem: string; dataEnvio: Date; jaEnviado: boolean; idUsuario: string }[]) {
   async createMany(alerts: CreateAlertaDto[]) {
-    // throw new Error('Method not implemented.');
     return await this.prisma.alerta.createMany({
       data: alerts,
+    }).catch((err) => {
+      console.error(err);
+      throw new UnprocessableEntityException('Erro ao criar alertas');
     });
   }
 
@@ -65,11 +66,10 @@ export class AlertasService {
     };
   }
 
-  // @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  // @Cron(CronExpression.EVERY_10_SECONDS)
   @Cron(CronExpression.EVERY_10_MINUTES)
-  async handleCron() {
-    console.log('Running scheduled task to process Alertas');
+  async sendPendingAlerts() {
+    console.log('=> Executando rotina para enviar alertas pendentes...');
+    const start = process.hrtime();
 
     // pegar os alertas pendentes do banco
     const alertas = await this.prisma.alerta.findMany({
@@ -85,27 +85,45 @@ export class AlertasService {
 
     // envia cada alerta
     for (const alerta of alertas) {
+
+      // Cast: JsonValue -> context?: { [name: string]: any; };, pra usar no sendMail()
+      let formattedContexto: { [name: string]: any; } | undefined = undefined;
+      if (alerta.contexto) {
+        try {
+          formattedContexto = JSON.parse(JSON.stringify(alerta.contexto));
+        } catch (err) {
+          console.error('Erro ao converter contexto do alerta:', err);
+        }
+      }
+
       // Enviar email
-      let foiEnviado = await this.mailService.sendMail({
+      const foiEnviado: boolean = await this.mailService.sendMail({
         to: alerta.Usuario.email,
         subject: alerta.assunto,
-        text: alerta.mensagem,
-        template: "alert",
-        context: {
+        text: alerta.mensagem ?? undefined,
+        template: alerta.template ?? "alert",
+        context: formattedContexto ?? {
           nome: alerta.Usuario.nome,
           data: alerta.data_envio,
           mensagem: alerta.mensagem,
-        },
+        }
+      }).then(() => {
+        return true;
+      }).catch((err) => {
+        console.error('Erro ao enviar email:', err);
+        return false;
       });
 
       if (foiEnviado) {
-        // Atualizar o alerta como jaEnviado
         await this.prisma.alerta.update({
           where: { id_alerta: alerta.id_alerta },
           data: { ja_enviado: true },
         });
       }
     }
+
+    const end = process.hrtime(start);
+    console.info('### sendPendingAlerts executado em %ds %dms', end[0], end[1] / 1000000);
   }
 
   // varre os Prazos de cada Orientação e gera os Alertas de Prazo para submeter as Entregas
@@ -131,9 +149,12 @@ export class AlertasService {
         },
         include: {
           Aluno: {
-            select: {
-              idusuario: true,
+            include: {
+              usuario: true
             }
+            // select: {
+            //   idusuario: true,
+            // }
           }
         }
       });
@@ -149,7 +170,7 @@ export class AlertasService {
           const existingAlerts = await this.prisma.alerta.findMany({
             where: {
               idprazo: prazo.id_prazo,
-              idusuario: orientacao.Aluno.idusuario,
+              idusuario: orientacao.Aluno.usuario.id_usuario,
             }
           });
 
@@ -170,13 +191,20 @@ export class AlertasService {
 
             return {
               idprazo: prazo.id_prazo,
-              idusuario: orientacao.Aluno.idusuario,
+              idusuario: orientacao.Aluno.usuario.id_usuario,
               assunto: `Lembrete: ${interval} dias até o prazo para ${prazo.dscprazo || prazo.prazo_tipo}`,
-              mensagem: `Você tem ${interval} dias para entregar ${prazo.dscprazo || prazo.prazo_tipo}.`,
+              // mensagem: `Você tem ${interval} dias para entregar ${prazo.dscprazo || prazo.prazo_tipo}.`,
               data_envio: alertDate,
               ja_enviado: false,
+              contexto: {
+                nome_destinatario: orientacao.Aluno.usuario.nome,
+                prazo_dsc: prazo.dscprazo || prazo.prazo_tipo,
+                data_entrega: prazo.data_entrega,
+                intervalo: interval,
+              },
+              template: "prazo",
             };
-          });
+          }) as CreateAlertaDto[];
 
           if (newAlerts.length > 0) {
             await this.prisma.alerta.createMany({
@@ -213,8 +241,16 @@ export class AlertasService {
       include: {
         Orientacao: {
           include: {
-            Aluno: true,
-            Professor: true
+            Aluno: {
+              include: {
+                usuario: true
+              }
+            },
+            Professor: {
+              include: {
+                usuario: true
+              }
+            }
           }
         }
       }
@@ -231,13 +267,7 @@ export class AlertasService {
 
     // Passo 3: Itera sobre as Reuniões e monta os Alertas necessários
     for (const reuniao of reunioes) {
-      const alertsToCreate: {
-        idreuniao: string;
-        idusuario: string;
-        assunto: string;
-        mensagem: string;
-        data_envio: Date;
-      }[] = [];
+      const alertsToCreate: CreateAlertaDto[] = [];
 
       const alertDates = daysBefore.map(days => {
         const alertaDate = new Date(reuniao.data_reuniao);
@@ -254,7 +284,15 @@ export class AlertasService {
             idusuario: reuniao.Orientacao.Aluno.idusuario,
             assunto: `Lembrete de reunião - ${daysBefore[i]} dias antes`,
             mensagem: `Você tem uma reunião marcada para ${reuniao.data_reuniao}.`,
-            data_envio: alertaDate
+            data_envio: alertaDate,
+            template: "reuniao",
+            contexto: {
+              nome_destinatario: reuniao.Orientacao.Aluno.usuario.nome,
+              data_reuniao: reuniao.data_reuniao,
+              descricao_reuniao: reuniao.descricao,
+              nome_professor: reuniao.Orientacao.Professor.usuario.nome,
+              nome_aluno: reuniao.Orientacao.Aluno.usuario.nome
+            }
           });
 
           alertsToCreate.push({
@@ -262,7 +300,15 @@ export class AlertasService {
             idusuario: reuniao.Orientacao.Professor.idusuario,
             assunto: `Lembrete de reunião - ${daysBefore[i]} dias antes`,
             mensagem: `Você tem uma reunião marcada para ${reuniao.data_reuniao}.`,
-            data_envio: alertaDate
+            data_envio: alertaDate,
+            template: "reuniao",
+            contexto: {
+              nome_destinatario: reuniao.Orientacao.Professor.usuario.nome,
+              data_reuniao: reuniao.data_reuniao,
+              descricao_reuniao: reuniao.descricao,
+              nome_professor: reuniao.Orientacao.Professor.usuario.nome,
+              nome_aluno: reuniao.Orientacao.Aluno.usuario.nome
+            }
           });
         }
       }
