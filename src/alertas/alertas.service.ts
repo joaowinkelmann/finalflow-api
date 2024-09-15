@@ -5,6 +5,7 @@ import { UpdateAlertaDto } from './dto/update-alerta.dto';
 import { PrismaService } from 'prisma/prisma.service';
 // import { MailService } from 'src/mail/mail.service';
 import { MailerService } from "@nestjs-modules/mailer";
+import { StatusOrientacao } from '@prisma/client';
 
 @Injectable()
 export class AlertasService {
@@ -107,11 +108,13 @@ export class AlertasService {
     }
   }
 
-  // busca se não entrou algum usuário em algum cronograma/orientação que precisa salvar os seus alertas no banco
-  // @Cron(CronExpression.EVERY_10_SECONDS)
+  // varre os Prazos de cada Orientação e gera os Alertas de Prazo para submeter as Entregas
   @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
-  async generateAlertasforOrientacoes() {
-    console.log('Running scheduled task to process Orientacoes');
+  async generateAlertasforPrazoEntrega() {
+    console.info('=> Executando rotina para gerar alertas de prazo de entrega...');
+
+    // get current time
+    const start = process.hrtime();
 
     const cronogramas = await this.prisma.cronograma.findMany({
       where: {
@@ -124,6 +127,7 @@ export class AlertasService {
       const orientacoes = await this.prisma.orientacao.findMany({
         where: {
           idcronograma: cronograma.id_cronograma,
+          status: StatusOrientacao.EmAndamento
         },
         include: {
           Aluno: {
@@ -182,5 +186,108 @@ export class AlertasService {
         }
       }
     }
+
+    const end = process.hrtime(start);
+    console.info('### generateAlertasforPrazoEntrega executado em %ds %dms', end[0], end[1] / 1000000);
+  }
+
+  // varre as reuniões criadas e busca se tem alguma ainda que não foi agendada para ser enviada
+  // essa task precisa gerar alertas tanto para o professor quanto para o aluno
+  // também irá fazer up (upsert) no banco de dados, caso a reunião tenha sido remarcada
+  // caso a reunião tenha sido removida, os alertas serão removidos
+  @Cron(CronExpression.EVERY_DAY_AT_1AM)
+  async generateAlertasforReunioes() {
+    console.log('=> Executando rotina para gerar alertas de reuniões...');
+    const start = process.hrtime();
+
+    const daysBefore = [1, 3, 5, 10];
+
+    // Passo 1: Pega as reuniões dos próximos 10 dias
+    const reunioes = await this.prisma.reuniao.findMany({
+      where: {
+        data_reuniao: {
+          gte: new Date(),
+          lte: new Date(new Date().setDate(new Date().getDate() + 10))
+        }
+      },
+      include: {
+        Orientacao: {
+          include: {
+            Aluno: true,
+            Professor: true
+          }
+        }
+      }
+    });
+
+    // Passo 2: Pega os Alertas dessas Reuniões
+    const allAlertas = await this.prisma.alerta.findMany({
+      where: {
+        OR: reunioes.map(reuniao => ({ idreuniao: reuniao.id_reuniao }))
+      }
+    });
+
+    const existingAlertDates = new Set(allAlertas.map(alerta => alerta.data_envio.getTime()));
+
+    // Passo 3: Itera sobre as Reuniões e monta os Alertas necessários
+    for (const reuniao of reunioes) {
+      const alertsToCreate: {
+        idreuniao: string;
+        idusuario: string;
+        assunto: string;
+        mensagem: string;
+        data_envio: Date;
+      }[] = [];
+
+      const alertDates = daysBefore.map(days => {
+        const alertaDate = new Date(reuniao.data_reuniao);
+        alertaDate.setDate(alertaDate.getDate() - days);
+        return alertaDate;
+      });
+
+      for (let i = 0; i < daysBefore.length; i++) {
+        const alertaDate = alertDates[i];
+
+        if (!existingAlertDates.has(alertaDate.getTime())) {
+          alertsToCreate.push({
+            idreuniao: reuniao.id_reuniao,
+            idusuario: reuniao.Orientacao.Aluno.idusuario,
+            assunto: `Lembrete de reunião - ${daysBefore[i]} dias antes`,
+            mensagem: `Você tem uma reunião marcada para ${reuniao.data_reuniao}.`,
+            data_envio: alertaDate
+          });
+
+          alertsToCreate.push({
+            idreuniao: reuniao.id_reuniao,
+            idusuario: reuniao.Orientacao.Professor.idusuario,
+            assunto: `Lembrete de reunião - ${daysBefore[i]} dias antes`,
+            mensagem: `Você tem uma reunião marcada para ${reuniao.data_reuniao}.`,
+            data_envio: alertaDate
+          });
+        }
+      }
+
+      // Passo 4: Se existirem Alertas a serem criados, lança no banco
+      if (alertsToCreate.length > 0) {
+        await this.prisma.alerta.createMany({
+          data: alertsToCreate
+        });
+      }
+    }
+
+    // Passo 5: Sincroniza os Alertas com as Reuniões, removendo os Alertas de Reuniões que não existem mais ou foram remarcadas
+    const existingReuniaoIds = new Set(reunioes.map(reuniao => reuniao.id_reuniao));
+    const alertsToRemove = allAlertas.filter(alerta => alerta.idreuniao && !existingReuniaoIds.has(alerta.idreuniao));
+
+    if (alertsToRemove.length > 0) {
+      await this.prisma.alerta.deleteMany({
+        where: {
+          id_alerta: { in: alertsToRemove.map(alerta => alerta.id_alerta) }
+        }
+      });
+    }
+
+    const end = process.hrtime(start);
+    console.info('### generateAlertasforReunioes executado em %ds %dms', end[0], end[1] / 1000000);
   }
 }

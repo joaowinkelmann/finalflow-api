@@ -46,6 +46,10 @@ export class PrazosService {
   }
 
   async update(id: string, updatePrazoDto: UpdatePrazoDto) {
+
+    // necessário fazer a validação da data, pois caso o prazo seja alterado, tem que atualizar as Entregas e Avaliações das Orientações, assim como as datas de envio de Alertas, alterar para o passado da xabu 💀💀💀
+
+
     return await this.prisma.prazo.update({
       where: {
         id_prazo: id,

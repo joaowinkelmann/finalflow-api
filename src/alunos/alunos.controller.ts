@@ -2,6 +2,8 @@ import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/commo
 import { CreateAlunoDto } from './dto/create-aluno.dto';
 import { UpdateAlunoDto } from './dto/update-aluno.dto';
 import { AlunosService } from './alunos.service';
+import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
+import { NivelAcesso } from '@prisma/client';
 
 @Controller('alunos')
 export class AlunosController {
@@ -28,6 +30,7 @@ export class AlunosController {
   }
 
   @Delete(':id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
     return this.alunosService.remove(id);
   }

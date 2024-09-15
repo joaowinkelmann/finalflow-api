@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotAcceptableException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotAcceptableException, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateProfessorDto } from './dto/create-professor.dto';
 import { UpdateProfessorDto } from './dto/update-professor.dto';
 import { PrismaService } from '../../prisma/prisma.service';
@@ -141,6 +141,17 @@ export class ProfessoresService {
     await this.prisma.professor.delete({
       where: {
         id_professor: id
+      }
+    }).catch((error) => {
+      console.error(error);
+
+      switch (error.code) {
+        case 'P2025':
+          throw new NotFoundException("Professor não encontrado");
+        case 'P2003':
+          throw new UnprocessableEntityException("Não foi possível remover o professor. Existem orientações associadas a ele");
+        default:
+          throw new InternalServerErrorException("Não foi possível remover o professor");
       }
     });
 
