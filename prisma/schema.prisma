@@ -172,6 +172,7 @@ model Prazo {
 }
 
 // Entrega de um trabalho de TCC por um aluno. Pode ser a proposta, a reelaboração da proposta, o TC, ou a reelaboração do TC.
+// São criadas previamente no instante em que a orientação é criada para o Aluno.
 model Entrega {
   id_entrega   String        @id @default(uuid())
   prazo_tipo   TipoPrazo
