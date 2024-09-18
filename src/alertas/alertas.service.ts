@@ -70,6 +70,7 @@ export class AlertasService {
   async sendPendingAlerts() {
     console.log('=> Executando rotina para enviar alertas pendentes...');
     const start = process.hrtime();
+    let sentAlerts: number = 0;
 
     // pegar os alertas pendentes do banco
     const alertas = await this.prisma.alerta.findMany({
@@ -108,6 +109,7 @@ export class AlertasService {
           mensagem: alerta.mensagem,
         }
       }).then(() => {
+        sentAlerts++;
         return true;
       }).catch((err) => {
         console.error('Erro ao enviar email:', err);
@@ -123,7 +125,7 @@ export class AlertasService {
     }
 
     const end = process.hrtime(start);
-    console.info('### sendPendingAlerts executado em %ds %dms', end[0], end[1] / 1000000);
+    console.info('### sendPendingAlerts executado em %ds %dms (enviados: %d)', end[0], end[1] / 1000000, sentAlerts);
   }
 
   // varre os Prazos de cada Orientação e gera os Alertas de Prazo para submeter as Entregas
@@ -133,6 +135,7 @@ export class AlertasService {
 
     // get current time
     const start = process.hrtime();
+    let generatedAlerts: number = 0;
 
     const cronogramas = await this.prisma.cronograma.findMany({
       where: {
@@ -207,6 +210,7 @@ export class AlertasService {
           }) as CreateAlertaDto[];
 
           if (newAlerts.length > 0) {
+            generatedAlerts += newAlerts.length;
             await this.prisma.alerta.createMany({
               data: newAlerts,
             });
@@ -216,7 +220,7 @@ export class AlertasService {
     }
 
     const end = process.hrtime(start);
-    console.info('### generateAlertasforPrazoEntrega executado em %ds %dms', end[0], end[1] / 1000000);
+    console.info('### generateAlertasforPrazoEntrega executado em %ds %dms (gerados: %d)', end[0], end[1] / 1000000, generatedAlerts);
   }
 
   // varre as reuniões criadas e busca se tem alguma ainda que não foi agendada para ser enviada
@@ -227,6 +231,7 @@ export class AlertasService {
   async generateAlertasforReunioes() {
     console.log('=> Executando rotina para gerar alertas de reuniões...');
     const start = process.hrtime();
+    let generatedAlerts: number = 0;
 
     const daysBefore = [1, 3, 5, 10];
 
@@ -315,6 +320,7 @@ export class AlertasService {
 
       // Passo 4: Se existirem Alertas a serem criados, lança no banco
       if (alertsToCreate.length > 0) {
+        generatedAlerts += alertsToCreate.length;
         await this.prisma.alerta.createMany({
           data: alertsToCreate
         });
@@ -334,6 +340,6 @@ export class AlertasService {
     }
 
     const end = process.hrtime(start);
-    console.info('### generateAlertasforReunioes executado em %ds %dms', end[0], end[1] / 1000000);
+    console.info('### generateAlertasforReunioes executado em %ds %dms (gerados: %d)', end[0], end[1] / 1000000, generatedAlerts);
   }
 }
