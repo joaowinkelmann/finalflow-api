@@ -8,7 +8,7 @@ import { TipoPrazo } from '@prisma/client';
 @Injectable()
 export class EntregasService {
   constructor(private prisma: PrismaService) { }
-  async submit(createEntregasDto: CreateEntregaDto, idusuario: string) {
+  async submit(createEntregaDto: CreateEntregaDto, idusuario: string) {
 
     const aluno = await this.prisma.aluno.findUnique({
       where: {
@@ -20,7 +20,7 @@ export class EntregasService {
     }
 
     const prazo = await this.prisma.prazo.findUnique({
-      where: { id_prazo: createEntregasDto.idprazo }
+      where: { id_prazo: createEntregaDto.idprazo }
     });
     if (!prazo) {
       throw new NotFoundException('Prazo não encontrado');
@@ -29,13 +29,13 @@ export class EntregasService {
     // verificação de ordem de entrega
     // pode ser que uma das entregas seja para EntregaTC, mas pode ser
     // que o cara nem a Proposta tenha feito ainda
-    await this.validateSubmissionOrder(aluno.id_aluno, prazo.prazo_tipo, createEntregasDto.idorientacao);
+    await this.validateSubmissionOrder(aluno.id_aluno, prazo.prazo_tipo, createEntregaDto.idorientacao);
 
     const data_envio = new Date();
 
     await this.prisma.entrega.create({
       data: {
-        ...createEntregasDto,
+        ...createEntregaDto,
         data_envio: data_envio,
         idaluno: aluno.id_aluno,
         prazo_tipo: prazo.prazo_tipo,

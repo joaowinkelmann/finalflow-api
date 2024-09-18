@@ -4,6 +4,7 @@ import { CreateOrientacaoDto } from './dto/create-orientacao.dto';
 import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
+import { ReqReturnDto } from 'src/auth/dto/req-return.dto';
 
 @Controller('orientacoes')
 export class OrientacoesController {
@@ -23,7 +24,7 @@ export class OrientacoesController {
 
   @Get('/getMyOrientacoes')
   @NiveisAcesso(NivelAcesso.professor)
-  orientacoesByProfessor(@Req() req) {
+  orientacoesByProfessor(@Req() req: ReqReturnDto) {
     return this.orientacoesService.getOrientacoesByProfessor(req.user.sub);
   }
 
