@@ -16,6 +16,11 @@ API para controle de Trabalhos de Conclusão de Curso (TCC)
 - A aplicação precisa saber quem está logado e quais lançamentos cada usuário pode realizar. Ex: Só o coordenador pode atribuir professores na banca. Um professor só lança notas para seus alunos. ✅
 
 
+To do:
+- Controle de prazos => E-mail/template de alteração nos prazos/ ao chamar o prazo.service->update()
+- Atrasos => Serviço no alerta.service + template
+
+
 ## Instalar Bun
 
 Linux/MacOS
