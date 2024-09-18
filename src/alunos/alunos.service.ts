@@ -14,6 +14,17 @@ export class AlunosService {
 
   async create(createAlunoDto: CreateAlunoDto) {
     try {
+
+      // verifica se o curso existe
+      const curso = await this.prisma.curso.findUnique({
+        where: {
+          id_curso: createAlunoDto.idcurso
+        }
+      });
+      if (!curso) {
+        throw new NotFoundException('Curso não encontrado');
+      }
+
       const usuario = await this.usuariosService.create({
         nome: createAlunoDto.nome,
         email: createAlunoDto.email,

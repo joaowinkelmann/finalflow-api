@@ -5,7 +5,7 @@ import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
 export class OrientacoesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService) { }
   async create(createOrientacaoDto: CreateOrientacaoDto) {
     // verifica se createOrientacaoDto.orientadorId é um professor
     const professor = await this.prisma.professor.findUnique({
@@ -27,34 +27,48 @@ export class OrientacoesService {
       throw new NotFoundException('Aluno não encontrado');
     }
 
+    // verifica se o cronograma existe
+    const cronograma = await this.prisma.cronograma.findUnique({
+      where: {
+        id_cronograma: createOrientacaoDto.idcronograma,
+      },
+    });
+    if (!cronograma) {
+      throw new NotFoundException('Cronograma não encontrado');
+    }
 
-    const orientacao = await this.prisma.orientacao.create({
-      data: createOrientacaoDto,
-    }).then(async (orientacao) => {
-      // cria as entregas, baseado nos prazos que estão presentes no cronograma
 
+    try {
+      const orientacao = await this.prisma.orientacao.create({
+        data: createOrientacaoDto,
+      });
+
+      // pega os prazos do cronograma para criar as entregas
       const prazos = await this.prisma.prazo.findMany({
         where: {
           idcronograma: orientacao.idcronograma,
         },
       });
 
-      // pra cada prazo encontrado, cria a entrega respectiva
-      prazos.forEach(async (prazo) => {
-        await this.prisma.entrega.create({
-          data: {
-            idprazo: prazo.id_prazo,
-            idaluno: orientacao.idaluno,
-            idorientacao: orientacao.id_orientacao,
-            prazo_tipo: prazo.prazo_tipo
-          },
-        });
-      });
+      // cria entregas para cada prazo
+      await Promise.all(
+        prazos.map((prazo) =>
+          this.prisma.entrega.create({
+            data: {
+              idprazo: prazo.id_prazo,
+              idaluno: orientacao.idaluno,
+              idorientacao: orientacao.id_orientacao,
+              prazo_tipo: prazo.prazo_tipo,
+            },
+          })
+        )
+      );
 
-    }).catch((error) => {
+      return orientacao;
+    } catch (error) {
       console.error(error);
       throw new NotAcceptableException('Erro ao criar orientação');
-    });
+    }
   }
 
   async findAll() {
@@ -62,14 +76,53 @@ export class OrientacoesService {
   }
 
   async getOrientacoesByProfessor(idusuario: string) {
+
+    const professor = await this.prisma.professor.findUnique({
+      where: {
+        idusuario: idusuario
+      },
+      select: {
+        id_professor: true,
+      },
+    });
+    if (!professor) {
+      throw new NotFoundException('Professor não encontrado');
+    }
+
     const orientacaoProfessor = await this.prisma.orientacao.findMany({
       where: {
-        idprofessor: idusuario,
+        idprofessor: professor.id_professor,
       },
-      // fazer join com a table de usuario
+      include: {
+        Professor: {
+          select: {
+            usuario: {
+              select: {
+                id_usuario: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+        Aluno: {
+          select: {
+            id_aluno: true,
+          },
+          include: {
+            usuario: {
+              select: {
+                nome: true,
+                email: true,
+              },
+            },
+          }
+        },
+      },
     });
 
-    if(orientacaoProfessor == null){
+
+    if (orientacaoProfessor == null) {
       throw new NotAcceptableException('Nenhuma orientação encontrado do professor com id:' + idusuario);
     }
 
@@ -77,13 +130,13 @@ export class OrientacoesService {
   }
 
   async findOne(id: string) {
-    const findOne =  await this.prisma.orientacao.findUnique({
+    const findOne = await this.prisma.orientacao.findUnique({
       where: {
         id_orientacao: id,
       },
     });
 
-    if(findOne == null){
+    if (findOne == null) {
       throw new NotAcceptableException('Orientação não encontrada');
     }
 
@@ -98,38 +151,48 @@ export class OrientacoesService {
         },
         data: updateOrientacaoDto,
       });
-    
+
       return {
         message: "Atualizado com sucesso!",
         orientacao: updateOrientacao,
       };
     } catch (error) {
-      if (error.code === 'P2025') { 
+      if (error.code === 'P2025') {
         throw new NotAcceptableException('Orientação não encontrada para update');
       } else {
         throw error;
       }
-    }    
+    }
   }
 
   async remove(id: string) {
     try {
+
+      // remove as entregas associadas a orientação
+      await this.prisma.entrega.deleteMany({
+        where: {
+          idorientacao: id,
+        },
+      });
+
+      // @todo - talvez tinha que olhar os emails/avisos aqui tbm
+
       const deleteOrientacao = await this.prisma.orientacao.delete({
         where: {
           id_orientacao: id,
         },
       });
-    
+
       return {
         message: 'Sucesso ao excluir!',
         orientacao: deleteOrientacao,
       };
     } catch (error) {
-      if (error.code === 'P2025') { 
+      if (error.code === 'P2025') {
         throw new NotAcceptableException('Não foi possível excluir a orientação, por favor informe um id válido');
       } else {
-        throw error; 
+        throw error;
       }
-    }    
+    }
   }
 }
