@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
 import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -189,32 +189,30 @@ export class UsuariosService {
     }
   }
 
-  async uploadAvatar(avatar: SetAvatarDto, userId: string): Promise<boolean> {
+  async uploadAvatar(avatar: SetAvatarDto, userId: string) {
     try {
-      // const buffer = Buffer.from(avatar, 'base64');
       const buffer = Buffer.from(avatar.base64data, 'base64');
-
-      // get image format
-      const metadata = await sharp(buffer).metadata();
-
+  
       const resizedImageBuffer = await sharp(buffer)
-        .resize(128, 128)
+        .resize(96, 96)
+        .flatten()
+        .webp({ quality: 65 })
         .toBuffer();
-
+  
       const resizedImageBase64 = resizedImageBuffer.toString('base64');
-
-      await this.prisma.usuario.update({
+  
+      return await this.prisma.usuario.update({
         where: { id_usuario: userId },
         data: { avatar: resizedImageBase64 },
+        select: { avatar: true },
       });
-
-      return true;
     } catch (error) {
       console.error(error);
-      return false;
+      throw new BadRequestException("Erro ao atualizar o avatar");
     }
   }
-
+  
+  
   /**
    * 
    * @param email 
