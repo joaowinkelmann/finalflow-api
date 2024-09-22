@@ -75,21 +75,18 @@ export class AuthService {
 
     /**
      * Receives a recovery password request for a user with the given email.
-     * 
+     *
      * @param email - The email of the user requesting the recovery password.
-     * @returns string - A message indicating that the recovery password was sent to the email.
+     * @returns void
      */
-    async receiveRecoveryPassword(email: RecoverPasswordDto): Promise<any> {
-        try {
-            let novaSenha = this.usuariosService.generatePassword(12);
-            await this.usuariosService.setPassword(email.email, novaSenha, true);
-        } catch (error) {
-            console.error(error);
-            await new Promise((resolve) => setTimeout(resolve, Math.floor(Math.random() * 1000) + 2800));
-        } finally {
-            return {
-                message: "Nova senha enviada para o e-mail cadastrado, caso exista"
-            };
-        }
+    async receiveRecoveryPassword(email: RecoverPasswordDto): Promise<void> {
+        setTimeout(async () => {
+            try {
+                let novaSenha = this.usuariosService.generatePassword(12);
+                await this.usuariosService.setPassword(email.email, novaSenha, true);
+            } catch (error) {
+                console.error(error);
+            }
+        }, 0);
     }
 }

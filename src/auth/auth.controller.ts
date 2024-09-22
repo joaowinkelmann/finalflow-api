@@ -24,7 +24,10 @@ export class AuthController {
   @Public()
   @Post('/recover')
   recoverPassword(@Body() recoverPasswordDto: RecoverPasswordDto) {
-    return this.authService.receiveRecoveryPassword(recoverPasswordDto);
+      this.authService.receiveRecoveryPassword(recoverPasswordDto);
+      return {
+          message: "Nova senha enviada para o e-mail cadastrado, caso exista"
+      };
   }
 
 }
