@@ -18,11 +18,70 @@ export class BancasService {
     });
   }
 
+  // as bancas que um professor participa, trazendo junto as entregas das orientações
+  async getMyBancas(idusuario: string) {
+    const professor = await this.prisma.professor.findUnique({
+      where: {
+        idusuario: idusuario
+      },
+      select: {
+        id_professor: true
+      }
+    });
+  
+    if (!professor) {
+      throw new NotFoundException('Professor não encontrado');
+    }
+  
+    const id_professor = professor.id_professor;
+  
+    return await this.prisma.banca.findMany({
+      where: {
+        OR: [
+          {
+            idprofessor1: id_professor
+          },
+          {
+            idprofessor2: id_professor
+          }
+        ]
+      },
+      include: {
+        Professor1: {
+          include: {
+            usuario: {
+              select: {
+                nome: true
+              }
+            }
+          }
+        },
+        Professor2: {
+          include: {
+            usuario: {
+              select: {
+                nome: true
+              }
+            }
+          }
+        },
+        Orientacao: {
+          include: {
+            Entrega: true
+          }
+        }
+      }
+    }).catch((error) => {
+      console.error(error);
+      throw new NotFoundException('Nenhuma banca encontrada');
+    });
+  }
+
   async findAll() {
     const bancas = await this.prisma.banca.findMany();
 
     if (bancas.length == 0) {
-      throw new ForbiddenException('Nenhuma orientação cadastrada.');
+      throw new NotFoundException('Nenhuma banca cadastrada.');
     }
 
     return bancas;
