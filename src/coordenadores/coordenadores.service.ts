@@ -96,7 +96,6 @@ export class CoordenadoresService {
     // transfere o cargo para o professor, caso dê certo, rebaixa o coordenador atual
     const novoCoordenador = await this.prisma.coordenador.create({
       data: {
-        // departamento: transferCoordenadorDto.departamento,
         idusuario: professor.idusuario
       }
     });
