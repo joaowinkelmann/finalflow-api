@@ -8,6 +8,9 @@ import * as sharp from 'sharp';
 import { SetAvatarDto } from "./dto/set-avatar.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { EditUsuarioDto } from "./dto/edit-usuario.dto";
+import { NivelAcesso } from "@prisma/client";
+import { Professor } from "src/professores/entities/professor.entity";
+import { Aluno } from "src/alunos/entities/aluno.entity";
 
 @Injectable()
 export class UsuariosService {
@@ -105,7 +108,7 @@ export class UsuariosService {
     });
   }
 
-  async getMyData(id: string) {
+  async getMyData(id: string, nivelacesso: NivelAcesso) {  
     return await this.prisma.usuario.findUnique({
       where: {
         id_usuario: id,
@@ -115,7 +118,34 @@ export class UsuariosService {
         nome: true,
         email: true,
         nivel_acesso: true,
+        primeiro_acesso: true,
         avatar: true,
+        ...(nivelacesso === NivelAcesso.professor && {
+          Professor: {
+            select: {
+              departamento: true,
+            },
+          },
+        }),
+        ...(nivelacesso === NivelAcesso.aluno && {
+          Aluno: {
+            select: {
+              Curso: {
+                select: {
+                  nome: true,
+                  id_curso: true,
+                },
+              },
+            },
+          },
+        }),
+        ...(nivelacesso === NivelAcesso.coordenador && {
+          Coordenador: {
+            select: {
+              departamento: true,
+            },
+          },
+        }),
       },
     });
   }
@@ -230,15 +260,15 @@ export class UsuariosService {
   async uploadAvatar(avatar: SetAvatarDto, userId: string) {
     try {
       const buffer = Buffer.from(avatar.base64data, 'base64');
-  
+
       const resizedImageBuffer = await sharp(buffer)
         .resize(96, 96)
         .flatten()
         .webp({ quality: 65 })
         .toBuffer();
-  
+
       const resizedImageBase64 = resizedImageBuffer.toString('base64');
-  
+
       return await this.prisma.usuario.update({
         where: { id_usuario: userId },
         data: { avatar: resizedImageBase64 },
@@ -249,8 +279,8 @@ export class UsuariosService {
       throw new BadRequestException("Erro ao atualizar o avatar");
     }
   }
-  
-  
+
+
   /**
    * 
    * @param email 

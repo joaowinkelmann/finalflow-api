@@ -58,7 +58,7 @@ export class UsuariosController {
   @Get('/getMyData')
   @NiveisAcesso(NivelAcesso.coordenador, NivelAcesso.professor, NivelAcesso.aluno)
   getMyData(@Req() req: ReqReturnDto) {
-    return this.usuariosService.getMyData(req.user.sub);
+    return this.usuariosService.getMyData(req.user.sub, req.user.nivel_acesso);
   }
 
   @Patch('/editMyData')

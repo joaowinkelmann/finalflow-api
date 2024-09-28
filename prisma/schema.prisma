@@ -48,7 +48,7 @@ model Aluno {
 
 model Professor {
   id_professor String       @id @default(uuid())
-  departamento String
+  departamento String?
   idusuario    String       @unique
   usuario      Usuario      @relation(fields: [idusuario], references: [id_usuario])
   Orientacao   Orientacao[]
@@ -62,6 +62,7 @@ model Coordenador {
   id_coordenador String       @id @default(uuid())
   idusuario      String       @unique
   usuario        Usuario      @relation(fields: [idusuario], references: [id_usuario])
+  departamento   String?
   Cronograma     Cronograma[]
 }
 
