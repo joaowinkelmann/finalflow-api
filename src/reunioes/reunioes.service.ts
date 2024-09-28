@@ -41,6 +41,9 @@ export class ReunioesService {
     });
   }
 
+  // async getStudentReunioes(id: string) { // professor
+  // async getMyReunioes(id: string) { // aluno
+
   async findAll() {
     return await this.prisma.reuniao.findMany();
   }

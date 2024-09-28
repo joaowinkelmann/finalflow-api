@@ -83,6 +83,9 @@ export class CoordenadoresService {
     const coordenaLogado = await this.prisma.coordenador.findUnique({
       where: {
         idusuario: idusuario
+      },
+      select: {
+        id_coordenador: true
       }
     });
 
@@ -101,6 +104,16 @@ export class CoordenadoresService {
     if (!novoCoordenador) {
       throw new UnprocessableEntityException('Erro ao transferir cargo');
     }
+
+    // troca o coordenador de todos os cronogramas que tem o coordenador antigo
+    await this.prisma.cronograma.updateMany({
+      where: {
+        idcoordenador: coordenaLogado.id_coordenador
+      },
+      data: {
+        idcoordenador: novoCoordenador.id_coordenador,
+      },
+    });
 
     // criou o novo coordenador, agora rebaixa o antigo
     await this.prisma.coordenador.delete({

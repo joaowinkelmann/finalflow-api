@@ -72,7 +72,30 @@ export class OrientacoesService {
   }
 
   async findAll() {
-    return this.prisma.orientacao.findMany();
+    return this.prisma.orientacao.findMany({
+      include: {
+        Professor: {
+          select: {
+            usuario: {
+              select: {
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+        Aluno: {
+          select: {
+            usuario: {
+              select: {
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    })
   }
 
   async getOrientacoesByProfessor(idusuario: string) {

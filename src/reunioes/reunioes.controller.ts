@@ -15,7 +15,8 @@ export class ReunioesController {
 
   @Post('/addToOrientacao')
   // @NiveisAcesso(NivelAcesso.aluno, NivelAcesso.professor)
-  @NiveisAcesso(NivelAcesso.professor) // sepah só professor cria uma reuniao ne
+  // @NiveisAcesso(NivelAcesso.professor) // sepah só professor cria uma reuniao ne
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.coordenador) // coordenador tbm pode criar reuniao, pois ele é um professor
   create(@Body() createReuniaoDto: CreateReuniaoDto) {
     return this.reunioesService.create(createReuniaoDto);
   }
