@@ -41,8 +41,77 @@ export class ReunioesService {
     });
   }
 
-  // async getStudentReunioes(id: string) { // professor
-  // async getMyReunioes(id: string) { // aluno
+  // como professor, busco todas as reunioes que eu criei e participo, relacionadas com meus orientandos
+  async getStudentReunioes(idusuario: string) {
+    const professor = await this.prisma.professor.findUnique({
+      where: {
+        idusuario: idusuario
+      },
+      select: {
+        id_professor: true
+      }
+    });
+    if (!professor) {
+      throw new NotFoundException('Professor não encontrado');
+    }
+
+    const id_professor = professor.id_professor;
+
+    // pega as orientacoes que o professor participa
+    const orientacoes = await this.prisma.orientacao.findMany({
+      where: {
+        idprofessor: id_professor
+      },
+      select: {
+        id_orientacao: true
+      }
+    });
+
+    // pega as reunioes das orientacoes
+    const reunioes = await this.prisma.reuniao.findMany({
+      where: {
+        idorientacao: {
+          in: orientacoes.map(orientacao => orientacao.id_orientacao)
+        }
+      }
+    });
+  }
+
+  // como aluno, busco todas as reunioes que eu criei e participo, relacionadas com meus orientandos
+  async getMyReunioes(idusuario: string) {
+    const aluno = await this.prisma.aluno.findUnique({
+      where: {
+        idusuario: idusuario
+      },
+      select: {
+        id_aluno: true
+      }
+    });
+    if (!aluno) {
+      throw new NotFoundException('Aluno não encontrado');
+    }
+
+    const id_aluno = aluno.id_aluno;
+
+    // pega as orientacoes que o aluno participa
+    const orientacoes = await this.prisma.orientacao.findMany({
+      where: {
+        idaluno: id_aluno
+      },
+      select: {
+        id_orientacao: true
+      }
+    });
+
+    // pega as reunioes das orientacoes
+    const reunioes = await this.prisma.reuniao.findMany({
+      where: {
+        idorientacao: {
+          in: orientacoes.map(orientacao => orientacao.id_orientacao)
+        }
+      }
+    });
+  }
 
   async findAll() {
     return await this.prisma.reuniao.findMany();
