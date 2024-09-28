@@ -7,6 +7,7 @@ import * as bcrypt from "bcrypt";
 import * as sharp from 'sharp';
 import { SetAvatarDto } from "./dto/set-avatar.dto";
 import { ChangePasswordDto } from "./dto/change-password.dto";
+import { EditUsuarioDto } from "./dto/edit-usuario.dto";
 
 @Injectable()
 export class UsuariosService {
@@ -102,6 +103,43 @@ export class UsuariosService {
         // senha: true, // comparar com a senha enviada, mas nao expor
       },
     });
+  }
+
+  async getMyData(id: string) {
+    return await this.prisma.usuario.findUnique({
+      where: {
+        id_usuario: id,
+      },
+      select: {
+        id_usuario: true,
+        nome: true,
+        email: true,
+        nivel_acesso: true,
+        avatar: true,
+      },
+    });
+  }
+
+  async editMyData(id: string, editUsuarioDto: EditUsuarioDto) {
+    try {
+      const user = await this.prisma.usuario.update({
+        where: {
+          id_usuario: id,
+        },
+        data: {
+          nome: editUsuarioDto.nome
+        },
+      });
+
+      return {
+        idusuario: user.id_usuario,
+        nome: user.nome,
+        email: user.email,
+        nivel_acesso: user.nivel_acesso,
+      };
+    } catch (error) {
+      return error.message;
+    }
   }
 
   /**

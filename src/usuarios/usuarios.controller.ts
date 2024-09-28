@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Put, Param, Delete, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Put, Patch, Param, Delete, Req } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service';
 import { CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
@@ -8,6 +8,7 @@ import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
 import { Public } from 'src/auth/public.decorator';
 import { ReqReturnDto } from 'src/auth/dto/req-return.dto';
+import { EditUsuarioDto } from './dto/edit-usuario.dto';
 
 @Controller('usuarios')
 export class UsuariosController {
@@ -52,5 +53,17 @@ export class UsuariosController {
   @Post('/setAvatar')
   uploadAvatar(@Body() setAvatarDto: SetAvatarDto, @Req() req: ReqReturnDto) {
     return this.usuariosService.uploadAvatar(setAvatarDto, req.user.sub);
+  }
+
+  @Get('/getMyData')
+  @NiveisAcesso(NivelAcesso.coordenador, NivelAcesso.professor, NivelAcesso.aluno)
+  getMyData(@Req() req: ReqReturnDto) {
+    return this.usuariosService.getMyData(req.user.sub);
+  }
+
+  @Patch('/editMyData')
+  @NiveisAcesso(NivelAcesso.coordenador, NivelAcesso.professor, NivelAcesso.aluno)
+  editMyData(@Body() editUsuarioDto: EditUsuarioDto, @Req() req: ReqReturnDto) {
+    return this.usuariosService.editMyData(req.user.sub, editUsuarioDto);
   }
 }
