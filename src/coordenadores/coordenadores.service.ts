@@ -104,6 +104,16 @@ export class CoordenadoresService {
       throw new UnprocessableEntityException('Erro ao transferir cargo');
     }
 
+    // aumenta o nivel de acesso do professor para coordenador
+    await this.prisma.usuario.update({
+      where: {
+        id_usuario: professor.idusuario
+      },
+      data: {
+        nivel_acesso: 'coordenador'
+      }
+    });
+
     // troca o coordenador de todos os cronogramas que tem o coordenador antigo
     await this.prisma.cronograma.updateMany({
       where: {
