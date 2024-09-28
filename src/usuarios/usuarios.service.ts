@@ -260,15 +260,18 @@ export class UsuariosService {
   async uploadAvatar(avatar: SetAvatarDto, userId: string) {
     try {
       const buffer = Buffer.from(avatar.base64data, 'base64');
-
+  
+      // Resize and convert the image to webp format
       const resizedImageBuffer = await sharp(buffer)
         .resize(96, 96)
         .flatten()
         .webp({ quality: 65 })
         .toBuffer();
-
-      const resizedImageBase64 = resizedImageBuffer.toString('base64');
-
+  
+      // Passa o MIME type da imagem
+      const resizedImageBase64 = `data:image/webp;base64,${resizedImageBuffer.toString('base64')}`;
+  
+      // Update the user record in the database
       return await this.prisma.usuario.update({
         where: { id_usuario: userId },
         data: { avatar: resizedImageBase64 },
