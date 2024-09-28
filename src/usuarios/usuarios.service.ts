@@ -166,6 +166,7 @@ export class UsuariosService {
         nome: user.nome,
         email: user.email,
         nivel_acesso: user.nivel_acesso,
+        avatar: user.avatar,
       };
     } catch (error) {
       return error.message;
