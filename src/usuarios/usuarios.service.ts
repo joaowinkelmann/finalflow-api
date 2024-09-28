@@ -358,6 +358,12 @@ export class UsuariosService {
       throw new InternalServerErrorException("Usuário inválido");
     }
 
+    // Verifica se a senha atual está correta
+    const isPasswordCorrect = await bcrypt.compare(changePasswordDto.senhaold, user.senha);
+    if (!isPasswordCorrect) {
+      throw new BadRequestException("Senha atual incorreta");
+    }
+
     return await this.setPassword(user.email, changePasswordDto.senha, false);
   }
 }

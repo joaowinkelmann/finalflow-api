@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsStrongPassword } from "class-validator";
+import { IsNotEmpty, IsString, IsStrongPassword } from "class-validator";
 import { IsStrongPasswordOptions } from "class-validator";
 
 const passwordOptions: IsStrongPasswordOptions = {
@@ -15,4 +15,10 @@ export class ChangePasswordDto {
         message: "A senha deve conter no mínimo 8 caracteres, 1 letra minúscula, 1 letra maiúscula e 1 número."
     })
     "senha": string;
+
+    @IsNotEmpty({
+        message: "A senha antiga é obrigatória."
+    })
+    @IsString()
+    "senhaold": string;
 }
