@@ -46,7 +46,7 @@ export class UsuariosService {
       });
 
       // Enviar e-mail após criar o usuario
-      await this.mailerService.sendMail({
+      this.mailerService.sendMail({
         to: user?.email,
         subject: `Primeiro Acesso Ao Site: ${user?.nome}`,
         template: "sign-up",
@@ -320,7 +320,7 @@ export class UsuariosService {
 
       if (recovery) {
         // Se for uma redefinição de senha, envia e-mail
-        await this.mailerService.sendMail({
+        this.mailerService.sendMail({
           to: user.email,
           subject: `Recuperação de Senha: ${user.nome}`,
           template: "recovery-password",
