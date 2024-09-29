@@ -19,7 +19,7 @@ export class CreateAvaliacaoDto {
     avaliacao_tipo: TipoAvaliacao;
 
     @IsDateString()
-    //@IsOptional() // @todo: se nao passar pega agora?
+    // @IsOptional()
     data_avaliacao: Date;
 
     @IsString()

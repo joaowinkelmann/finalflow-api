@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCronogramaDto } from './dto/create-cronograma.dto';
 import { UpdateCronogramaDto } from './dto/update-cronograma.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -55,7 +55,11 @@ export class CronogramasService {
       where: { id_cronograma: id },
     }).catch((error) => {
       console.log(error);
-      throw new NotFoundException("Cronograma não encontrado");
+      if (error.code === 'P2025') {
+        throw new NotFoundException("Cronograma não encontrado");
+      } else if (error.code === 'P2004' || error.code === 'P2002' || error.code === 'P2003') {
+        throw new ConflictException("Cronograma não pode ser removido, pois está asssociado à orientações ou prazos ativos");
+      }
     }).then(() => {
       return "Cronograma removido com sucesso";
     });

@@ -127,7 +127,7 @@ model Avaliacao {
   identrega      String? // talvez nem toda avaliacao vai ter uma entrega
   avaliacao_tipo TipoAvaliacao
   data_avaliacao DateTime      @db.Timestamptz(3)
-  criterio       String
+  criterio       String?
   nota           Float
   comentario     String?
   Banca          Banca?        @relation(fields: [idbanca], references: [id_banca])
