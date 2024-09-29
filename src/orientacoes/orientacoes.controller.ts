@@ -22,6 +22,12 @@ export class OrientacoesController {
     return this.orientacoesService.findAll();
   }
 
+  @Get('/orientacoes-without-bancas')
+  @NiveisAcesso(NivelAcesso.coordenador)
+  getOrientacoesWithoutBancas() {
+    return this.orientacoesService.getOrientacoesWithoutBancas();
+  }
+
   @Get('/getMyOrientacoes')
   @NiveisAcesso(NivelAcesso.professor)
   orientacoesByProfessor(@Req() req: ReqReturnDto) {

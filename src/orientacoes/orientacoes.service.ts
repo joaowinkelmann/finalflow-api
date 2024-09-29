@@ -261,6 +261,38 @@ export class OrientacoesService {
       }
     }
   }
+
+  async getOrientacoesWithoutBancas() {
+    return this.prisma.orientacao.findMany({
+      where: {
+        Banca: null, // Filtra orientações sem banca
+      },
+      include: {
+        Professor: {
+          select: {
+            usuario: {
+              select: {
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+        Aluno: {
+          select: {
+            usuario: {
+              select: {
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+  
+
 }
 
   
