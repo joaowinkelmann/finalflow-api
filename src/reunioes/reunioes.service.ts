@@ -114,13 +114,20 @@ export class ReunioesService {
   }
 
   async findAll() {
-    return await this.prisma.reuniao.findMany();
+    return await this.prisma.reuniao.findMany({
+      include: {
+        Documento: true
+      }
+    });
   }
 
   async findOne(id: string) {
     return await this.prisma.reuniao.findUnique({
       where: {
         id_reuniao: id
+      },
+      include: {
+        Documento: true
       }
     });
   }
@@ -135,11 +142,11 @@ export class ReunioesService {
         data_reuniao: updateReuniaoDto.data_reuniao,
         descricao: updateReuniaoDto.descricao
       }
-    });
+    })
   }
 
   async updateDocumento(updateDocumentoDto: UpdateDocumentoDto) {
-    return await this.prisma.documento.update({
+    const documento =  await this.prisma.documento.update({
       where: {
         id_documento: updateDocumentoDto.id_documento
       },
@@ -149,6 +156,15 @@ export class ReunioesService {
         idreuniao: updateDocumentoDto.idreuniao
       }
     });
+
+    if(documento == null){
+      throw new NotFoundException('Documento não encontrado');
+    }
+
+    return {
+      message: "Sucesso ao atualizar o documento",
+      documento: documento
+    }
   }
 
   async remove(id: string) {
