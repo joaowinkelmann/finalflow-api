@@ -36,4 +36,10 @@ export class PrazosController {
   remove(@Param('id') id: string) {
     return this.prazosService.remove(id);
   }
+
+  @Get('prazo_cronograma/:id')
+  @NiveisAcesso(NivelAcesso.coordenador)
+  prazoCronograma(@Param('id') id: string) {
+    return this.prazosService.prazoCronograma(id);
+  }
 }

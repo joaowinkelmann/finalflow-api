@@ -70,4 +70,15 @@ export class PrazosService {
       throw new NotFoundException('Prazo não encontrado');
     });
   }
+
+  async prazoCronograma(id: string) {
+    return await this.prisma.prazo.findMany({
+      where: {
+        idcronograma: id,
+      },
+    }).catch((error) => {
+      console.log(error);
+      throw new NotFoundException('Prazos não encontrados');
+    });
+  }
 }
