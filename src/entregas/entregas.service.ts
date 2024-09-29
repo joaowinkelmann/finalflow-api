@@ -1,4 +1,4 @@
-import { NotAcceptableException, Injectable, NotFoundException, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { NotAcceptableException, Injectable, NotFoundException, UnauthorizedException, BadRequestException, ConflictException } from '@nestjs/common';
 import { CreateEntregaDto } from './dto/create-entrega.dto';
 import { UpdateEntregaDto } from './dto/update-entrega.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -17,10 +17,29 @@ export class EntregasService {
     });
     if (!aluno) {
       throw new UnauthorizedException('Usuário não é um aluno'); // @todo - verificar se unauthorized faz sentido
+    } 
+
+    const cronograma_from_orientacao = await this.prisma.orientacao.findFirst({
+      where: {
+        id_orientacao: createEntregaDto.idorientacao
+      },
+      select: {
+        idcronograma: true
+      }
+    });
+    if (!cronograma_from_orientacao) {
+      throw new NotFoundException('Orientação não encontrada');
     }
 
+    const idcronograma = cronograma_from_orientacao.idcronograma;
+
     const prazo = await this.prisma.prazo.findUnique({
-      where: { id_prazo: createEntregaDto.idprazo }
+      where: { 
+        idcronograma_prazo_tipo: {
+          idcronograma: idcronograma,
+          prazo_tipo: createEntregaDto.prazo_tipo
+        },
+      }
     });
     if (!prazo) {
       throw new NotFoundException('Prazo não encontrado');
@@ -33,19 +52,27 @@ export class EntregasService {
 
     const data_envio = new Date();
 
-    await this.prisma.entrega.create({
-      data: {
-        ...createEntregaDto,
-        data_envio: data_envio,
-        idaluno: aluno.id_aluno,
-        prazo_tipo: prazo.prazo_tipo,
-      }
-    }).then((entrega) => {
-      return entrega;
-    }).catch((error) => {
+    try {
+      await this.prisma.entrega.create({
+        data: {
+          ...createEntregaDto,
+          data_envio: data_envio,
+          idaluno: aluno.id_aluno,
+          prazo_tipo: prazo.prazo_tipo,
+          idprazo: prazo.id_prazo
+        }
+      });
+  
+      // Retorne a string diretamente
+      return "Entrega realizada com sucesso";
+  
+    } catch (error) {
       console.log(error);
+      if (error.code === 'P2004' || error.code === 'P2002' || error.code === 'P2003') {
+        throw new ConflictException('Entrega já realizada');
+      }
       throw new NotAcceptableException('Erro ao criar entrega');
-    });
+    }
   }
 
   /**

@@ -8,6 +8,7 @@ import { UpdateDocumentoDto } from './dto/update-documento.dto';
 
 import { NiveisAcesso } from 'src/auth/niveisacesso.decorator';
 import { NivelAcesso } from '@prisma/client';
+import { ReqReturnDto } from 'src/auth/dto/req-return.dto';
 
 @Controller('reunioes')
 export class ReunioesController {
@@ -23,6 +24,7 @@ export class ReunioesController {
 
   @Post('/addDocumento')
   @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
+  // @todo - validar se a pessoa que ta tentando mexer no documento é da orientacao
   createDocumento(@Body() createDocumentoDto: CreateDocumentoDto) {
     return this.reunioesService.createDocumento(createDocumentoDto);
   }
@@ -32,7 +34,6 @@ export class ReunioesController {
   updateDocumento(@Body() updateDocumentoDto: UpdateDocumentoDto) {
     return this.reunioesService.updateDocumento(updateDocumentoDto);
   }
-
 
   @Get()
   findAll() {

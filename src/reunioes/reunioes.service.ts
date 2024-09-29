@@ -38,6 +38,11 @@ export class ReunioesService {
         arquivo: createDocumentoDto.arquivo,
         idreuniao: createDocumentoDto.idreuniao
       }
+    }).then((documento) => {
+      return "Documento criado com sucesso";
+    }).catch((err) => {
+      console.log(err);
+      return "Erro ao criar documento";
     });
   }
 
