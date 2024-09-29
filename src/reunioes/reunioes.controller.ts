@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { ReunioesService } from './reunioes.service';
 import { CreateReuniaoDto } from './dto/create-reuniao.dto';
 import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
@@ -27,7 +27,7 @@ export class ReunioesController {
     return this.reunioesService.createDocumento(createDocumentoDto);
   }
 
-  @Post('/updateDocumento')
+  @Put('/updateDocumento')
   @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
   updateDocumento(@Body() updateDocumentoDto: UpdateDocumentoDto) {
     return this.reunioesService.updateDocumento(updateDocumentoDto);
