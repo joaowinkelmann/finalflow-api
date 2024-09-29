@@ -17,7 +17,7 @@ export class EntregasService {
     });
     if (!aluno) {
       throw new UnauthorizedException('Usuário não é um aluno'); // @todo - verificar se unauthorized faz sentido
-    } 
+    }
 
     const cronograma_from_orientacao = await this.prisma.orientacao.findFirst({
       where: {
@@ -34,7 +34,7 @@ export class EntregasService {
     const idcronograma = cronograma_from_orientacao.idcronograma;
 
     const prazo = await this.prisma.prazo.findUnique({
-      where: { 
+      where: {
         idcronograma_prazo_tipo: {
           idcronograma: idcronograma,
           prazo_tipo: createEntregaDto.prazo_tipo
@@ -62,10 +62,10 @@ export class EntregasService {
           idprazo: prazo.id_prazo
         }
       });
-  
+
       // Retorne a string diretamente
       return "Entrega realizada com sucesso";
-  
+
     } catch (error) {
       console.log(error);
       if (error.code === 'P2004' || error.code === 'P2002' || error.code === 'P2003') {
@@ -157,31 +157,47 @@ export class EntregasService {
   async getStudentSubmissions(idusuario: string) {
     const professor = await this.prisma.professor.findUnique({
       where: {
-        idusuario: idusuario
-      }
+        idusuario: idusuario,
+      },
     });
+
     if (!professor) {
       throw new NotFoundException('Usuário não é um professor');
     }
 
-    return await this.prisma.entrega.findMany({
+    // Query all orientacoes for the professor
+    const orientacoes = await this.prisma.orientacao.findMany({
       where: {
-        orientacao: {
-          idprofessor: professor.id_professor
+        idprofessor: professor.id_professor,
+      },
+      include: {
+        Aluno: {
+          include: {
+            usuario: {
+              select: {
+                nome: true
+              }
+            }
+          },
         }
       },
-      select: {
-        id_entrega: true,
-        prazo_tipo: true,
-        data_envio: true,
-        idaluno: true,
-        idorientacao: true,
-        idprazo: true,
-      }
-      // include: {
-      //   aluno: true
-      // }
     });
+
+    // Use forEach to get the submissions (entregas) and aluno for each orientacao
+    const results = await Promise.all(orientacoes.map(async (orientacao) => {
+      const entregas = await this.prisma.entrega.findMany({
+        where: {
+          idorientacao: orientacao.id_orientacao,
+        },
+      });
+
+      return {
+        orientacao: orientacao,
+        entregas: entregas,
+      };
+    }));
+
+    return results; // Return the combined results
   }
 
   async getMySubmissions(idusuario: string) {
@@ -205,6 +221,7 @@ export class EntregasService {
         idaluno: true,
         idorientacao: true,
         idprazo: true,
+        arquivo: true,
       }
     });
   }
