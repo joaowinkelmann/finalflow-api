@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { CreateBancaDto } from './dto/create-banca.dto';
 import { UpdateBancaDto } from './dto/update-banca.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { Cronograma } from './../cronogramas/entities/cronograma.entity';
 
 @Injectable()
 export class BancasService {
@@ -78,7 +79,15 @@ export class BancasService {
   }
 
   async findAll() {
-    const bancas = await this.prisma.banca.findMany();
+    const bancas = await this.prisma.banca.findMany({
+      include: {
+        Cronograma: true,
+        Professor1: true,
+        Professor2: true,
+        Orientacao: true
+      },
+    });
+
 
     if (bancas.length == 0) {
       throw new NotFoundException('Nenhuma banca cadastrada.');
@@ -90,8 +99,14 @@ export class BancasService {
   async findOne(id: string) {
     const banca = await this.prisma.banca.findUnique({
       where: {
-        id_banca: id
-      }
+        id_banca: id,
+      },
+      include: {
+        Cronograma: true,
+        Professor1: true,
+        Professor2: true,
+        Orientacao: true
+      },
     });
 
     if (banca == null) {
