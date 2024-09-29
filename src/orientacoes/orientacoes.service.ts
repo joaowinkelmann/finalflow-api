@@ -2,6 +2,7 @@ import { NotAcceptableException, Injectable, NotFoundException } from '@nestjs/c
 import { CreateOrientacaoDto } from './dto/create-orientacao.dto';
 import { UpdateOrientacaoDto } from './dto/update-orientacao.dto';
 import { PrismaService } from 'prisma/prisma.service';
+import { StatusOrientacao } from '@prisma/client';
 
 @Injectable()
 export class OrientacoesService {
@@ -218,4 +219,48 @@ export class OrientacoesService {
       }
     }
   }
+
+  async updateStatus(id: string) {
+    try {
+      const orientacao = await this.prisma.orientacao.findUnique({
+        where: {
+          id_orientacao: id,
+        },
+      });
+      
+      // Verifique se a orientação existe
+      if (!orientacao) {
+        throw new NotFoundException();
+      }
+      
+      // Determine o novo status com base no status atual
+      const novoStatus:StatusOrientacao = orientacao.status === StatusOrientacao.Concluido 
+        ? StatusOrientacao.EmAndamento 
+        : StatusOrientacao.Concluido;
+      
+      // Atualize a orientação com o novo status
+      const updateOrientacao = await this.prisma.orientacao.update({
+        where: {
+          id_orientacao: id,
+        },
+        data: {
+          status: novoStatus
+        },
+      });
+      
+
+      return {
+        message: "Status atualizado com sucesso!",
+        orientacao: updateOrientacao,
+      };
+    } catch (error) {
+      if (error.code === 'P2025') {
+        throw new NotAcceptableException('Orientação não encontrada para update');
+      } else {
+        throw error;
+      }
+    }
+  }
 }
+
+  

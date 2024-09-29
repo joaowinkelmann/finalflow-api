@@ -40,6 +40,12 @@ export class OrientacoesController {
     return this.orientacoesService.update(id, updateOrientacaoDto);
   }
 
+  @Patch('/atualizar-status/:id')
+  @NiveisAcesso(NivelAcesso.coordenador)
+  updateStatus(@Param('id') id: string) {
+    return this.orientacoesService.updateStatus(id);
+  }
+
   @Delete(':id')
   @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
