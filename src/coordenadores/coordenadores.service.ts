@@ -159,7 +159,7 @@ export class CoordenadoresService {
   async findOne(idusuario: string) {
     const cordenador = await this.prisma.coordenador.findUnique({
       where: {
-        idusuario: idusuario
+        id_coordenador: idusuario
       }
     });
 
