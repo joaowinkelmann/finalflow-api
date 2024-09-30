@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateBancaDto } from './dto/create-banca.dto';
 import { UpdateBancaDto } from './dto/update-banca.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -16,7 +16,13 @@ export class BancasService {
         idprofessor2: createBancaDto.idprofessor2,
         idorientacao: createBancaDto.idorientacao,
       }
-    });
+    }).catch((error) => {
+      console.error(error);
+      if (error.code == 'P2002' || error.code == 'P2003' || error.code == 'P2004') {
+        throw new ConflictException('Os componentes da banca estão em conflito');
+      }
+      throw new ForbiddenException('Erro ao definir banca');
+    }
   }
 
   // as bancas que um professor participa, trazendo junto as entregas das orientações

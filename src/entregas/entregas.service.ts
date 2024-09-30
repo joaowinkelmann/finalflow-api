@@ -177,8 +177,7 @@ export class EntregasService {
               }
             }
           },
-        },
-        Avaliacao: true,
+        }
       },
     });
 
@@ -187,6 +186,9 @@ export class EntregasService {
         where: {
           idorientacao: orientacao.id_orientacao,
         },
+        include: {
+          Avaliacao: true,
+        }
       });
 
       return {
