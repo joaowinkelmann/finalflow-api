@@ -37,6 +37,8 @@ export class AvaliacoesService {
         throw new NotFoundException('Erro ao atualizar entrega');
       });
     }
+
+    return avaliacao;
   }
 
   async findAll() {
