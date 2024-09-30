@@ -138,7 +138,7 @@ export class ReunioesService {
   }
 
   async update(id: string, updateReuniaoDto: UpdateReuniaoDto) {
-    return await this.prisma.reuniao.update({
+    const reuniao =  await this.prisma.reuniao.update({
       where: {
         id_reuniao: id
       },
@@ -148,6 +148,15 @@ export class ReunioesService {
         descricao: updateReuniaoDto.descricao
       }
     })
+
+    if(reuniao == null){
+      throw new NotFoundException('Reunião não encontrado');
+    }
+
+    return {
+      message: "Sucesso ao atualizar o reunião",
+      reuniao: reuniao
+    }
   }
 
   async updateDocumento(updateDocumentoDto: UpdateDocumentoDto) {
