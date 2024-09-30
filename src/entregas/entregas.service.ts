@@ -75,7 +75,15 @@ export class EntregasService {
         }
       });
 
-      return "Entrega realizada com sucesso";
+      return {
+        message: 'Entrega criada com sucesso',
+        data: {
+          idaluno: aluno.id_aluno,
+          idorientacao: createEntregaDto.idorientacao,
+          prazo_tipo: createEntregaDto.prazo_tipo,
+          data_envio: data_envio
+        }
+      }
 
     } catch (error) {
       console.log(error);
