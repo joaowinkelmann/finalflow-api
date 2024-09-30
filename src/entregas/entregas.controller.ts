@@ -26,7 +26,7 @@ export class EntregasController {
   }
 
   // busca as entregas que estão vinculads à mim, eu sendo professor
-  @NiveisAcesso(NivelAcesso.professor)
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.coordenador)
   @Get('/getStudentSubmissions')
   getStudentSubmissions(@Req() req: ReqReturnDto) {
     return this.entregasService.getStudentSubmissions(req.user.sub);
