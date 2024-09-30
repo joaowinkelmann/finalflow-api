@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { CreateUsuarioDto } from "./dto/create-usuario.dto";
 import { UpdateUsuarioDto } from "./dto/update-usuario.dto";
 import { PrismaService } from "../../prisma/prisma.service";
@@ -94,7 +94,7 @@ export class UsuariosService {
   }
 
   async findOne(id: string) {
-    return await this.prisma.usuario.findUnique({
+    const usuario =  await this.prisma.usuario.findUnique({
       where: {
         id_usuario: id,
       },
@@ -106,6 +106,12 @@ export class UsuariosService {
         // senha: true, // comparar com a senha enviada, mas nao expor
       },
     });
+
+    if(usuario == null){
+      throw new NotFoundException("Usuario não encontrado!");
+    }
+
+    return usuario;
   }
 
   async getMyData(id: string, nivelacesso: NivelAcesso) {  
