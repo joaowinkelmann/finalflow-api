@@ -170,11 +170,21 @@ export class CoordenadoresService {
     return cordenador;
   }
 
-  update(id: string, updateCoordenadorDto: UpdateCoordenadorDto) {
-    return `This action updates a #${id} coordenador`;
-  }
+  async update(id: string, updateCoordenadorDto: UpdateCoordenadorDto) {
+    const updatedCoordenador = await this.prisma.coordenador.update({
+      where: {
+        id_coordenador: id,
+      },
+      data: updateCoordenadorDto, // Atualiza com os dados do DTO
+    });
 
-  remove(id: string) {
-    return `This action removes a #${id} coordenador`;
+    if(updatedCoordenador == null){
+      throw new NotAcceptableException('Cordenador não encontrado');
+    }
+
+    return {
+      message: "Coordenador atualizado com sucesso!",
+      coordenador: updatedCoordenador
+    };
   }
 }

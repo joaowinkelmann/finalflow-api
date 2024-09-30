@@ -41,10 +41,4 @@ export class CoordenadoresController {
   update(@Param('id') id: string, @Body() updateCoordenadorDto: UpdateCoordenadorDto) {
     return this.coordenadoresService.update(id, updateCoordenadorDto);
   }
-
-  @Delete(':id')
-  @NiveisAcesso(NivelAcesso.coordenador)
-  remove(@Param('id') id: string) {
-    return this.coordenadoresService.remove(id);
-  }
 }
