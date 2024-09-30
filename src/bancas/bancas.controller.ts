@@ -23,7 +23,7 @@ export class BancasController {
   }
 
   @Get("/getMyBancas")
-  @NiveisAcesso(NivelAcesso.professor)
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.coordenador)
   getMyBancas(@Req() req: ReqReturnDto) {
     return this.bancasService.getMyBancas(req.user.sub);
   }
