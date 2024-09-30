@@ -202,7 +202,7 @@ export class AlertasService {
               contexto: {
                 nome_destinatario: orientacao.Aluno.usuario.nome,
                 prazo_dsc: prazo.dscprazo || prazo.prazo_tipo,
-                data_entrega: prazo.data_entrega,
+                data_entrega: prazo.data_entrega.toLocaleDateString() + ' - ' + prazo.data_entrega.toLocaleTimeString(),
                 intervalo: interval,
               },
               template: "prazo",
