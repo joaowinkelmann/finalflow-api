@@ -47,7 +47,6 @@ export class ReunioesService {
     });
   }
 
-  // async getReunioes(idusuario: string, tipoUsuario: 'professor' | 'aluno') {
   async getReunioes(idusuario: string, nivel_acesso: NivelAcesso) {
     let idKey;
     let idkeyvalue;
