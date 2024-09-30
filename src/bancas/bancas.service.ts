@@ -22,7 +22,7 @@ export class BancasService {
         throw new ConflictException('Os componentes da banca estão em conflito');
       }
       throw new ForbiddenException('Erro ao definir banca');
-    }
+    });
   }
 
   // as bancas que um professor participa, trazendo junto as entregas das orientações

@@ -12,7 +12,8 @@ export class EntregasController {
 
   // o cara vai fazer a entrega na tela de prazos dele /na orientacao
 
-  @NiveisAcesso(NivelAcesso.aluno)
+  // @NiveisAcesso(NivelAcesso.aluno) // voltar na v2, culpa do iury
+  @NiveisAcesso(NivelAcesso.aluno, NivelAcesso.coordenador, NivelAcesso.professor)
   @Post('/submit/')
   submit(@Body() createEntregasDto: CreateEntregaDto, @Req() req: ReqReturnDto) {
     return this.entregasService.submit(createEntregasDto, req.user.sub);

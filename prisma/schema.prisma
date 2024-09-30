@@ -189,7 +189,7 @@ model Entrega {
   status       StatusEntrega @default(Pendente)
 
   // tem que ser único o aluno, com a única entrega de um determinado prazo, pra uma determinada orientação
-  @@unique([idaluno, idprazo, idorientacao])
+  @@unique([idaluno, idprazo, idorientacao, prazo_tipo])
 }
 
 // Guarda as mensagens que serão enviadas para os usuários.

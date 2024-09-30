@@ -53,12 +53,24 @@ export class EntregasService {
     const data_envio = new Date();
 
     try {
-      await this.prisma.entrega.create({
-        data: {
+      await this.prisma.entrega.upsert({
+        where: {
+          idaluno_idprazo_idorientacao_prazo_tipo: {
+            idaluno: aluno.id_aluno,
+            idprazo: prazo.id_prazo,
+            idorientacao: createEntregaDto.idorientacao,
+            prazo_tipo: prazo.prazo_tipo
+          }
+        },
+        update: {
+          arquivo: createEntregaDto.arquivo,
+          data_envio: data_envio,
+          status: StatusEntrega.AguardandoAvaliacao
+        },
+        create: {
           ...createEntregaDto,
           data_envio: data_envio,
           idaluno: aluno.id_aluno,
-          prazo_tipo: prazo.prazo_tipo,
           idprazo: prazo.id_prazo
         }
       });
