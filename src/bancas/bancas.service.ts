@@ -72,6 +72,15 @@ export class BancasService {
             }
           }
         },
+        Aluno: {
+          include: {
+            usuario: {
+              select: {
+                nome: true
+              }
+            }
+          }
+        },
         Orientacao: {
           include: {
             Entrega: true,
