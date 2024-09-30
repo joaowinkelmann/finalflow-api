@@ -237,11 +237,6 @@ export class EntregasService {
       include: {
         orientacao: {
           include: {
-            Entrega: {
-              include: {
-                Avaliacao: true
-              }
-            },
             Professor: {
               select: {
                 usuario: {
@@ -252,7 +247,8 @@ export class EntregasService {
               }
             }
           }
-        }
+        },
+        Avaliacao: true
       }
     });
   }
