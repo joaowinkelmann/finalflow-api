@@ -38,6 +38,7 @@ export class CoordenadoresController {
   }
 
   @Patch(':id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   update(@Param('id') id: string, @Body() updateCoordenadorDto: UpdateCoordenadorDto) {
     return this.coordenadoresService.update(id, updateCoordenadorDto);
   }
