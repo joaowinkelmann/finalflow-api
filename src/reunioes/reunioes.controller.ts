@@ -23,7 +23,7 @@ export class ReunioesController {
   }
 
   @Post('/addDocumento')
-  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno, NivelAcesso.coordenador)
   // @todo - validar se a pessoa que ta tentando mexer no documento é da orientacao
   createDocumento(@Body() createDocumentoDto: CreateDocumentoDto) {
     return this.reunioesService.createDocumento(createDocumentoDto);

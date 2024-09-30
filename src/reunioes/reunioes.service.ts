@@ -105,6 +105,9 @@ export class ReunioesService {
           in: orientacoes.map((orientacao) => orientacao.id_orientacao),
         },
       },
+      include: {
+        Documento: true
+      }
     }).catch((err) => {
       console.log(err);
       throw new NotFoundException('Reuniões não encontradas');
