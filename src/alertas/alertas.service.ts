@@ -105,7 +105,7 @@ export class AlertasService {
         template: alerta.template ?? "alert",
         context: formattedContexto ?? {
           nome: alerta.Usuario.nome,
-          data: alerta.data_envio,
+          data: alerta.data_envio.toDateString() + ' - ' + alerta.data_envio.toTimeString(),
           mensagem: alerta.mensagem,
         }
       }).then(() => {
@@ -293,7 +293,7 @@ export class AlertasService {
             template: "reuniao",
             contexto: {
               nome_destinatario: reuniao.Orientacao.Aluno.usuario.nome,
-              data_reuniao: reuniao.data_reuniao,
+              data_reuniao: reuniao.data_reuniao.toDateString() + ' - ' + reuniao.data_reuniao.toTimeString(),
               descricao_reuniao: reuniao.descricao,
               nome_professor: reuniao.Orientacao.Professor.usuario.nome,
               nome_aluno: reuniao.Orientacao.Aluno.usuario.nome
@@ -309,7 +309,7 @@ export class AlertasService {
             template: "reuniao",
             contexto: {
               nome_destinatario: reuniao.Orientacao.Professor.usuario.nome,
-              data_reuniao: reuniao.data_reuniao,
+              data_reuniao: reuniao.data_reuniao.toLocaleDateString() + ' - ' + reuniao.data_reuniao.toLocaleTimeString(),
               descricao_reuniao: reuniao.descricao,
               nome_professor: reuniao.Orientacao.Professor.usuario.nome,
               nome_aluno: reuniao.Orientacao.Aluno.usuario.nome
