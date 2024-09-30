@@ -234,14 +234,20 @@ export class EntregasService {
       where: {
         idaluno: aluno.id_aluno
       },
-      select: {
-        id_entrega: true,
-        prazo_tipo: true,
-        data_envio: true,
-        idaluno: true,
-        idorientacao: true,
-        idprazo: true,
-        arquivo: true,
+      include: {
+        orientacao: {
+          include: {
+            Professor: {
+              select: {
+                usuario: {
+                  select: {
+                    nome: true
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     });
   }
