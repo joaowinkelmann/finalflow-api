@@ -63,7 +63,6 @@ export class EntregasService {
         }
       });
 
-      // Retorne a string diretamente
       return "Entrega realizada com sucesso";
 
     } catch (error) {
@@ -165,7 +164,6 @@ export class EntregasService {
       throw new NotFoundException('Usuário não é um professor');
     }
 
-    // Query all orientacoes for the professor
     const orientacoes = await this.prisma.orientacao.findMany({
       where: {
         idprofessor: professor.id_professor,
@@ -179,11 +177,11 @@ export class EntregasService {
               }
             }
           },
-        }
+        },
+        Avaliacao: true,
       },
     });
 
-    // Use forEach to get the submissions (entregas) and aluno for each orientacao
     const results = await Promise.all(orientacoes.map(async (orientacao) => {
       const entregas = await this.prisma.entrega.findMany({
         where: {
@@ -197,7 +195,7 @@ export class EntregasService {
       };
     }));
 
-    return results; // Return the combined results
+    return results;
   }
 
   async getMySubmissions(idusuario: string) {

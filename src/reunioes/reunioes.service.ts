@@ -73,12 +73,17 @@ export class ReunioesService {
     });
 
     // pega as reunioes das orientacoes
-    const reunioes = await this.prisma.reuniao.findMany({
+    return await this.prisma.reuniao.findMany({
       where: {
         idorientacao: {
           in: orientacoes.map(orientacao => orientacao.id_orientacao)
         }
       }
+    }).then((reunioes) => {
+      return reunioes;
+    }).catch((err) => {
+      console.log(err);
+      throw new NotFoundException('Reuniões não encontradas');
     });
   }
 

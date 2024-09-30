@@ -285,6 +285,8 @@ export class UsuariosService {
   }
 
 
+  // @todo - criar uma coluna "senha_temporaria" para armazenar a senha temporaria, se o cara estiver rodando um script pra recuperar um monte de usuarios, ele nao sobreescreve a senha atual do cara
+  // nao pode setar diretamente no campo senha, pois ele vai criptografar a senha temporaria e sobreescrever a senha atual
   /**
    * 
    * @param email 

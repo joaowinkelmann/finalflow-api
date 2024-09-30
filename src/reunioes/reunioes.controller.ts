@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Req } from '@nestjs/common';
 import { ReunioesService } from './reunioes.service';
 import { CreateReuniaoDto } from './dto/create-reuniao.dto';
 import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
@@ -35,7 +35,14 @@ export class ReunioesController {
     return this.reunioesService.updateDocumento(updateDocumentoDto);
   }
 
+  @Get('/getStudentReunioes')
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
+  getStudentReunioes(@Req() req: ReqReturnDto) {
+    return this.reunioesService.getStudentReunioes(req.user.sub);
+  }
+
   @Get()
+  @NiveisAcesso(NivelAcesso.coordenador)
   findAll() {
     return this.reunioesService.findAll();
   }
