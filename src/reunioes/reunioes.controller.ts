@@ -35,10 +35,10 @@ export class ReunioesController {
     return this.reunioesService.updateDocumento(updateDocumentoDto);
   }
 
-  @Get('/getStudentReunioes')
-  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
-  getStudentReunioes(@Req() req: ReqReturnDto) {
-    return this.reunioesService.getStudentReunioes(req.user.sub);
+  @Get('/getReunioes')
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.coordenador)
+  getReunioes(@Req() req: ReqReturnDto) {
+    return this.reunioesService.getReunioes(req.user.sub, req.user.nivel_acesso);
   }
 
   @Get()

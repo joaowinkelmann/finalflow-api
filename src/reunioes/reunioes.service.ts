@@ -4,6 +4,7 @@ import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import { CreateDocumentoDto } from './dto/create-documento.dto';
 import { UpdateDocumentoDto } from './dto/update-documento.dto';
+import { NivelAcesso } from '@prisma/client';
 
 @Injectable()
 export class ReunioesService {
@@ -46,80 +47,68 @@ export class ReunioesService {
     });
   }
 
-  // como professor, busco todas as reunioes que eu criei e participo, relacionadas com meus orientandos
-  async getStudentReunioes(idusuario: string) {
-    const professor = await this.prisma.professor.findUnique({
-      where: {
-        idusuario: idusuario
-      },
-      select: {
-        id_professor: true
+  // async getReunioes(idusuario: string, tipoUsuario: 'professor' | 'aluno') {
+  async getReunioes(idusuario: string, nivel_acesso: NivelAcesso) {
+    let idKey;
+    let idkeyvalue;
+  
+    // Verifica o tipo de usuário e busca o id correspondente
+    if (nivel_acesso === 'professor' || nivel_acesso === 'coordenador') {
+      const professor = await this.prisma.professor.findUnique({
+        where: {
+          idusuario: idusuario,
+        },
+        select: {
+          id_professor: true,
+        },
+      });
+      if (!professor) {
+        throw new NotFoundException('Professor não encontrado');
       }
-    });
-    if (!professor) {
-      throw new NotFoundException('Professor não encontrado');
+      idkeyvalue = professor.id_professor;
+      idKey = 'idprofessor';
+    } else if (nivel_acesso === 'aluno') {
+      const aluno = await this.prisma.aluno.findUnique({
+        where: {
+          idusuario: idusuario,
+        },
+        select: {
+          id_aluno: true,
+        },
+      });
+      if (!aluno) {
+        throw new NotFoundException('Aluno não encontrado');
+      }
+      idkeyvalue = aluno.id_aluno;
+      idKey = 'idaluno';
+    } else {
+      throw new Error('Tipo de usuário inválido');
     }
-
-    const id_professor = professor.id_professor;
-
-    // pega as orientacoes que o professor participa
+  
+    // Pega as orientações relacionadas ao usuário
     const orientacoes = await this.prisma.orientacao.findMany({
       where: {
-        idprofessor: id_professor
+        [idKey]: idkeyvalue,
       },
       select: {
-        id_orientacao: true
-      }
+        id_orientacao: true,
+      },
     });
-
-    // pega as reunioes das orientacoes
+  
+    if (!orientacoes.length) {
+      throw new NotFoundException('Nenhuma orientação encontrada');
+    }
+  
+    // Pega as reuniões relacionadas às orientações
     return await this.prisma.reuniao.findMany({
       where: {
         idorientacao: {
-          in: orientacoes.map(orientacao => orientacao.id_orientacao)
-        }
-      }
-    }).then((reunioes) => {
-      return reunioes;
+          in: orientacoes.map((orientacao) => orientacao.id_orientacao),
+        },
+      },
     }).catch((err) => {
       console.log(err);
       throw new NotFoundException('Reuniões não encontradas');
-    });
-  }
-
-  // como aluno, busco todas as reunioes que eu criei e participo, relacionadas com meus orientandos
-  async getMyReunioes(idusuario: string) {
-    const aluno = await this.prisma.aluno.findUnique({
-      where: {
-        idusuario: idusuario
-      },
-      select: {
-        id_aluno: true
-      }
-    });
-    if (!aluno) {
-      throw new NotFoundException('Aluno não encontrado');
-    }
-
-    const id_aluno = aluno.id_aluno;
-
-    // pega as orientacoes que o aluno participa
-    const orientacoes = await this.prisma.orientacao.findMany({
-      where: {
-        idaluno: id_aluno
-      },
-      select: {
-        id_orientacao: true
-      }
-    });
-
-    // pega as reunioes das orientacoes
-    const reunioes = await this.prisma.reuniao.findMany({
-      where: {
-        idorientacao: {
-          in: orientacoes.map(orientacao => orientacao.id_orientacao)
-        }
-      }
     });
   }
 
