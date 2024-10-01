@@ -100,7 +100,7 @@ export class OrientacoesService {
   }
 
   async getOrientacoesByProfessor(idusuario: string) {
-
+    
     const professor = await this.prisma.professor.findUnique({
       where: {
         idusuario: idusuario
@@ -119,7 +119,7 @@ export class OrientacoesService {
       },
       include: {
         Professor: {
-          select: {
+          include: {
             usuario: {
               select: {
                 id_usuario: true,
@@ -130,9 +130,6 @@ export class OrientacoesService {
           },
         },
         Aluno: {
-          select: {
-            id_aluno: true,
-          },
           include: {
             usuario: {
               select: {
@@ -140,14 +137,13 @@ export class OrientacoesService {
                 email: true,
               },
             },
-          }
+          },
         },
       },
     });
 
-
     if (orientacaoProfessor == null) {
-      throw new NotAcceptableException('Nenhuma orientação encontrado do professor com id:' + idusuario);
+      throw new NotAcceptableException('Nenhuma orientação encontrada para o professor com id: ' + idusuario);
     }
 
     return orientacaoProfessor;
