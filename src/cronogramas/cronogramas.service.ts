@@ -58,7 +58,7 @@ export class CronogramasService {
       if (error.code === 'P2025') {
         throw new NotFoundException("Cronograma não encontrado");
       } else if (error.code === 'P2004' || error.code === 'P2002' || error.code === 'P2003') {
-        throw new ConflictException("Cronograma não pode ser removido, pois está asssociado à orientações ou prazos ativos");
+        throw new ConflictException("Cronograma não pode ser removido, pois está asssociado à orientações ou prazos ativos.");
       }
     }).then(() => {
       return "Cronograma removido com sucesso";
