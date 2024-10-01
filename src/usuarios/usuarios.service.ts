@@ -163,7 +163,8 @@ export class UsuariosService {
           id_usuario: id,
         },
         data: {
-          nome: editUsuarioDto.nome
+          nome: editUsuarioDto.nome,
+          avatar: editUsuarioDto.avatar
         },
       });
 
