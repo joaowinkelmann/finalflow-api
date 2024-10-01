@@ -22,10 +22,10 @@ export class PrazosService {
       data: createPrazoDto,
     }).catch((err) => {
       if (err.code === 'P2002') {
-        throw new ConflictException('Prazo já cadastrado');
+        throw new ConflictException('Prazo já cadastrado.');
       } else {
         console.log(err);
-        throw new UnprocessableEntityException('Erro ao cadastrar prazo');
+        throw new UnprocessableEntityException('Erro ao cadastrar prazo.');
       }
     });
   }
@@ -41,7 +41,7 @@ export class PrazosService {
       },
     }).catch((error) => {
       console.log(error);
-      throw new NotFoundException("Prazo não encontrado");
+      throw new NotFoundException("Prazo não encontrado.");
     });
   }
 
@@ -57,7 +57,7 @@ export class PrazosService {
     }).catch((error) => {
       console.log(error);
       if (error.code === 'P2003' || error.code === 'P2002' || error.code === 'P2004') {
-        throw new ConflictException("Esse prazo não pode ser atualizado, existem entregas ou avaliações associadas a ele");
+        throw new ConflictException("Esse prazo não pode ser atualizado, existem entregas ou avaliações associadas a ele.");
       }
       throw new UnprocessableEntityException("Erro ao atualizar prazo");
     });
@@ -71,7 +71,7 @@ export class PrazosService {
     }).catch((error) => {
       console.log(error);
       if (error.code === 'P2003' || error.code === 'P2002' || error.code === 'P2004') {
-        throw new ConflictException("Esse prazo não pode ser deletado, existem entregas ou avaliações associadas a ele");
+        throw new ConflictException("Esse prazo não pode ser deletado, existem entregas ou avaliações associadas a ele.");
       }
       throw new UnprocessableEntityException("Erro ao deletar prazo.");
     });
@@ -84,7 +84,7 @@ export class PrazosService {
       },
     }).catch((error) => {
       console.log(error);
-      throw new NotFoundException('Prazos não encontrados');
+      throw new NotFoundException('Prazos não encontrados.');
     });
   }
 }
