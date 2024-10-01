@@ -56,7 +56,10 @@ export class PrazosService {
       data: updatePrazoDto,
     }).catch((error) => {
       console.log(error);
-      throw new NotFoundException("Prazo não encontrado");
+      if (error.code === 'P2003' || error.code === 'P2002' || error.code === 'P2004') {
+        throw new ConflictException("Esse prazo não pode ser atualizado, existem entregas ou avaliações associadas a ele");
+      }
+      throw new UnprocessableEntityException("Erro ao atualizar prazo");
     });
   }
 
@@ -67,7 +70,10 @@ export class PrazosService {
       },
     }).catch((error) => {
       console.log(error);
-      throw new NotFoundException('Prazo não encontrado');
+      if (error.code === 'P2003' || error.code === 'P2002' || error.code === 'P2004') {
+        throw new ConflictException("Esse prazo não pode ser deletado, existem entregas ou avaliações associadas a ele");
+      }
+      throw new UnprocessableEntityException("Erro ao deletar prazo.");
     });
   }
 
