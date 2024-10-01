@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateBancaDto } from './dto/create-banca.dto';
 import { UpdateBancaDto } from './dto/update-banca.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -42,7 +42,7 @@ export class BancasService {
   
     const id_professor = professor.id_professor;
   
-    return await this.prisma.banca.findMany({
+    const bancas = await this.prisma.banca.findMany({
       where: {
         OR: [
           {
@@ -102,8 +102,14 @@ export class BancasService {
       }
     }).catch((error) => {
       console.error(error);
-      throw new NotFoundException('Nenhuma banca encontrada');
+      throw new InternalServerErrorException('Erro ao buscar bancas.');
     });
+
+    if (bancas.length == 0) {
+      throw new NotFoundException('Nenhuma banca encontrada.');
+    }
+
+    return bancas;
   }
 
   async findAll() {
