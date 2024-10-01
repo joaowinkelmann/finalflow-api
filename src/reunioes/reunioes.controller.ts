@@ -30,7 +30,7 @@ export class ReunioesController {
   }
 
   @Put('/updateDocumento')
-  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno)
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.aluno, NivelAcesso.coordenador)
   updateDocumento(@Body() updateDocumentoDto: UpdateDocumentoDto) {
     return this.reunioesService.updateDocumento(updateDocumentoDto);
   }
@@ -53,7 +53,7 @@ export class ReunioesController {
   }
 
   @Patch(':id')
-  @NiveisAcesso(NivelAcesso.aluno, NivelAcesso.professor)
+  @NiveisAcesso(NivelAcesso.aluno, NivelAcesso.professor, NivelAcesso.coordenador)
   update(@Param('id') id: string, @Body() updateReuniaoDto: UpdateReuniaoDto) {
     return this.reunioesService.update(id, updateReuniaoDto);
   }
@@ -61,5 +61,11 @@ export class ReunioesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.reunioesService.remove(id);
+  }
+
+  @Delete('/removeDocumento/:id')
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.coordenador)
+  removeDocumento(@Param('id') id: string) {
+    return this.reunioesService.removeDocumento(id);
   }
 }

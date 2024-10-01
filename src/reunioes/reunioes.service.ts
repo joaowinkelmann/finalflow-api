@@ -45,6 +45,23 @@ export class ReunioesService {
     });
   }
 
+  async removeDocumento(id: string) {
+    return await this.prisma.documento.delete({
+      where: {
+        id_documento: id
+      }
+    }).then((documento) => {
+      return {
+        message: "Documento deletado com sucesso",
+        documento: documento
+      }
+    }
+    ).catch((err) => {
+      console.log(err);
+      throw new UnprocessableEntityException('Erro ao deletar documento.');
+    });
+  }
+
   async getReunioes(idusuario: string, nivel_acesso: NivelAcesso) {
     let idKey;
     let idkeyvalue;
