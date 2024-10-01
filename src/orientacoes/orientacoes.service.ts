@@ -187,9 +187,15 @@ export class OrientacoesService {
 
   async remove(id: string) {
     try {
-
-      // remove as entregas associadas a orientação
+      // Remove as entregas associadas a orientação
       await this.prisma.entrega.deleteMany({
+        where: {
+          idorientacao: id,
+        },
+      });
+
+      // Remove as reuniões associadas a orientação
+      await this.prisma.reuniao.deleteMany({
         where: {
           idorientacao: id,
         },
