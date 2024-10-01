@@ -6,6 +6,8 @@ import { SignInReturnDto } from './dto/signin-return.dto';
 import { PayloadDto } from './dto/payload.dto';
 import { RecoverPasswordDto } from './dto/recover-password.dto';
 import * as bcrypt from "bcrypt";
+import { PrismaService } from 'prisma/prisma.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 @Dependencies(UsuariosService, JwtService)
@@ -13,6 +15,8 @@ export class AuthService {
     constructor(
         private usuariosService: UsuariosService,
         private jwtService: JwtService,
+        private prisma: PrismaService,
+        private mailerService: MailerService
     ) { }
 
     /**
@@ -89,4 +93,50 @@ export class AuthService {
             }
         }, 0);
     }
+
+    /**
+     * Seta o token de recuperação de senha para o usuário com o email fornecido.
+     * 
+     * @param email - O email do usuário que está solicitando a recuperação de senha.
+     * @param token - O token de recuperação de senha.
+     * @param tokenExpiresAt - A data de expiração do token.
+     * @returns void
+     */
+    async setRecoveryToken(email: string, token: string, tokenExpiresAt: Date) {
+        await this.prisma.usuario.update({
+            where: { email },
+            data: {
+                token_recuperacao: token,
+                token_expiracao: tokenExpiresAt,
+            },
+        });
+    }
+
+    // dai usa esse cara aqui para validar o token que recebeu
+    async getUserByRecoveryToken(token: string) {
+        return this.prisma.usuario.findFirst({
+            where: {
+                token_recuperacao: token,
+            },
+        });
+    }
+
+    async sendRecoveryEmail(email: string, token: string) {
+        const user = await this.prisma.usuario.findUnique({
+          where: { email },
+        });
+    
+        if (user) {
+          await this.mailerService.sendMail({
+            to: user.email,
+            subject: `Recuperação de Senha: ${user.nome}`,
+            template: "recovery-password",
+            context: {
+              nome: user.nome,
+              email: user.email,
+              token: token,
+            },
+          });
+        }
+      }
 }

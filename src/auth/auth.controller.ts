@@ -30,4 +30,24 @@ export class AuthController {
       };
   }
 
+
+  // fica pra v2/testes... esse cara aqui ta certo dai, usando token e pa
+  @Public()
+  @Post('/recoverNew')
+  async recoverPasswordNew(@Body() recoverPasswordDto: RecoverPasswordDto) {
+    // cria um token de 16 caracteres de recuperação
+    const token = crypto.getRandomValues(new Uint8Array(8)).join("");
+
+    const tokenExpiresAt = new Date();
+    tokenExpiresAt.setHours(tokenExpiresAt.getHours() + 1); // expira em 1 hora
+  
+    await this.authService.setRecoveryToken(recoverPasswordDto.email, token, tokenExpiresAt);
+
+    await this.authService.sendRecoveryEmail(recoverPasswordDto.email, token);
+  
+    return {
+      message: "Se o e-mail estiver cadastrado, um link de recuperação será enviado.",
+    };
+  }
+
 }
