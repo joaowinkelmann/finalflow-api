@@ -83,7 +83,11 @@ export class BancasService {
         },
         Orientacao: {
           include: {
-            Entrega: true,
+            Entrega: {
+              include: {
+                Avaliacao: true
+              }
+            },
             Professor: {
               include: {
                 usuario: {
