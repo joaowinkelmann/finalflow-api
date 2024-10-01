@@ -10,9 +10,13 @@ export class CronogramasService {
   async create(createCronogramaDto: CreateCronogramaDto, idusuario: string) {
 
     // vamos pegar o idcoordenador da tabela de coordenador
-    let idusuario_coordenador = await this.coordenadoresService.findOne(idusuario);
+    let idusuario_coordenador = await this.prisma.coordenador.findUnique({
+      where: {
+        idusuario: idusuario,
+      }
+    });
     if (!idusuario_coordenador) {
-      throw new NotFoundException('Coordenador não encontrado');
+      throw new NotFoundException('Coordenador não encontrado.');
     }
 
     return this.prisma.cronograma.create({
