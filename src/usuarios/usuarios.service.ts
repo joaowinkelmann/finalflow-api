@@ -168,6 +168,22 @@ export class UsuariosService {
         },
       });
 
+      // otimizar o avatar, caso ele esteja chegando por aqui também
+      if (editUsuarioDto.avatar.length > 0) {
+        const buffer = Buffer.from(editUsuarioDto.avatar, 'base64');
+    
+        // Resize and convert the image to webp format
+        const resizedImageBuffer = await sharp(buffer)
+          .resize(96, 96)
+          .flatten()
+          .webp({ quality: 65 })
+          .toBuffer();
+    
+        // Passa o MIME type da imagem
+        const resizedImageBase64 = `data:image/webp;base64,${resizedImageBuffer.toString('base64')}`;
+        editUsuarioDto.avatar = resizedImageBase64;
+      }
+
       return {
         idusuario: user.id_usuario,
         nome: user.nome,
