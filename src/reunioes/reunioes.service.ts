@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { CreateReuniaoDto } from './dto/create-reuniao.dto';
 import { UpdateReuniaoDto } from './dto/update-reuniao.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -10,8 +10,6 @@ import { NivelAcesso } from '@prisma/client';
 export class ReunioesService {
   constructor(private prisma: PrismaService) { }
   async create(createReuniaoDto: CreateReuniaoDto) {
-
-
     // verificar se a orientacao existe
     const orientacao = await this.prisma.orientacao.findUnique({
       where: {
@@ -40,10 +38,10 @@ export class ReunioesService {
         idreuniao: createDocumentoDto.idreuniao
       }
     }).then((documento) => {
-      return "Documento criado com sucesso";
+      return documento;
     }).catch((err) => {
       console.log(err);
-      return "Erro ao criar documento";
+      throw new UnprocessableEntityException('Erro ao criar documento.');
     });
   }
 
