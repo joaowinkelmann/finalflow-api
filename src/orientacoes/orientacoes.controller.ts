@@ -29,7 +29,7 @@ export class OrientacoesController {
   }
 
   @Get('/getMyOrientacoes')
-  @NiveisAcesso(NivelAcesso.professor)
+  @NiveisAcesso(NivelAcesso.professor, NivelAcesso.coordenador)
   orientacoesByProfessor(@Req() req: ReqReturnDto) {
     return this.orientacoesService.getOrientacoesByProfessor(req.user.sub);
   }
