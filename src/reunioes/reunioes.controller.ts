@@ -59,6 +59,7 @@ export class ReunioesController {
   }
 
   @Delete(':id')
+  @NiveisAcesso(NivelAcesso.coordenador)
   remove(@Param('id') id: string) {
     return this.reunioesService.remove(id);
   }
