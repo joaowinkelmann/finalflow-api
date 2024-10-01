@@ -11,21 +11,23 @@ cd /var/www/html/api-nest-kurt/
 nvm install --lts
 nvm use --lts
 echo "Script running using Node $(node -v)"
+
+# Atualiza o Bun e as dependências do projeto antes de fazer o build
 bun upgrade
 bun install
 bun update
+
+# Migra as alterações do banco de dados
+bunx prisma generate
+bunx prisma migrate dev
+
+# Fazer o build do projeto
 bun run build
-echo "Running Bun $(bun --revision)"
 
 # Trusting scripts
 # @link https://bun.sh/blog/bun-v1.0.31
 bun pm untrusted
 bun pm trust --all
-
-# Prisma Specific
-bunx prisma generate
-bunx prisma migrate dev
-# Prisma Specific END
 
 # Check if the application is already running
 if pm2 show api-kurt &> /dev/null; then
@@ -34,7 +36,7 @@ if pm2 show api-kurt &> /dev/null; then
 else
   # Start your Node.js application using PM2
   echo "Starting api-kurt application..."
-  pm2 start bun --name "api-kurt" -- run start
+  pm2 start bun --name "api-kurt" -- run start --restart-delay 5000
 fi
 
 pm2 save
