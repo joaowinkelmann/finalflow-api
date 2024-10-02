@@ -1,5 +1,5 @@
 import { NivelAcesso } from "@prisma/client";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import { IsBase64, IsNotEmpty, IsOptional, IsString } from "class-validator";
 
 export class EditUsuarioDto {
     // nome?: string;
@@ -12,5 +12,6 @@ export class EditUsuarioDto {
     nome: string;
 
     @IsOptional()
+    @IsBase64()
     avatar: string;
 }
