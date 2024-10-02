@@ -158,18 +158,9 @@ export class UsuariosService {
 
   async editMyData(id: string, editUsuarioDto: EditUsuarioDto) {
     try {
-      const user = await this.prisma.usuario.update({
-        where: {
-          id_usuario: id,
-        },
-        data: {
-          nome: editUsuarioDto.nome,
-          avatar: editUsuarioDto.avatar
-        },
-      });
 
-      // otimizar o avatar, caso ele esteja chegando por aqui também
-      if (editUsuarioDto.avatar.length > 0) {
+       // otimizar o avatar, caso ele esteja chegando por aqui também
+       if (editUsuarioDto.avatar.length > 0) {
         const buffer = Buffer.from(editUsuarioDto.avatar, 'base64');
     
         // Resize and convert the image to webp format
@@ -183,6 +174,16 @@ export class UsuariosService {
         const resizedImageBase64 = `data:image/webp;base64,${resizedImageBuffer.toString('base64')}`;
         editUsuarioDto.avatar = resizedImageBase64;
       }
+
+      const user = await this.prisma.usuario.update({
+        where: {
+          id_usuario: id,
+        },
+        data: {
+          nome: editUsuarioDto.nome,
+          avatar: editUsuarioDto.avatar
+        },
+      });
 
       return {
         idusuario: user.id_usuario,
