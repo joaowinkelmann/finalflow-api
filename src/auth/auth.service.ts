@@ -10,7 +10,7 @@ import { PrismaService } from 'prisma/prisma.service';
 import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
-@Dependencies(UsuariosService, JwtService)
+@Dependencies(UsuariosService, JwtService, PrismaService, MailerService)
 export class AuthService {
     constructor(
         private usuariosService: UsuariosService,
@@ -52,8 +52,6 @@ export class AuthService {
         };
     }
 
-
-
     // @todo - verificar se vale a pena, parece ser uma mao de implementar no front
     // @link https://www.treinaweb.com.br/blog/autenticacao-refresh-token-com-nestjs
 
@@ -78,8 +76,9 @@ export class AuthService {
 
 
     /**
-     * Receives a recovery password request for a user with the given email.
+     * Sends a recovery password for a user with the given email.
      *
+     * @deprecated - Usar agora o método setRecoveryToken, utilizando token e tokenExpiresAt.
      * @param email - The email of the user requesting the recovery password.
      * @returns void
      */
@@ -99,17 +98,38 @@ export class AuthService {
      * 
      * @param email - O email do usuário que está solicitando a recuperação de senha.
      * @param token - O token de recuperação de senha.
-     * @param tokenExpiresAt - A data de expiração do token.
+     * @param expiresIn - O tempo, em minutos, até o token expirar.
      * @returns void
      */
-    async setRecoveryToken(email: string, token: string, tokenExpiresAt: Date) {
-        await this.prisma.usuario.update({
+    async setRecoveryToken(email: string, token: string, expiresIn: number) {
+        // Envia resposta imediatamente, ocultando o processo de atualização
+        const user = await this.prisma.usuario.findUnique({
             where: { email },
-            data: {
-                token_recuperacao: token,
-                token_expiracao: tokenExpiresAt,
-            },
         });
+
+        if (!user) {
+            return {
+                message: "Token de recuperação enviado para o e-mail cadastrado, caso exista.",
+            };
+        }
+
+        // Calcula a data de expiração com base nos minutos fornecidos
+        const tokenExpiresAt = new Date(Date.now() + expiresIn * 60000); // 60000 ms = 1 minuto
+
+        (async () => {
+            await this.prisma.usuario.update({
+                where: { email },
+                data: {
+                    token_recuperacao: token,
+                    token_expiracao: tokenExpiresAt,
+                },
+            });
+        })();
+
+        // Resposta enviada instantaneamente
+        return {
+            message: "Token de recuperação enviado para o e-mail cadastrado, caso exista.",
+        };
     }
 
     // dai usa esse cara aqui para validar o token que recebeu
@@ -123,20 +143,23 @@ export class AuthService {
 
     async sendRecoveryEmail(email: string, token: string) {
         const user = await this.prisma.usuario.findUnique({
-          where: { email },
+            where: { email },
         });
-    
+
         if (user) {
-          await this.mailerService.sendMail({
-            to: user.email,
-            subject: `Recuperação de Senha: ${user.nome}`,
-            template: "recovery-password",
-            context: {
-              nome: user.nome,
-              email: user.email,
-              token: token,
-            },
-          });
+            (async () => {
+                await this.mailerService.sendMail({
+                    to: user.email,
+                    subject: `Recuperação de Senha: ${user.nome}`,
+                    template: "recovery-token",
+                    context: {
+                        nome: user.nome,
+                        email: user.email,
+                        token: token,
+                        link: `${process.env.FRONTEND_URL}/recovery/${token}`,
+                    },
+                });
+            })();
         }
-      }
+    }
 }

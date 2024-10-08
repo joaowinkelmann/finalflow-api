@@ -24,30 +24,46 @@ export class AuthController {
   @Public()
   @Post('/recover')
   recoverPassword(@Body() recoverPasswordDto: RecoverPasswordDto) {
-      this.authService.receiveRecoveryPassword(recoverPasswordDto);
-      return {
-          message: "Nova senha enviada para o e-mail cadastrado, caso exista"
-      };
+    this.authService.receiveRecoveryPassword(recoverPasswordDto);
+    return {
+      message: "Nova senha enviada para o e-mail cadastrado, caso exista"
+    };
+  }
+
+  /**
+ * Gera um token aleatório usando letras maiúsculas e números.
+ * 
+ * @param length - O tamanho do token gerado.
+ * @returns string - O token gerado.
+ */
+  private generateRandomToken(length: number) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let token = '';
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+
+    array.forEach(value => {
+      token += characters[value % characters.length];
+    });
+
+    return token;
   }
 
 
-  // fica pra v2/testes... esse cara aqui ta certo dai, usando token e pa
   @Public()
   @Post('/recoverNew')
   async recoverPasswordNew(@Body() recoverPasswordDto: RecoverPasswordDto) {
-    // cria um token de 16 caracteres de recuperação
-    const token = crypto.getRandomValues(new Uint8Array(8)).join("");
+    // cria um token de 12 caracteres de recuperação
+    const token = this.generateRandomToken(12);
 
-    const tokenExpiresAt = new Date();
-    tokenExpiresAt.setHours(tokenExpiresAt.getHours() + 1); // expira em 1 hora
-  
-    await this.authService.setRecoveryToken(recoverPasswordDto.email, token, tokenExpiresAt);
+    const tokenExpiresIn = 15; // 15 minutos
+
+    await this.authService.setRecoveryToken(recoverPasswordDto.email, token, tokenExpiresIn);
 
     await this.authService.sendRecoveryEmail(recoverPasswordDto.email, token);
-  
+
     return {
       message: "Se o e-mail estiver cadastrado, um link de recuperação será enviado.",
     };
   }
-
 }
